@@ -8,13 +8,16 @@ they do not verify the new product. Read `plan.md`, `hackathon.md`,
 
 ## Product contract
 
-The first user makes fashion reels daily. Build one useful workflow: brief →
+The first user makes fashion reels daily. The full vision combines a phone
+camera/microphone and drone view, local learned direction, pilot-approved bounded
+capture/control and an aligned editable video. See `docs/vision.md`.
+Build one useful first workflow: brief →
 editable shot list → user-guided phone/drone capture → imported-clip review →
 selected clips and edit notes for the laptop. First demo: one outfit, one location,
 five shots and a 20-second reel. The creator keeps creative and pilot control.
 
 Android is the app and local inference target: develop on the user's Nothing
-phone, then validate on iQOO. The user also reports an iPhone with DJI Fly;
+Phone (3a), then validate on iQOO. The user also reports an iPhone with DJI Fly;
 that does not change the Android target. See `docs/product.md` for the workflow
 and `docs/tiny-director-model.md` for the proposed task-specific model.
 
@@ -23,10 +26,11 @@ SDK registration, aircraft identification, read-only telemetry and camera previe
 It excludes takeoff, motor commands, Virtual Stick, waypoint execution, gimbal
 movement, recording and firmware changes. See `docs/mini4-connection-test.md`.
 
-User reports owning a Mini 4 Pro, a Neo and both phone-holder and screen remotes.
-Exact labels, firmware, cable, pairing and iQOO availability remain unknown.
-Use the documented RC-N2/RC-N3 route once the physical label is checked; do not
-assume the screen remote works with our Android SDK app.
+User confirms DJI Neo 2 and RC-N3, and reports a Mini 4 Pro and screen remote.
+Firmware, cable, pairing, screen-remote label and iQOO availability remain unknown.
+DJI's current compatibility table lists Neo/Neo 2 as SDK-unsupported. Learn vendor
+filming on Neo 2 through DJI Fly; use Mini 4 Pro + RC-N3 for the custom probe.
+Do not assume a DJI Fly plug-in, shared connection or screen-remote app support.
 
 ## Evidence and permissions
 
@@ -43,8 +47,9 @@ destructive actions require action-level confirmation.
 Use official Android permission/lifecycle documentation. The connection probe
 runs while visible, uses DJI's accessory connection integration and requests only
 justified permissions through normal Android UI. No permission grants through
-debugging tools. Phone camera capture and push-to-talk permissions are later,
-separate opt-in features. No passive audio, general screen observation, Accessibility
+debugging tools. Phone camera/microphone capture and opt-in spoken intent belong
+to a later, explicitly started shoot session, separate from the connection probe.
+No passive audio outside that session, general screen observation, Accessibility
 or usage-monitoring scope is inherited from the old product.
 
 Do not claim on-device vision, useful AI shot planning, iQOO execution, NPU
@@ -52,6 +57,11 @@ acceleration, Office Kit transfer or working aircraft control before reproducibl
 evidence exists. The archived text inference path does not establish image/video
 understanding. Pin any future model/runtime, license, backend and measured device.
 Report failures and unknowns in `docs/status.md`.
+
+The NPU accelerates compatible inference; Android/DJI owns command dispatch and
+the drone retains onboard stabilization. Kev adaptation, faithful Android export
+and Qualcomm execution are separate gates. A generic Qwen build is not a Kev
+port, and CPU inference is not NPU evidence. Model proposals are not SDK actions.
 
 ## Secrets, private media and storage
 

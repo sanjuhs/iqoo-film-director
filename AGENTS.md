@@ -6,6 +6,12 @@ Focus on a mini film director for daily solo fashion reels, using phone capture
 and a DJI Mini 4 Pro where supported. First milestone is a propellers-off,
 read-only SDK connection/telemetry/camera-preview test. Do not carry forward the
 archived focus coach, simulated accountability balance or assistant feature scope.
+Read docs/vision.md for the full phone/drone perspective, opt-in shoot-session
+speech, learned direction and editable video assembly scope. User confirms DJI
+Neo 2, RC-N3 and Nothing Phone (3a). Neo/Neo 2 are currently SDK-unsupported; use
+Mini 4 Pro for custom SDK work and keep DJI Fly experiments distinct. NPU
+inference, Android command dispatch and onboard flight control are separate.
+Model training, Android conversion and NPU execution each require evidence.
 
 Keep .env, provider credentials, DJI app keys, private footage/captures, hardware
 identifiers, model weights and training data out of Git. Never package provider

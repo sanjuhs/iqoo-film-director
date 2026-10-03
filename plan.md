@@ -2,12 +2,14 @@
 
 Updated 4 October 2026 (IST). This is pre-event research, not an eligible build.
 
-**Promise:** help a solo fashion creator capture the shots needed for a reel.
-The phone coordinates the story; a Mini 4 Pro is another camera. The first
-product value is recognizing missing coverage and guiding the next take.
+**Promise:** a phone and drone work together as a film director while the creator
+talks or performs. Phone camera/microphone, drone view and local models coordinate
+approved shots and propose an aligned editable reel. Read the
+[full vision and equipment decisions](docs/vision.md). Guided coverage review is
+the first useful delivery toward that vision.
 
 Android is required for the app and local inference. Use the user's Nothing
-phone for development and iQOO for final validation. The
+Phone (3a) for development and iQOO for final validation. The
 [product specification](docs/product.md) consolidates the creator workflow.
 
 ## Milestones
@@ -21,6 +23,29 @@ phone for development and iQOO for final validation. The
 | 4 | Coverage and framing review | Evaluate unseen consented clips against creator labels; report useful findings, false alarms, unknowns and review time; sampled frames do not prove every-frame temporal analysis |
 | 5 | Laptop shoot pack | Export selected media, shot order and notes; prove actual Office Kit transfer separately from file creation or a generic share action |
 | 6 | iQOO demo and event delivery | Repeatable complete workflow on required hardware, truthful model/backend evidence, permitted drone demo, event-created competition implementation and accepted submission |
+
+Milestone 0 records migration-time verification. The full archive is now missing
+from its saved path; current complete recovery remains unresolved in
+[status](docs/status.md). No new documentation work establishes its availability.
+
+The user confirms Neo 2 and RC-N3. DJI currently lists Neo/Neo 2 as SDK-unsupported;
+Neo 2 DJI Fly experiments/imports are a vendor-controlled path. Mini 4 Pro + RC-N3
+remains the custom-control integration target.
+
+## Full-vision technical gates
+
+After the independent probe, add explicitly started phone camera/audio capture
+and timestamped drone preview, then local visual/speech perception in advice mode.
+Evaluate the tiny framing head and a compatible Kev checkpoint fine-tune on
+separate whole shoots. Verify Android outputs before NPU compilation; measure
+the actual backend and fallback on each phone.
+
+With action-level pilot approval and tested bounds/takeover/failure behavior,
+add SDK capture and one bounded control action at a time. The NPU accelerates
+inference; it does not dispatch SDK calls or stabilize flight. Align original
+phone/drone recordings to phone master audio, produce a reviewed cut list and
+export a short reel. Manual Fly capture, model loading and template storyboards
+do not pass these gates. See the detailed order in [the vision](docs/vision.md).
 
 First technical work is milestone 1, described in
 [`docs/mini4-connection-test.md`](docs/mini4-connection-test.md). No SDK or model

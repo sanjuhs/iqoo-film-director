@@ -1,16 +1,22 @@
 # Mini Film Director — research preparation
 
-An AI shoot director for solo fashion creators: turn a reel brief into an editable
-shot list, guide phone and drone capture, review imported footage for missing
-coverage, and prepare clips and edit notes for a laptop.
+An Android film director for solo fashion creators: combine phone and drone
+perspectives with opt-in speech and local perception, coordinate approved shots,
+review coverage and propose an editable video. Guided import/review is the first
+useful delivery; learned direction, bounded control and assembly are later gates.
 
-The user makes fashion reels every day and reports owning a DJI Mini 4 Pro,
-a DJI Neo, a phone-holder remote and a screen-equipped remote. Exact remote
-models, firmware and Neo generation remain unverified.
+The user makes fashion reels daily and reports a Mini 4 Pro, **DJI Neo 2**,
+**RC-N3**, a screen-equipped remote and **Nothing Phone (3a)**. Firmware,
+screen-remote model, pairing and iQOO access remain unverified.
 
 The product and local inference target **Android**. Develop on the user's Nothing
-phone, then verify the complete workflow on iQOO. The iPhone is reference
+Phone (3a), then verify the complete workflow on iQOO. The iPhone is reference
 equipment, not the app target.
+
+Start with the [full phone-and-drone vision](docs/vision.md): equipment, sensor
+roles, Kev training, NPU gates and video assembly. DJI currently lists Neo/Neo 2
+as SDK-unsupported; explore Neo 2 through DJI Fly and use Mini 4 Pro for the
+custom SDK route. The vision links the official compatibility table.
 
 ## First milestone
 

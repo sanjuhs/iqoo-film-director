@@ -1,10 +1,16 @@
 # Mini Film Director — Android product specification
 
 Research proposal, 4 October 2026 (IST). These are intended behaviors, not an
-implemented app. Develop on the user's Nothing Android phone and validate the
+implemented app. Develop on the user's Nothing Phone (3a) and validate the
 complete demonstration on iQOO. The iPhone is optional reference equipment.
 
 ## The useful promise
+
+The [full vision](vision.md) includes phone/drone perspectives, opt-in speech,
+local learned direction, approved drone actions and aligned video assembly.
+The workflow below is the first delivery/recovery path. The user confirms Neo 2
+and RC-N3. Neo 2 has no current SDK support; its DJI Fly footage can be imported,
+while Mini 4 Pro is the custom-control target.
 
 Help a solo fashion creator leave a shoot with the footage needed for a reel.
 The director turns a brief into an editable plan, guides the next take, reviews
@@ -30,7 +36,8 @@ and a clearly identified bench preview.
 ## Creator workflow
 
 1. **Brief:** enter the subject, intended reel length, mood, garment emphasis and
-   available cameras. Offer text first; push-to-talk is a later opt-in feature.
+   available cameras. Offer text first; local spoken intent/microphone capture
+   enter a later visibly active shoot session with explicit start/stop.
 2. **Plan:** show a short ordered shot list, reference framing and the reason each
    shot helps. Let the creator revise, reorder, remove or add shots. Identify any
    manually authored/template plan accurately.
@@ -43,7 +50,9 @@ and a clearly identified bench preview.
    findings. Suggest one highest-value pickup instead of overwhelming the shoot.
 6. **Decide:** accept the take, retake it, skip the suggestion or edit the plan.
    Creative disagreement does not force a retake.
-7. **Export:** select the clips, order and notes to send to the laptop. Actual
+7. **Assemble and export:** review an aligned cut list using phone master audio
+   and original phone/drone media, then select the result/notes for the laptop.
+   Automatic assembly is a later gate; actual
    Office Kit transfer is a separate integration gate.
 
 ## Guided clip import
@@ -103,6 +112,11 @@ DJI executor, actual geometry/state and action-level pilot approval. No vision
 classifier establishes a safe orbit from a single image.
 
 ## First demonstration and implementation order
+
+The full-vision performance uses a phone close view, drone wide view and continuous
+phone speech. Test alignment/drift, then show a reviewed camera switch and export.
+Distinguish a true second view of one performance from a different take.
+See [vision steps](vision.md).
 
 Deliberately omit the jacket-detail shot, import the other takes, show whether
 the assistant identifies the gap, capture a pickup through supported controls

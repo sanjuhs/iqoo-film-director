@@ -7,11 +7,19 @@ its files from this workspace and proceeding with the DJI Mini film director.
 
 Solo fashion reel workflow: brief → editable shot list → guided phone/drone shoot
 → imported-clip coverage review → selected clips/edit notes for the laptop.
+The full vision now includes phone/drone perspectives, opt-in spoken performance,
+local learned shot direction, approved bounded SDK actions and aligned video
+assembly. [Vision](vision.md) separates these proposed stages from completed work.
 First milestone is a propellers-off, read-only Mini 4 Pro SDK connection probe.
 Planning documents are prepared. No new product or connection probe is built yet.
-Android is the required app/inference target. The user reports a Nothing Android
-phone and an iPhone with DJI Fly; Nothing is the development device and iQOO
+Android is the required app/inference target. The user reports Nothing Phone (3a)
+and an iPhone with DJI Fly; Phone (3a) is the development device and iQOO
 validation remains pending.
+
+The user explicitly confirmed **DJI Neo 2**, **RC-N3** and **Nothing Phone (3a)**
+this turn. Mini 4 Pro and screen-remote ownership are previously reported.
+Physical connection, firmware, remote pairing, transceiver presence, Android
+version/RAM and exact iQOO model/access have not been checked.
 
 ## Archive and migration
 
@@ -63,6 +71,23 @@ connection path uses Android USB accessory handling. See
 [architecture](architecture.md). Hardware support documentation does not prove
 our app or the user's physical setup works.
 
+Official [DJI compatibility table](https://repair.dji.com/help/content?customId=01700000763&documentType=&lang=en&paperDocType=ARTICLE&re=US&spaceId=17)
+reviewed this turn explicitly lists Neo and Neo 2 as SDK-unsupported and Mini 4
+Pro as Mobile SDK supported. Neo 2 DJI Fly learning is a vendor-controlled path;
+the custom-control probe remains Mini 4 Pro + RC-N3. The Neo 2 FAQ documents Fly
+voice/audio features, which are not our model/app execution. No Fly plug-in or
+shared-transport control bridge is established.
+
+Nothing's official specification identifies Snapdragon 7s Gen 3 in Phone (3a).
+The current LiteRT CompiledModel Qualcomm support list does not list this chip;
+that route's compatibility remains unresolved and is not a claim about absent
+silicon capabilities. Phone (3a) local inference and eventual iQOO NPU execution
+need separate tests.
+Qualcomm/LiteRT routes and Android camera/microphone/media/sensor APIs were
+reviewed as design sources. Kev checkpoint adaptation, faithful Android readout,
+quantization parity, NPU backend evidence, multi-view alignment and Media3 export
+remain experiments. No hardware/runtime success follows from those API docs.
+
 The [product specification](product.md) now consolidates Android targeting,
 guided selected-clip import, coverage/framing review, creator decisions, stop/go
 gates and export. [Vision research](vision-research.md) records official candidate
@@ -76,12 +101,15 @@ Documentation checks passed: local Markdown links resolve, the proposed head's
 parameter count is 1,430, `.env` is ignored/untracked, and the new origin points
 to the private film-director repository. GitHub confirms FocusPilot remains
 archived/read-only. No runnable-code test applies to this documentation update.
+The new vision and linked documents passed local-link and whitespace checks;
+`.env` remains ignored/untracked. Documentation changes added no SDK/model
+downloads, training runs, private-media uploads or phone/aircraft actions.
 
 ## Open gates
 
-- Exact phone-holder remote label, aircraft/remote firmware, data cable and
-  actual iQOO access remain unverified. User reports a Mini 4 Pro, Neo and both
-  remote types; Neo generation is unknown and is not the first target.
+- Aircraft/remote firmware, data cable, pairing, screen-remote model, Neo 2
+  Digital Transceiver presence and actual iQOO model/access remain unverified.
+  User-confirmed Neo 2/RC-N3/Phone (3a) labels are inventory evidence only.
 - No DJI app key is configured. The preserved `.env` has existing laptop-only
   provider configuration, which does not register DJI SDK.
 - SDK dependencies, probe source/APK, permission UI, registration, aircraft
@@ -91,6 +119,10 @@ archived/read-only. No runnable-code test applies to this documentation update.
 - Useful AI planning/vision, live-feed analysis, evaluation, on-device backend,
   NPU acceleration and actual Office Kit transfer remain unverified. No old
   inference or accuracy result is transferred to the new product.
+- Concurrent phone camera/audio and drone preview, local speech, Kev adaptation,
+  Android probability parity, approved bounded control, synchronization/drift,
+  reviewed automatic cut assembly and final Android video export remain unbuilt
+  and untested. The first probe still permits no flight or capture actions.
 - Venue drone-demo permission, new Phase 1 assets, exact cutoff/admission,
   eligible event-created implementation and accepted submission remain pending.
 

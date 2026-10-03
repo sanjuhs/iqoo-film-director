@@ -3,6 +3,12 @@
 Prepared 4 October 2026 (IST). **Not run.** SDK support is documentation evidence,
 not proof of the user's aircraft, firmware or iQOO compatibility.
 
+User-confirmed inventory: Nothing Phone (3a), RC-N3 and DJI Neo 2; Mini 4 Pro
+ownership is previously reported. Firmware, cable and Mini 4 Pro pairing remain
+untested. [DJI's compatibility table](https://repair.dji.com/help/content?customId=01700000763&documentType=&lang=en&paperDocType=ARTICLE&re=US&spaceId=17)
+lists Neo/Neo 2 as SDK-unsupported and Mini 4 Pro as Mobile SDK supported. Use
+Mini 4 Pro here; Neo 2 working in DJI Fly does not pass this probe.
+
 ## Verified official interface facts
 
 [MSDK release notes](https://developer.dji.com/doc/mobile-sdk-tutorial/en/index.html)

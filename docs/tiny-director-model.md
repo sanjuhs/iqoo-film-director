@@ -2,7 +2,7 @@
 
 Proposed on 4 October 2026 (IST). No model has been trained, downloaded or run
 for this product. This is pre-event research; future experiments belong under
-`prototype/`. Development targets the user's Nothing Android phone; iQOO is the
+`prototype/`. Development targets the user's Nothing Phone (3a); iQOO is the
 event target and needs its own measurements. The iPhone is not the deployment
 target. Training on the laptop and local inference on Android are separate gates.
 
@@ -24,6 +24,9 @@ demonstrated world model. Its outputs are suggestions rather than flight command
 
 The complete director also needs an editable shot plan, coverage state, clip
 import and creator decisions; six classes cannot infer a whole fashion story.
+The [full vision](vision.md) adds phone/drone perspectives, opt-in speech,
+separate Kev shot-choice research, approved control and aligned editing. This
+small head remains a narrow framing baseline within that system.
 
 ## Smallest proposed learned head
 

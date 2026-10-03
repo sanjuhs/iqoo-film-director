@@ -3,17 +3,24 @@
 Research design, 4 October 2026 (IST). No component below is established as
 implemented by this document.
 
-Target Android for the complete app and local inference: Nothing for development,
-iQOO for final hardware evidence. The [product specification](product.md) defines
-the visible workflow and [model design](tiny-director-model.md) the learned head.
+Target Android for the complete app and local inference: Nothing Phone (3a) for
+development, iQOO for final evidence. The [full vision](vision.md) defines dual
+perspectives, opt-in speech, local direction and aligned editing. The
+[product specification](product.md) covers the first workflow and
+[model design](tiny-director-model.md) the initial framing head.
 
 ```mermaid
-flowchart LR
-  A[Editable shot goal] --> D[Framing suggestion model]
-  B[Selected clip or preview frame] --> C[Visual measurements]
+flowchart TD
+  A[Editable shot goal] --> D[Bounded local director]
+  B[Phone and drone frames] --> C[Local visual perception]
+  M[Opt-in microphone] --> S[Local speech cues]
   C --> D
-  D --> E[Creator reviews advice]
-  E --> F[Manual capture or later approved executor]
+  S --> D
+  T[Timestamped orientation and SDK state] --> D
+  D --> E[Creator and pilot review]
+  E --> F[Later validated DJI executor]
+  O[Original phone and drone recordings] --> V[Alignment and editable cut list]
+  V --> X[Android media export]
 ```
 
 The first learned head reads numerical features, not raw video or free-form
@@ -21,6 +28,11 @@ language. A separate multimodal model may handle semantic critique after
 validation. Plan/coverage state remains outside the framing classifier. A Kev
 experiment would need a separately validated scene description and deployment;
 its text decision API is not an established live-image path.
+
+The NPU may accelerate compatible perception/director graphs. Android owns
+capture, timestamps and SDK dispatch; the aircraft owns onboard stabilization.
+CPU/GPU/NPU partitions and fallback must be measured. Late model outputs cannot
+drive command timing. See [runtime and conversion research](vision-research.md).
 
 ## Components and boundaries
 
@@ -41,8 +53,23 @@ its text decision API is not an established live-image path.
 5. **Shoot pack:** creator selects clips and approves notes/order before export.
    Office Kit is a proposed transfer mechanism; exported files or ADB are not
    proof of that integration.
+6. **Session capture, later:** phone camera, microphone and available inertial
+   sensors run inside a visibly active shoot. Timestamp samples, manage backpressure
+   and test concurrency with DJI preview. Use phone audio as the master track;
+   keep recorded drone originals distinct from preview/analysis proxies.
+7. **Assembly, later:** maintain explicit source offsets, drift corrections,
+   clip in/out points and an editable cut list. Candidate Android implementation
+   is [Media3 Transformer multi-asset editing](https://developer.android.com/media/media3/transformer/multi-asset).
+   Measure output correctness and resource cost. A preview render or script file
+   is not proof of an exported, synchronized reel.
 
 ## DJI interface selection
+
+User confirms Neo 2 and RC-N3. [DJI's compatibility table](https://repair.dji.com/help/content?customId=01700000763&documentType=&lang=en&paperDocType=ARTICLE&re=US&spaceId=17)
+lists Neo/Neo 2 as SDK-unsupported and Mini 4 Pro as Mobile SDK supported. The
+adapter initially targets Mini 4 Pro + RC-N3. Neo 2 DJI Fly experiments/imports
+remain distinct vendor-controlled media sources. No Fly plug-in or simultaneous
+shared-transport integration is established.
 
 [DJI's current official repository](https://github.com/dji-sdk/Mobile-SDK-Android-V5)
 lists MSDK **5.18.0** and Mini 4 Pro. Start with same-version aircraft,
