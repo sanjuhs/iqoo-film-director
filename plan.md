@@ -6,6 +6,10 @@ Updated 4 October 2026 (IST). This is pre-event research, not an eligible build.
 The phone coordinates the story; a Mini 4 Pro is another camera. The first
 product value is recognizing missing coverage and guiding the next take.
 
+Android is required for the app and local inference. Use the user's Nothing
+phone for development and iQOO for final validation. The
+[product specification](docs/product.md) consolidates the creator workflow.
+
 ## Milestones
 
 | Order | Deliverable | Acceptance gate |
@@ -36,6 +40,13 @@ Use a small manually labelled sample before selecting a vision model. Assess
 whether the full outfit/detail is visible, framing is usable and requested
 coverage exists. Keep blur/exposure heuristics distinct from semantic vision.
 No old command-model accuracy or speed is carried over to these tasks.
+
+Proposed model work: pretrained visual measurements → small learned framing
+suggestion head, trained on the laptop and evaluated locally on Android. See
+[model design](docs/tiny-director-model.md) and
+[source-backed candidates](docs/vision-research.md). No model has been trained
+for this product; any Kev comparison must distinguish text-state decisions from
+visual perception and an unverified Android port.
 
 ## Stop/go decisions
 

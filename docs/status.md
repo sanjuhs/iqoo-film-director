@@ -9,6 +9,9 @@ Solo fashion reel workflow: brief → editable shot list → guided phone/drone 
 → imported-clip coverage review → selected clips/edit notes for the laptop.
 First milestone is a propellers-off, read-only Mini 4 Pro SDK connection probe.
 Planning documents are prepared. No new product or connection probe is built yet.
+Android is the required app/inference target. The user reports a Nothing Android
+phone and an iPhone with DJI Fly; Nothing is the development device and iQOO
+validation remains pending.
 
 ## Archive and migration
 
@@ -19,6 +22,16 @@ before cleanup, and the complete archive checksum is retained. Private local
 configuration and original Git history are included in the owner-only archive.
 The working `.env` is retained byte-for-byte and remains ignored/untracked.
 See [recovery instructions](archive-and-recovery.md).
+
+**Latest recovery check:** the recorded full-archive directory is now missing.
+Focused Spotlight lookups did not locate it; read-only Finder Trash inspection
+also found no matching archive. Its location/removal cause is unknown, and a
+moved-path clarification remains unanswered. Complete private recovery cannot
+currently be verified. Published GitHub code/releases and the active local `.env`
+remain available. No backup deletion was performed during this review.
+An additional filename search across Desktop, Documents, Downloads and mounted
+volumes found no matching full archive/manifest; protected system directories
+were inaccessible. This is a bounded search, not proof of deletion.
 
 Old source/builds/models/training data/recordings/research checkouts and product
 documents were removed from the active folder only after full verification.
@@ -38,6 +51,8 @@ versus 9,569,024,590 original logical bytes. Final measured research storage and
 cleanup savings are recorded in [storage evidence](storage.json); credentials,
 models and private media were not uploaded. This pivot only creates documentation
 and an independent Git repository; it does not establish a runnable Android app.
+Those byte counts are the historical migration snapshot, not current proof of an
+accessible archive or a complete present-day storage total.
 
 ## Documentation evidence
 
@@ -47,6 +62,20 @@ connection path uses Android USB accessory handling. See
 [connection test and primary sources](mini4-connection-test.md) and
 [architecture](architecture.md). Hardware support documentation does not prove
 our app or the user's physical setup works.
+
+The [product specification](product.md) now consolidates Android targeting,
+guided selected-clip import, coverage/framing review, creator decisions, stop/go
+gates and export. [Vision research](vision-research.md) records official candidate
+sources; [tiny model design](tiny-director-model.md) proposes a 24→32→16→6 dense
+framing head (1,430 parameters). The user supplied Jared Palmer's Kev repository;
+its text decision API is distinguished from image perception and Android inference.
+These are research designs only: no new weights, training, accuracy, conversion,
+phone inference or action-conditioned drone behavior has been demonstrated.
+
+Documentation checks passed: local Markdown links resolve, the proposed head's
+parameter count is 1,430, `.env` is ignored/untracked, and the new origin points
+to the private film-director repository. GitHub confirms FocusPilot remains
+archived/read-only. No runnable-code test applies to this documentation update.
 
 ## Open gates
 

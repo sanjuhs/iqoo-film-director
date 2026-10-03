@@ -3,6 +3,25 @@
 Research design, 4 October 2026 (IST). No component below is established as
 implemented by this document.
 
+Target Android for the complete app and local inference: Nothing for development,
+iQOO for final hardware evidence. The [product specification](product.md) defines
+the visible workflow and [model design](tiny-director-model.md) the learned head.
+
+```mermaid
+flowchart LR
+  A[Editable shot goal] --> D[Framing suggestion model]
+  B[Selected clip or preview frame] --> C[Visual measurements]
+  C --> D
+  D --> E[Creator reviews advice]
+  E --> F[Manual capture or later approved executor]
+```
+
+The first learned head reads numerical features, not raw video or free-form
+language. A separate multimodal model may handle semantic critique after
+validation. Plan/coverage state remains outside the framing classifier. A Kev
+experiment would need a separately validated scene description and deployment;
+its text decision API is not an established live-image path.
+
 ## Components and boundaries
 
 1. **Shoot state:** private brief, editable shot list, equipment assignment,

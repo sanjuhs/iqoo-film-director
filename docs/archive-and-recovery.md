@@ -10,11 +10,21 @@ https://github.com/sanjuhs/iqoo-film-director.
 
 ## Private full backup
 
-The backup directory is a sibling of this workspace:
+**Current check, 4 October 2026:** the directory below is missing from its recorded
+location. Focused Spotlight lookups found no matching archive; Finder Trash did
+not contain it. A filename search of Desktop, Documents, Downloads and mounted
+volumes found no matching archive/manifest; some system-managed volume directories
+were inaccessible, so this is not proof of deletion. Whether it was moved
+elsewhere is unresolved. Do not run the
+restore procedure or claim complete recovery until the archive is located and
+its saved checksum is verified. The migration evidence records successful
+verification before cleanup, not the archive's present availability.
+
+The backup directory was created as a sibling of this workspace:
 
 `/Users/sanju/Desktop/coding/hackathons/iqoo-focuspilot-research-archive-2026-10-04/`
 
-It contains:
+At verification it contained:
 
 - `focuspilot-full.tar.zst`: complete workspace snapshot, including original `.git`,
   ignored files, uncommitted changes, `.env`, model weights, development dependencies,
@@ -61,6 +71,8 @@ The restored `iqoo-hackathon/` subfolder includes the original Git history and
 working-tree state. Private records and credentials remain private. Do not treat
 its pre-event implementation as eligible event-written code.
 
-The archive is the only complete local copy after cleanup. Preserve it. The new
+The archive was the only complete local copy after cleanup. Its present location
+is unknown; the GitHub archive lacks ignored files and uncommitted/private data.
+Preserve the full archive if located. The new
 project starts with independent Git history and must never push its replacement
 tree to the FocusPilot GitHub remote.

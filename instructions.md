@@ -13,6 +13,11 @@ editable shot list → user-guided phone/drone capture → imported-clip review 
 selected clips and edit notes for the laptop. First demo: one outfit, one location,
 five shots and a 20-second reel. The creator keeps creative and pilot control.
 
+Android is the app and local inference target: develop on the user's Nothing
+phone, then validate on iQOO. The user also reports an iPhone with DJI Fly;
+that does not change the Android target. See `docs/product.md` for the workflow
+and `docs/tiny-director-model.md` for the proposed task-specific model.
+
 The immediate milestone is a **propellers-off Mini 4 Pro connection probe**:
 SDK registration, aircraft identification, read-only telemetry and camera preview.
 It excludes takeoff, motor commands, Virtual Stick, waypoint execution, gimbal

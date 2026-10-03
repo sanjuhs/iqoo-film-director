@@ -8,6 +8,10 @@ The user makes fashion reels every day and reports owning a DJI Mini 4 Pro,
 a DJI Neo, a phone-holder remote and a screen-equipped remote. Exact remote
 models, firmware and Neo generation remain unverified.
 
+The product and local inference target **Android**. Develop on the user's Nothing
+phone, then verify the complete workflow on iQOO. The iPhone is reference
+equipment, not the app target.
+
 ## First milestone
 
 Prove a **propellers-off Mini 4 Pro connection** from an Android phone through a
@@ -17,6 +21,9 @@ waypoint upload or camera recording belongs in this first test.
 
 See [connection protocol](docs/mini4-connection-test.md), [delivery plan](plan.md),
 [architecture](docs/architecture.md) and [verified status](docs/status.md).
+The complete [product specification](docs/product.md) covers guided import,
+AI review and stop/go decisions; the [tiny model design](docs/tiny-director-model.md)
+and [vision research](docs/vision-research.md) explain the proposed learned director.
 
 ## Repository scope
 
@@ -29,6 +36,9 @@ The earlier FocusPilot workspace was preserved in a private local full archive,
 including Git history, uncommitted work, environment configuration, models,
 dependencies and recordings. The film director has independent Git history.
 See [archive and recovery](docs/archive-and-recovery.md).
+**Current recovery limitation:** the verified full backup is no longer at its
+recorded path and has not been located. Published FocusPilot code/releases remain
+available, but they cannot replace the complete private archive.
 
 ## Local configuration and privacy
 
