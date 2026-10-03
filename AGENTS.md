@@ -1,0 +1,39 @@
+# Project instructions — Mini Film Director
+
+Read instructions.md, plan.md, hackathon.md and docs/status.md before changing scope.
+The user authorizes parallel agents; assign non-overlapping files.
+Focus on a mini film director for daily solo fashion reels, using phone capture
+and a DJI Mini 4 Pro where supported. First milestone is a propellers-off,
+read-only SDK connection/telemetry/camera-preview test. Do not carry forward the
+archived focus coach, simulated accountability balance or assistant feature scope.
+
+Keep .env, provider credentials, DJI app keys, private footage/captures, hardware
+identifiers, model weights and training data out of Git. Never package provider
+API keys in Android. Preserve existing local environment values unless the user
+requests a change. No private data may be uploaded without explicit authorization.
+
+Keep total project/dependency/model storage within 15 GB; aim below 10 GB.
+Count the retained FocusPilot archive and incremental shared-cache growth.
+Use existing Android/JDK installations; avoid duplicated models and SDK downloads.
+
+Do not claim local LLM or vision execution, NPU acceleration, DJI connection or
+flight control, clip-analysis accuracy, Office Kit integration or user benefit
+without reproducible evidence. SDK compatibility is not a tested hardware result.
+Verify exact remote model and firmware; do not silently upgrade or rebind hardware.
+
+The public hackathon guide restricts competition code to the event window. This
+repository is pre-event preparation, development utilities and explicitly labelled
+research prototypes, not an eligible submission. Keep prototypes under prototype/.
+Do not relabel pre-event implementation as event-written code. Event competition
+code must be separately created in the allowed window unless organizers approve reuse.
+
+First connection test permits no motor start, takeoff, waypoint upload, recording,
+gimbal movement or aircraft-control action. Later flight actions require explicit
+action-level pilot confirmation, validated bounds and manual override. Preserve
+vendor safety behavior. Real purchases, messages and destructive actions require
+explicit action-level confirmation. The user authorized the verified full archive
+and removal of the previous workspace files for this pivot; do not delete its backup.
+
+Use official Android docs for permissions, USB accessory handling and background
+services, and official DJI docs for supported hardware and SDK APIs.
+Record completed checks, failures, limitations and storage in docs/status.md.
