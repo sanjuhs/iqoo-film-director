@@ -259,3 +259,18 @@ qualified storage and normal locked-phone launch are recorded in [status](status
 New source UI/capture cleanup still needs an unlocked attended check. This remains
 pre-event research with no accepted submission, iQOO/NPU/Office Kit, live creator
 reel or audible AirPods result. The goal remains active.
+
+### 16:14 IST: save recovery and spoken preparation
+
+Nine deterministic Movement methods passed0.153s after a reproduced step-clause
+failure; four recorded native phrases remain exact, with no new generation.
+Sixteen additional file/speech methods passed4.445s, covering bounded document
+copy/cancellation and inaudible interruption/callback fixtures. Prepared ZIPs
+now survive save failure/cancellation, invalidate when edits change, and last-
+export controls are labelled. Select no takes preserves originals. Android
+audio interruptions pause spoken preparation/future sequence until explicit
+resume; actual recorded takes are left running. See
+[exact evidence](document-audio-evidence.md). These UI integrations are reviewed
+source with prepared visible checks, not an unlocked or physical AirPods result.
+The saved installed APK and9.280GB qualified storage are in [status](status.md).
+All attended and competition acceptance gates remain open.

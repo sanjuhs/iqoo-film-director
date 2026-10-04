@@ -1,11 +1,14 @@
 package dev.minifilm.director;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,8 +28,19 @@ import java.util.Set;
 /** No default/cloud recognizer fallback. Listening is always explicitly requested. */
 public final class SpeechCoach {
     public interface Listener { void onText(String text); void onError(String message); }
+    /** Only the focus boundary is injectable; tests never need to play a spoken cue. */
+    interface FocusControl {
+        int request(AudioFocusRequest request, AudioManager.OnAudioFocusChangeListener listener);
+        void abandon(AudioFocusRequest request);
+    }
+    private static final AudioAttributes SPEECH_AUDIO = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build();
     private final Context context;
     private final TextToSpeech tts;
+    private final FocusControl focusControl;
+    private AudioFocusRequest activeFocus;
+    private boolean noisyReceiverRegistered;
     private SpeechRecognizer recognizer;
     private boolean ready;
     private boolean closed;
@@ -37,9 +51,31 @@ public final class SpeechCoach {
     private final Handler main = new Handler(Looper.getMainLooper());
     private String activeUtterance;
     private Runnable afterSpeech, speechFailed, speechTimeout;
+    private Runnable audioInterruptionListener;
+    private final BroadcastReceiver noisyReceiver = new BroadcastReceiver() {
+        @Override public void onReceive(Context ignored, Intent intent) {
+            if (intent == null || !AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) return;
+            // Context-registered delivery uses the main thread. Also marshal synthetic delivery.
+            if (Looper.myLooper() == Looper.getMainLooper()) interruptSpeech();
+            else main.post(() -> interruptSpeech());
+        }
+    };
 
     public SpeechCoach(Context context) {
+        this(context, null);
+    }
+
+    SpeechCoach(Context context, FocusControl focusControl) {
         this.context = context.getApplicationContext();
+        AudioManager audio = (AudioManager) this.context.getSystemService(Context.AUDIO_SERVICE);
+        this.focusControl = focusControl != null ? focusControl : new FocusControl() {
+            @Override public int request(AudioFocusRequest request, AudioManager.OnAudioFocusChangeListener listener) {
+                return audio == null ? AudioManager.AUDIOFOCUS_REQUEST_FAILED : audio.requestAudioFocus(request);
+            }
+            @Override public void abandon(AudioFocusRequest request) {
+                if (audio != null) audio.abandonAudioFocusRequest(request);
+            }
+        };
         tts = new TextToSpeech(this.context, status -> initializeVoice(status));
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override public void onStart(String id) {}
@@ -48,6 +84,12 @@ public final class SpeechCoach {
             @Override public void onError(String id, int error) { main.post(() -> finishSpeech(id, false)); }
             @Override public void onStop(String id, boolean interrupted) { main.post(() -> finishSpeech(id, false)); }
         });
+        // This protected action is sent by system-server audio, not a Bluetooth app UID.
+        // NOT_EXPORTED still accepts system-UID delivery and excludes unrelated apps.
+        IntentFilter noisy = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        if (Build.VERSION.SDK_INT >= 33) this.context.registerReceiver(noisyReceiver, noisy, Context.RECEIVER_NOT_EXPORTED);
+        else this.context.registerReceiver(noisyReceiver, noisy);
+        noisyReceiverRegistered = true;
     }
 
     private void initializeVoice(int status) {
@@ -60,9 +102,7 @@ public final class SpeechCoach {
             }
         }
         if (selected == null || tts.setVoice(selected) == TextToSpeech.ERROR) return;
-        tts.setAudioAttributes(new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build());
+        tts.setAudioAttributes(SPEECH_AUDIO);
         tts.setSpeechRate(.94f);
         ready = true;
         if (pendingSpeech != null) { String cue = pendingSpeech; pendingSpeech = null; speak(cue); }
@@ -88,6 +128,11 @@ public final class SpeechCoach {
         activeUtterance = id;
         afterSpeech = completed;
         speechFailed = failed;
+        // No delayed focus or automatic resume: a denied request fails this cue before playback.
+        if (!requestSpeechFocus(id)) {
+            main.post(() -> finishSpeech(id, false));
+            return false;
+        }
         speechTimeout = () -> {
             if (!id.equals(activeUtterance)) return;
             tts.stop();
@@ -103,7 +148,7 @@ public final class SpeechCoach {
     }
 
     private void finishSpeech(String id, boolean success) {
-        if (!id.equals(activeUtterance)) return;
+        if (id == null || !id.equals(activeUtterance)) return;
         Runnable callback = success ? afterSpeech : speechFailed;
         clearSpeechCompletion();
         if (!closed && callback != null) callback.run();
@@ -115,6 +160,62 @@ public final class SpeechCoach {
         activeUtterance = null;
         afterSpeech = null;
         speechFailed = null;
+        abandonSpeechFocus();
+    }
+
+    private boolean requestSpeechFocus(String id) {
+        AudioManager.OnAudioFocusChangeListener listener = change -> {
+            if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+                    || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                Runnable loss = () -> { if (id.equals(activeUtterance)) interruptSpeech(); };
+                if (Looper.myLooper() == Looper.getMainLooper()) loss.run(); else main.post(loss);
+            }
+        };
+        AudioFocusRequest request = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .setAudioAttributes(SPEECH_AUDIO)
+                .setAcceptsDelayedFocusGain(false)
+                .setWillPauseWhenDucked(true)
+                .setOnAudioFocusChangeListener(listener, main).build();
+        int result;
+        try { result = focusControl.request(request, listener); }
+        catch (RuntimeException failure) { result = AudioManager.AUDIOFOCUS_REQUEST_FAILED; }
+        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) abandonFocus(request);
+            return false;
+        }
+        // A reentrant loss/cancel must not leave a just-granted focus lease behind.
+        if (closed || !id.equals(activeUtterance)) {
+            abandonFocus(request);
+            return false;
+        }
+        activeFocus = request;
+        return true;
+    }
+
+    private void abandonSpeechFocus() {
+        AudioFocusRequest request = activeFocus;
+        activeFocus = null;
+        if (request != null) abandonFocus(request);
+    }
+
+    private void abandonFocus(AudioFocusRequest request) {
+        try { focusControl.abandon(request); }
+        catch (RuntimeException ignored) { /* Never revive a stopped cue if the service is unavailable. */ }
+    }
+
+    private void interruptSpeech() {
+        if (closed) return;
+        pendingSpeech = null;
+        Runnable failed = speechFailed;
+        clearSpeechCompletion();
+        tts.stop();
+        if (failed != null) failed.run();
+        if (!closed && audioInterruptionListener != null) audioInterruptionListener.run();
+    }
+
+    /** Main-thread shoot preparation hook, including noisy output between spoken cues. */
+    public void setAudioInterruptionListener(Runnable listener) {
+        if (!closed) audioInterruptionListener = listener;
     }
 
     public void stop() {
@@ -191,5 +292,16 @@ public final class SpeechCoach {
         return "Phone audio · connect earbuds for private direction";
     }
 
-    public void close() { closed = true; stopListening(); stop(); tts.shutdown(); }
+    public void close() {
+        if (closed) return;
+        closed = true;
+        audioInterruptionListener = null;
+        stopListening();
+        stop();
+        if (noisyReceiverRegistered) {
+            noisyReceiverRegistered = false;
+            context.unregisterReceiver(noisyReceiver);
+        }
+        tts.shutdown();
+    }
 }

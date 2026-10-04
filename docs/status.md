@@ -886,3 +886,34 @@ remain denied. No capture, audible playback, upload or aircraft action ran.
 Qualified storage is **9.280GB**, retaining the earlier inventory limits.
 The goal remains active; attended filming/AirPods and event gates remain open.
 Earlier native results are retained evidence, not freshly rerun.
+
+### Save retry and audio interruption — 4 October, 16:14 IST
+
+Source review found blocked Files saves were not actively canceled and failed
+saves discarded their prepared ZIP. A bounded DocumentCopier now independently
+requests signal/stream cleanup and suppresses stale callbacks. Success follows
+flush and both closes; providers can still ignore cancellation and leave partial
+destinations. Main keeps the ready ZIP for retry, invalidates it on metadata
+changes, labels last exports and offers a reversible Select no takes control.
+Spoken preparation handles token-matched focus loss/noisy output, including
+between cues; future sequence/automatic pose speech pause until explicit resume,
+while an already-starting/recording take remains running.
+
+**16 methods /4.445s passed**: seven document checks, seven silent synthetic
+interruption checks and two unchanged real-engine synthesis-to-file callback
+checks. These used no Activity, camera, microphone or audible playback. Full
+cases, official contracts and limitations are in
+[document/audio evidence](document-audio-evidence.md). Main UI integration is
+source-reviewed; two new visible acceptance checks are prepared, not run behind
+keyguard. The post-test picker-message/snapshot checks were rebuilt; tested
+helper/speech classes stayed unchanged. No new native model run occurred.
+
+Both final APK builds/installations succeeded. Saved and independently hashed
+installed app:52,838,059 bytes, SHA-256
+**4ad9095bfbef9007961a2212b9138e52456578974dfd7197f5f5223be9954724**.
+Notices remain identical; separate model weights are absent; no Internet/
+network-state permission. Normal launch succeeded behind showing keyguard/
+sleeping screen; camera/microphone remain denied. Qualified storage **9.280GB**
+retains the missing-archive/inventory limits. No private filming/playback/upload,
+aircraft action, permission bypass or outgoing submission. Attended Files,
+AirPods, full creator reel and event gates remain open; goal remains active.

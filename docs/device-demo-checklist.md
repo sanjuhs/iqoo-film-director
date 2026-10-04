@@ -81,6 +81,11 @@ that fallback a generated result. Setup/provenance is in the
    returns to a ready label. A take that has already begun waits for saving;
    turning the sequence off does not cancel that current recording. Wait for
    the take to finish saving.
+   An Android noisy-output or active-cue focus interruption pauses preparation
+   and future sequence advancement. Automatic pose speech stays paused; check
+   your earbuds, then explicitly use **Hear the direction** or **Record** to
+   resume. A take already recording is kept. Test physical disconnection and
+   audio-focus behavior yourself; synthetic events do not prove AirPods routing.
    For a talking take, optionally enable **Wait for a quiet pause · experimental**
    before recording. It is off by default and can extend a timed/sequence take
    by at most eight seconds, within the 60-second cap. It measures sound energy,
@@ -104,6 +109,7 @@ sequence. Confirm these behaviors on the real phone before a presentation.
 ## 3. Assemble: review the cuts and save both outputs
 
 1. In **03 Assemble**, select the takes you want; deselect failed takes. Use
+   **Select no takes** clears selection for a new reel without deleting takes. Use
    **Move earlier**, **Trim & typography** and **Preview take** to review order,
    exact in/out times and manual text. Originals remain intact. Keep the result
    within 12 selected cuts / three minutes.
@@ -117,14 +123,18 @@ sequence. Confirm these behaviors on the real phone before a presentation.
    Remove a bad draft or use manual text. Short cues fit up to four lines.
 4. Choose **Clean**, **Warm**, **Cinematic** or opt-in **Auto balance**. These are
    deterministic presets or sampled color/exposure correction, not learned taste.
-   Tap **Export my reel**, keep the app open, then **Play exported reel**. The
+   Tap **Export my reel**, keep the app open, then **Play last exported reel**. The
    vertical MP4 is saved under **Movies / MiniFilm**; inspect it before sharing.
 5. Tap **Save clips + edits for my laptop** and choose a writable local folder in
    Android Files. The ZIP contains selected **whole originals**, hashes, relative
    media paths and reviewed edits/subtitles; up to 512 MB of originals. It is a
    portable edit package, not a proven desktop-editor importer. **Save ready edit
-   package** retries a prepared package. **Save editable cut list to Files** saves
-   the smaller JSON separately; that ordinary cut list refers to phone sources.
+   package** retries a prepared package. Folder errors, cancellation and leaving
+   the picker keep it available; choose a new name if a partial document exists.
+   Changing cuts, selection, captions, title or look invalidates that cached
+   package so the next save rebuilds your current edits. **Save last exported cut list to Files** saves
+   the smaller JSON separately; that ordinary cut list refers to phone sources
+   and the last export. Re-export after edits to update the reel/cut list.
    Actual Files saving and Office Kit transfer still need an attended check.
 
 ## If something stalls or disagrees

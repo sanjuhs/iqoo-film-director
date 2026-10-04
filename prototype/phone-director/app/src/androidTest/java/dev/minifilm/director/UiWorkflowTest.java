@@ -188,7 +188,7 @@ public final class UiWorkflowTest {
         pickerFilter.addCategory(Intent.CATEGORY_OPENABLE);
         Instrumentation.ActivityMonitor picker = instrumentation.addMonitor(pickerFilter, null, true);
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(activity -> { setField(activity, "pendingPack", zip); invoke(activity, "save"); });
+            scenario.onActivity(activity -> { setField(activity, "pendingPack", zip); setField(activity, "pendingPackSnapshot", invoke(activity, "packSnapshot")); invoke(activity, "save"); });
             scenario.recreate();
             scenario.onActivity(activity -> {
                 assertEquals("Ready cache ZIP must survive activity replacement", zip, field(activity, "pendingPack"));
@@ -209,6 +209,64 @@ public final class UiWorkflowTest {
             instrumentation.waitForIdleSync();
             assertEquals("Explicit resumed save should dispatch the normal Files intent", 1, picker.getHits());
         } finally { instrumentation.removeMonitor(picker); zip.delete(); }
+    }
+
+    @Test(timeout = 30_000) public void startingAnotherReelDeselectsOldTakesAndInvalidatesEarlierPreparedPackage() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        File original = File.createTempFile("selection-original-", ".bin", context.getCacheDir());
+        File zip = File.createTempFile("minifilm-pack-", ".zip", context.getCacheDir());
+        byte[] bytes = "Synthetic selection fixture; no camera or microphone".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try (FileOutputStream out = new FileOutputStream(original)) { out.write(bytes); }
+        try (FileOutputStream out = new FileOutputStream(zip)) { out.write(bytes); }
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                @SuppressWarnings("unchecked") java.util.ArrayList<Take> takes = (java.util.ArrayList<Take>) field(activity, "takes");
+                takes.clear();
+                for (int i = 0; i < 10; i++) takes.add(new Take(android.net.Uri.fromFile(original), "shot-" + i,
+                        (i < 5 ? "Earlier shoot " : "Next shoot ") + i, "Synthetic", 4000));
+                setField(activity, "pendingPack", zip);
+                setField(activity, "pendingPackSnapshot", invoke(activity, "packSnapshot"));
+                invoke(activity, "save");
+                click(activity, "03  Assemble");
+                assertEquals(zip, field(activity, "pendingPack"));
+                click(activity, "Select no takes");
+                assertEquals(10, takes.size());
+                for (Take take : takes) { assertFalse(take.selected); assertEquals(android.net.Uri.fromFile(original), take.uri); assertEquals(4000, take.durationMs); }
+                assertNull("Earlier package must not be offered as the changed edit", field(activity, "pendingPack"));
+                assertFalse("Only the reproducible generated package is invalidated", zip.exists());
+                assertEquals("Whole source bytes remain intact", bytes.length, original.length());
+                assertNotNull(find(activity.getWindow().getDecorView(), Button.class, "Save clips + edits for my laptop"));
+                // The creator can choose only the next shoot after the reversible reset.
+                for (int i = 5; i < 10; i++) {
+                    CheckBox box = find(activity.getWindow().getDecorView(), CheckBox.class, "Next shoot " + i);
+                    assertNotNull(box); box.setChecked(true);
+                }
+                for (int i = 0; i < 10; i++) assertEquals(i >= 5, takes.get(i).selected);
+                assertNoCapture(activity);
+            });
+            assertArrayEquals(bytes, java.nio.file.Files.readAllBytes(original.toPath()));
+        } finally { original.delete(); zip.delete(); }
+    }
+
+    @Test(timeout = 30_000) public void audioInterruptionCancelsPreparationAndLeavesExplicitResumeRequired() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                click(activity, "02  Direct");
+                setField(activity, "countdown", true);
+                setField(activity, "sequenceActive", true);
+                int oldGeneration = (Integer) field(activity, "countdownGeneration");
+                // Synthetic preparation state: no capture controller, microphone or audible cue.
+                invoke(activity, "pauseSpokenPreparation");
+                assertTrue(booleanField(activity, "spokenPreparationPaused"));
+                assertFalse(booleanField(activity, "sequenceActive"));
+                assertFalse(booleanField(activity, "countdown"));
+                assertTrue((Integer) field(activity, "countdownGeneration") > oldGeneration);
+                assertTrue(((TextView) field(activity, "status")).getText().toString().contains("Check your earbuds"));
+                invoke(activity, "render");
+                assertTrue("Rendering must not resume speech", booleanField(activity, "spokenPreparationPaused"));
+                assertNoCapture(activity);
+            });
+        }
     }
 
     @Test(timeout = 90_000) public void syntheticDemoReachesEditableAssemblyWithoutActivatingShoot() {
