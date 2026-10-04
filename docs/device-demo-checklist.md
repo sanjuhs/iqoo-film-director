@@ -62,6 +62,19 @@ retrying and inspect Android's microphone indicator.
    and editable notes. Correct guesses, then select **Use corrected notes**
    before building another plan. You can also type the desired beats in your
    brief. One frame is not an understanding of the whole trend.
+   **Read reference speech locally** adds an optional English transcript from
+   that selected video's audio. Check the complete timed draft, then write
+   1–210 corrected characters of useful context and choose **Use speech context**.
+   The dialog shows both the context count and the combined 500-character limit,
+   including the typed brief, visual notes and labels. Shorten inputs yourself
+   if they do not fit; the app does not truncate them. **Edit reviewed speech
+   context** changes saved corrected words without reading the video again.
+   This never starts filming or builds a plan automatically. Check that cancel,
+   backgrounding and changing the selected video reject old draft actions;
+   same-source confirmed context should remain after cancellation. Speech does
+   not establish music beats, spoken facts or the complete trend's story. See
+   [reference speech evidence](reference-speech-evidence.md) for measured checks
+   and the remaining unlocked acceptance gate.
    **Review three reference moments** instead samples three increasing times;
    defaults use the selected clip's measured duration. Review the thumbnails,
    correct selected notes to short shot cues, or exclude an unclear moment.

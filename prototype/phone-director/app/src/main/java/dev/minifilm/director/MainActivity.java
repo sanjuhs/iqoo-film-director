@@ -31,7 +31,7 @@ public class MainActivity extends ComponentActivity {
     private final ArrayList<Shot> shots=new ArrayList<>(); private final ArrayList<Take> takes=new ArrayList<>(); private Uri lastVideo,lastEdit;
     private SpeechTrim pendingSpeechTrim; private Take pendingSpeechTrimTake;
     private VisionReference referenceVision; private ReferenceFrameDecoder referenceFrames; private Uri referenceVideoUri; private String pendingReferenceNotes=""; private long pendingReferenceTimeMs; private android.graphics.Bitmap pendingReferenceFrame;
-    private ReferenceBoardInspection boardInspection; private ReferenceBoard pendingReferenceBoard, reviewedReferenceBoard; private long referenceDurationMs; private AlertDialog referenceBoardDialog;
+    private ReferenceBoardInspection boardInspection; private ReferenceBoard pendingReferenceBoard, reviewedReferenceBoard; private long referenceDurationMs; private AlertDialog referenceBoardDialog,referenceNotesDialog;
     private boolean waitQuietPause=false, recordingTimedStop=false, recordingQuietStop=false; private QuietTailStopPolicy quietStopPolicy;
     private boolean spokenPreparationPaused; private Shot recordingShot; private int countdownGeneration=0; private boolean reviewAfterSave=false; private TextView framingView;
     private LocalBriefRecorder briefRecorder;
@@ -40,6 +40,12 @@ public class MainActivity extends ComponentActivity {
     private ClipTranscriber voiceBriefReader;
     private int voiceBriefGeneration;
     private AlertDialog voiceBriefReview;
+    private ReferenceSpeechContext.Reviewed referenceSpeechContext;
+    private ReferenceSpeechContext.Draft referenceSpeechDraft;
+    private ClipTranscriber referenceSpeechReader;
+    private int referenceSpeechGeneration, referenceAnalysisGeneration;
+    private boolean referenceSpeechOwnsBusy;
+    private AlertDialog referenceSpeechDialog;
     private boolean destroying;
     @Override public void onCreate(Bundle state){super.onCreate(state);speech=new SpeechCoach(this);speech.setAudioInterruptionListener(this::pauseSpokenPreparation);exporter=new ReelExporter(this);packager=new ProjectPackager(this);documentCopier=new DocumentCopier(this);autoColor=new AutoColorBalance(this);planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);restore();recoverTakes();ExportRecovery.Result recovered=ExportRecovery.reconcile(this);if(recovered.videoUri!=null){lastVideo=recovered.videoUri;lastEdit=recovered.editListUri;save();}if(shots.isEmpty())shots.addAll(DirectorEngine.plan(brief,style));render();if(!recovered.warning.isEmpty())status.setText(recovered.warning);else if(recovered.cleaned>0)status.setText("Interrupted export cleared. Original clips are safe.");}
     private int dp(float v){return (int)(v*getResources().getDisplayMetrics().density+.5f);}
@@ -47,10 +53,10 @@ public class MainActivity extends ComponentActivity {
     private GradientDrawable bg(int color){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(18));return d;}
     private LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(1);return l;}
     private LinearLayout card(){LinearLayout l=column();l.setPadding(dp(18),dp(14),dp(18),dp(14));l.setBackground(bg(CARD));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.bottomMargin=dp(12);l.setLayoutParams(p);return l;}
-    private Button button(String s,boolean primary,Runnable action){Button b=new Button(this);b.setText(s);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(primary?BG:FG);b.setBackground(bg(primary?LIME:0xff303338));b.setMinHeight(dp(50));b.setPadding(dp(12),dp(8),dp(12),dp(8));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(52));p.topMargin=dp(8);p.bottomMargin=dp(4);b.setLayoutParams(p);b.setOnClickListener(v->{if(busy){toast("Local processing is running. You can cancel it above.");return;}action.run();});return b;}
+    private Button button(String s,boolean primary,Runnable action){Button b=new Button(this);b.setText(s);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(primary?BG:FG);b.setBackground(bg(primary?LIME:0xff303338));b.setMinHeight(dp(50));b.setPadding(dp(12),dp(8),dp(12),dp(8));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(52));p.topMargin=dp(8);p.bottomMargin=dp(4);b.setLayoutParams(p);b.setOnClickListener(v->{if(referenceSpeechReader!=null&&!busy){toast("Reference speech is still stopping. Try again in a moment.");return;}if(busy){toast("Local processing is running. You can cancel it above.");return;}action.run();});return b;}
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
-        cancelVoiceBrief();speech.stopListening();stopVoiceInputButton=null;finishVoiceBriefButton=null;
+        cancelReferenceSpeech();cancelVoiceBrief();speech.stopListening();stopVoiceInputButton=null;finishVoiceBriefButton=null;
         clearQuietStopPolicy();
         if(capture!=null){desiredLens=capture.getLensFacing();capture.stopPreview();capture.close();capture=null;}if(pose!=null){pose.close();pose=null;}live=false;
         root=column();root.setBackgroundColor(BG);root.setPadding(dp(22),dp(22),dp(22),dp(10));androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root,(v,insets)->{androidx.core.graphics.Insets bars=insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars());v.setPadding(dp(22)+bars.left,dp(16)+bars.top,dp(22)+bars.right,dp(10)+bars.bottom);return insets;});
@@ -62,7 +68,7 @@ public class MainActivity extends ComponentActivity {
     }
     private void setBusy(boolean value){if(value)stopVoiceInput();busy=value;if(cancelProcessingButton!=null){cancelProcessingButton.setText(hasVoiceBriefWork()?"Cancel voice brief":"Cancel local processing");cancelProcessingButton.setVisibility(value?View.VISIBLE:View.GONE);}setEditorsEnabled(root,!value);}
     private void setEditorsEnabled(View view,boolean enabled){if(view==null)return;if(view instanceof EditText||view instanceof Spinner||view instanceof CheckBox||view instanceof Switch)view.setEnabled(enabled);if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)setEditorsEnabled(group.getChildAt(i),enabled);}}
-    private void cancelProcessing(){if(hasVoiceBriefWork()){cancelVoiceBrief();return;}pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";pendingReferenceFrame=null;planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
+    private void cancelProcessing(){if(referenceSpeechReader!=null&&referenceSpeechOwnsBusy){cancelReferenceSpeech();return;}if(hasVoiceBriefWork()){cancelVoiceBrief();return;}++referenceAnalysisGeneration;dismissReferenceNotesDialog();pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";clearPendingReferenceFrame();planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
     private void switchTab(int n){if(busy){toast("Wait for the current operation to finish.");return;}if(countdown || capture!=null&&capture.isRecording()){toast("Stop this take before changing screens.");return;}sequenceActive=false;cancelCountdown();speech.stopListening();speech.stop();session=false;if(n!=0)releasePlannerForMedia();tab=n;save();render();}
     // close() queues native cleanup after any work; it never blocks the UI or frees an active core directly.
     private void releasePlannerForMedia(){planner.close();planner=new LocalPlanner(this);}
@@ -79,7 +85,7 @@ public class MainActivity extends ComponentActivity {
         c.addView(button("Use phone dictation",false,()->listenBrief()));
         c.addView(text("Phone dictation needs Android's offline English speech model. If unavailable, use the local voice brief above or type.",12,MUTED));
         stopVoiceInputButton=button("Stop voice input",false,this::stopVoiceInput);c.addView(stopVoiceInputButton);updateVoiceInputControls();
-        c.addView(button("Build my shot plan",true,()->generatePlan()));c.addView(button("Choose a reference reel",false,()->pickReference()));if(referenceVideoUri!=null){c.addView(button("Review three reference moments",false,()->chooseReferenceMoments()));c.addView(button("Describe a reference frame locally",false,()->chooseReferenceFrame()));}if(pendingReferenceBoard!=null)c.addView(button("Review reference moments draft",false,()->reviewReferenceBoard(pendingReferenceBoard)));else if(reviewedReferenceBoard!=null)c.addView(button("Edit reviewed reference moments",false,()->reviewReferenceBoard(reviewedReferenceBoard)));if(!pendingReferenceNotes.isEmpty())c.addView(button("Review reference frame notes",false,()->reviewReferenceNotes()));if(!referenceSummary.isEmpty()){c.addView(text("Reference notes: "+referenceSummary,12,MUTED));c.addView(button("Clear reference observations",false,()->{referenceSummary="";clearReferenceBoards();save();render();}));}content.addView(c);
+        c.addView(button("Build my shot plan",true,()->generatePlan()));c.addView(button("Choose a reference reel",false,()->pickReference()));if(referenceVideoUri!=null){c.addView(button("Read reference speech locally",false,this::readReferenceSpeech));c.addView(text("English draft from this selected video. No microphone opens; review and shorten the context before planning.",12,MUTED));c.addView(button("Review three reference moments",false,()->chooseReferenceMoments()));c.addView(button("Describe a reference frame locally",false,()->chooseReferenceFrame()));}if(pendingReferenceBoard!=null)c.addView(button("Review reference moments draft",false,()->reviewReferenceBoard(pendingReferenceBoard)));else if(reviewedReferenceBoard!=null)c.addView(button("Edit reviewed reference moments",false,()->reviewReferenceBoard(reviewedReferenceBoard)));if(!pendingReferenceNotes.isEmpty())c.addView(button("Review reference frame notes",false,()->reviewReferenceNotes()));if(!referenceSummary.isEmpty()){c.addView(text("Reference notes: "+referenceSummary,12,MUTED));c.addView(button("Clear visual reference notes",false,()->{referenceSummary="";clearReferenceBoards();save();render();}));}if(referenceSpeechContext!=null&&referenceSpeechContext.matchesSource(referenceVideoUri)){c.addView(text("Reviewed reference speech: "+referenceSpeechContext.text,12,MUTED));c.addView(button("Edit reviewed speech context",false,this::editReferenceSpeechContext));c.addView(button("Clear reference speech context",false,()->{cancelReferenceSpeech();referenceSpeechContext=null;save();render();}));}content.addView(c);
         content.addView(text(planSource+" · "+shots.size()+" shots",12,LIME));
         content.addView(text("Review directions and captions before filming. AI can invent details or suggest an action that does not make sense. Edit each shot to make it yours.",13,MUTED));
         for(int i=0;i<shots.size();i++){final int index=i;Shot shot=shots.get(i);LinearLayout s=card();s.addView(text(String.format(Locale.US,"%02d  /  %s",i+1,shot.title),20,FG));s.addView(text(shot.instruction,14,MUTED));s.addView(text((shot.targetDurationMs/1000)+" sec · Phone camera",12,LIME));s.addView(button("Edit shot",false,()->editShot(index)));if(i>0)s.addView(button("Move earlier",false,()->{Collections.swap(shots,index,index-1);save();render();}));content.addView(s);}
@@ -88,7 +94,7 @@ public class MainActivity extends ComponentActivity {
     }
     private Spinner spinner(String[] values,String selected,java.util.function.Consumer<String> action){Spinner s=new Spinner(this);ArrayAdapter<String> a=new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,values){@Override public View getView(int p,View c,android.view.ViewGroup g){TextView v=(TextView)super.getView(p,c,g);v.setTextColor(FG);v.setPadding(dp(12),dp(12),dp(12),dp(12));return v;}};s.setAdapter(a);s.setSelection(Math.max(0,Arrays.asList(values).indexOf(selected)));s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onNothingSelected(AdapterView<?> p){}public void onItemSelected(AdapterView<?> p,View v,int n,long id){action.accept(values[n]);}});return s;}
     private void generatePlan(){stopVoiceInput();brief=briefField.getText().toString().trim();if(brief.isEmpty()){toast("Add a brief first.");return;}if(takes.size()>0){new AlertDialog.Builder(this).setTitle("Replace shot plan?").setMessage("Your existing takes stay in Assemble. The new plan starts from shot one.").setPositiveButton("Replace plan",(d,w)->runPlanner()).setNegativeButton("Keep plan",null).show();}else runPlanner();}
-    private void runPlanner(){if(VisionReference.isRunning()){toast("The earlier frame review is still stopping. Try again in a moment.");return;}String planBrief=brief+(referenceSummary.isEmpty()?"":(reviewedReferenceBoard!=null?"\nCreator-reviewed reference moments: ":"\nReference notes (reviewed when visual AI is used; approximate): ")+referenceSummary);if(!referenceSummary.isEmpty()&&planBrief.length()>500){toast("Shorten your brief or reference notes to keep them together in the plan.");return;}speech.stopListening();speech.stop();save();if(!planner.isModelAvailable()){shots.clear();shots.addAll(DirectorEngine.plan(brief,style));planSource="Editable template · local LLM not installed";shotIndex=0;save();render();return;}setBusy(true);status.setText("Local model is creating your shot plan…");planner.generate(planBrief,style,new LocalPlanner.Listener(){public void onPlan(List<Shot> p,long ms,String model){setBusy(false);shots.clear();shots.addAll(p);shotIndex=0;planSource="Local AI · "+model+" · "+String.format(Locale.US,"%.1fs",ms/1000.0);save();render();}public void onError(String error){setBusy(false);toast(error);status.setText("Plan was not applied. Review your brief and confirmed reference notes.");if(!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;new AlertDialog.Builder(MainActivity.this).setTitle("Keep creating").setMessage(error).setPositiveButton("Use starter plan",(d,w)->{shots.clear();shots.addAll(DirectorEngine.plan(brief,style));planSource="Editable template · AI failed";save();render();}).setNegativeButton("Keep current",null).show();}});}
+    private void runPlanner(){if(VisionReference.isRunning()){toast("The earlier frame review is still stopping. Try again in a moment.");return;}if(busy||referenceSpeechReader!=null)return;String planBrief;try{ReferenceSpeechContext.Reviewed context=referenceSpeechContext!=null&&referenceSpeechContext.matchesSource(referenceVideoUri)?referenceSpeechContext:null;planBrief=ReferenceSpeechContext.composePlanBrief(brief,referenceSummary,reviewedReferenceBoard!=null,context);}catch(IllegalArgumentException invalid){toast(invalid.getMessage());return;}speech.stopListening();speech.stop();save();if(!planner.isModelAvailable()){shots.clear();shots.addAll(DirectorEngine.plan(brief,style));planSource="Editable template · local LLM not installed";shotIndex=0;save();render();return;}setBusy(true);status.setText("Local model is creating your shot plan…");planner.generate(planBrief,style,new LocalPlanner.Listener(){public void onPlan(List<Shot> p,long ms,String model){setBusy(false);shots.clear();shots.addAll(p);shotIndex=0;planSource="Local AI · "+model+" · "+String.format(Locale.US,"%.1fs",ms/1000.0);save();render();}public void onError(String error){setBusy(false);toast(error);status.setText("Plan was not applied. Review your brief and confirmed reference notes.");if(!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;new AlertDialog.Builder(MainActivity.this).setTitle("Keep creating").setMessage(error).setPositiveButton("Use starter plan",(d,w)->{shots.clear();shots.addAll(DirectorEngine.plan(brief,style));planSource="Editable template · AI failed";save();render();}).setNegativeButton("Keep current",null).show();}});}
     private boolean hasVoiceBriefWork() {
         return processingVoiceBrief != null || briefRecorder != null && briefRecorder.isRecording();
     }
@@ -100,6 +106,7 @@ public class MainActivity extends ComponentActivity {
         }
     }
     private boolean ensureVoiceRecorderReleased() {
+        if (referenceSpeechReader != null) { status.setText("Reference speech is still stopping. Wait before starting another microphone session."); return false; }
         if (briefRecorder == null) return true;
         if (briefRecorder.isRecording()) { status.setText("Finish or cancel your voice brief before starting another microphone session."); return false; }
         briefRecorder.close();
@@ -349,79 +356,210 @@ public class MainActivity extends ComponentActivity {
     private void chooseReferenceMoments(){
         if(busy||referenceVideoUri==null)return;
         if(!referenceVision.isModelAvailable()){toast("The local vision component is not installed. Describe the reference in your brief.");return;}
+        final Uri source=referenceVideoUri;final int generation=referenceAnalysisGeneration;
         LinearLayout form=column();form.setPadding(dp(20),dp(12),dp(20),dp(12));
         form.addView(text("Choose three times in your reference. You'll review each nearby frame and write the shot beats you want to try. Sparse moments cannot establish all motion or audio.",13,MUTED));
         EditText[] times=new EditText[3];
         for(int i=0;i<3;i++){long time=referenceDurationMs>0?Math.round((referenceDurationMs-1)*(.1+i*.4)):1000+i*3000;times[i]=input(SubtitleTime.format(time),"Moment "+(i+1)+" / seconds");times[i].setInputType(8194);form.addView(times[i]);}
         ScrollView scroll=new ScrollView(this);scroll.addView(form);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Three moments to review").setView(scroll).setPositiveButton("Read moments locally",null).setNegativeButton("Cancel",null).create();
-        dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{try{long[] requested=new long[3];for(int i=0;i<3;i++){requested[i]=SubtitleTime.parse(times[i].getText().toString());if(requested[i]<0||requested[i]>=180000||(i>0&&requested[i]<=requested[i-1])||(referenceDurationMs>0&&requested[i]>=referenceDurationMs))throw new IllegalArgumentException();}dialog.dismiss();inspectReferenceMoments(requested);}catch(Exception invalid){toast("Use three increasing times inside your reference clip.");}}));dialog.show();
+        dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{if(!dialog.isShowing()||!isCurrentReference(source,generation)||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){dialog.dismiss();return;}try{long[] requested=new long[3];for(int i=0;i<3;i++){requested[i]=SubtitleTime.parse(times[i].getText().toString());if(requested[i]<0||requested[i]>=180000||(i>0&&requested[i]<=requested[i-1])||(referenceDurationMs>0&&requested[i]>=referenceDurationMs))throw new IllegalArgumentException();}dialog.dismiss();inspectReferenceMoments(requested);}catch(Exception invalid){toast("Use three increasing times inside your reference clip.");}}));dialog.show();
     }
     private void inspectReferenceMoments(long[] requested){
         if(busy||referenceVideoUri==null)return;
         speech.stopListening();speech.stop();planner.close();planner=new LocalPlanner(this);closePendingReferenceBoard();
+        final int generation=++referenceAnalysisGeneration;
         setBusy(true);status.setText("Reading three moments locally… keep the app open");
         final Uri selectedReference=referenceVideoUri;
         boardInspection.inspect(selectedReference,requested,new ReferenceBoardInspection.Listener(){
-            public void onProgress(int completed,int total){status.setText("Reading reference moments locally · "+completed+" / "+total);}
+            public void onProgress(int completed,int total){if(isCurrentReference(selectedReference,generation))status.setText("Reading reference moments locally · "+completed+" / "+total);}
             public void onBoard(ReferenceBoard board,long elapsedMs){
-                setBusy(false);if(!selectedReference.equals(referenceVideoUri)){board.close();return;}
+                if(!isCurrentReference(selectedReference,generation)||!board.sourceUri.equals(selectedReference)){board.close();return;}setBusy(false);
                 pendingReferenceBoard=board;tab=0;render();status.setText("Three moment drafts ready · "+String.format(Locale.US,"%.1fs",elapsedMs/1000d)+" · correct them before planning");
                 if(getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))reviewReferenceBoard(board);
             }
-            public void onError(String message){setBusy(false);status.setText(message);toast(message);}
+            public void onError(String message){if(!isCurrentReference(selectedReference,generation))return;setBusy(false);status.setText(message);toast(message);}
         });
     }
     private void reviewReferenceBoard(ReferenceBoard board){
-        if(busy||board==null||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        if(busy||board==null||!board.sourceUri.equals(referenceVideoUri)||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        final int generation=referenceAnalysisGeneration;final Uri source=board.sourceUri;
         referenceBoardDialog=ReferenceBoardReview.show(this,board,new ReferenceBoardReview.Listener(){
             public void onConfirmed(ReferenceBoard reviewed,String summary){
-                if(referenceVideoUri==null||!reviewed.sourceUri.equals(referenceVideoUri)){reviewed.close();return;}
+                if(!isCurrentReference(source,generation)||!reviewed.sourceUri.equals(source)||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){reviewed.close();return;}
                 clearReferenceBoards();reviewedReferenceBoard=reviewed;referenceSummary=summary;save();render();status.setText("Reviewed moments will guide your next shot plan. Edit every proposed shot.");
             }
-            public void onDiscarded(){if(board==pendingReferenceBoard)closePendingReferenceBoard();else if(board==reviewedReferenceBoard){reviewedReferenceBoard.close();reviewedReferenceBoard=null;referenceSummary="";save();}render();}
+            public void onDiscarded(){if(!isCurrentReference(source,generation))return;if(board==pendingReferenceBoard)closePendingReferenceBoard();else if(board==reviewedReferenceBoard){reviewedReferenceBoard.close();reviewedReferenceBoard=null;referenceSummary="";save();}render();}
         });
     }
     private void chooseReferenceFrame(){
         if(busy||referenceVideoUri==null)return;
         if(!referenceVision.isModelAvailable()){toast("The local vision component is not installed. Keep manual reference notes.");return;}
+        final Uri source=referenceVideoUri;final int generation=referenceAnalysisGeneration;
         LinearLayout form=column();form.setPadding(dp(20),dp(12),dp(20),dp(12));
         form.addView(text("Choose one time in your selected reference. The nearest decoded frame is described locally; review any guesses before using them.",13,MUTED));
         EditText time=input("1.000","Reference time / seconds");time.setInputType(8194);form.addView(time);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Choose a reference frame").setView(form).setPositiveButton("Describe frame",null).setNegativeButton("Cancel",null).create();
-        dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{try{long requested=SubtitleTime.parse(time.getText().toString());if(requested<0)throw new IllegalArgumentException();dialog.dismiss();describeReferenceFrame(requested);}catch(Exception error){toast("Use a time inside your selected reference video.");}}));dialog.show();
+        dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{if(!dialog.isShowing()||!isCurrentReference(source,generation)||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){dialog.dismiss();return;}try{long requested=SubtitleTime.parse(time.getText().toString());if(requested<0)throw new IllegalArgumentException();dialog.dismiss();describeReferenceFrame(requested);}catch(Exception error){toast("Use a time inside your selected reference video.");}}));dialog.show();
     }
+    private boolean isCurrentReference(Uri source,int generation){return !destroying&&source!=null&&source.equals(referenceVideoUri)&&generation==referenceAnalysisGeneration;}
+    private void clearPendingReferenceFrame(){android.graphics.Bitmap old=pendingReferenceFrame;pendingReferenceFrame=null;if(old!=null&&!old.isRecycled())old.recycle();}
+    private void dismissReferenceNotesDialog(){if(referenceNotesDialog!=null){referenceNotesDialog.dismiss();referenceNotesDialog=null;}}
     private void describeReferenceFrame(long requestedMs){
         if(busy||referenceVideoUri==null)return;
-        speech.stopListening();speech.stop();pendingReferenceNotes="";pendingReferenceFrame=null;
+        speech.stopListening();speech.stop();dismissReferenceNotesDialog();pendingReferenceNotes="";clearPendingReferenceFrame();
         planner.close();planner=new LocalPlanner(this);
+        final Uri source=referenceVideoUri;final int generation=++referenceAnalysisGeneration;
+        final VisionReference observer=referenceVision;
         setBusy(true);status.setText("Reading one reference frame locally… keep the app open");
-        referenceFrames.decode(referenceVideoUri,requestedMs,new ReferenceFrameDecoder.Listener(){
+        referenceFrames.decode(source,requestedMs,new ReferenceFrameDecoder.Listener(){
             public void onFrame(android.graphics.Bitmap frame,long timeMs,long durationMs){
-                try{float scale=Math.min(1f,256f/Math.max(frame.getWidth(),frame.getHeight()));android.graphics.Bitmap thumbnail=android.graphics.Bitmap.createScaledBitmap(frame,Math.max(1,Math.round(frame.getWidth()*scale)),Math.max(1,Math.round(frame.getHeight()*scale)),true);pendingReferenceFrame=thumbnail==frame?frame.copy(android.graphics.Bitmap.Config.ARGB_8888,false):thumbnail;referenceVision.observe(frame,new VisionReference.Listener(){
-                    public void onObservation(String notes,long elapsedMs,String model){
-                        setBusy(false);pendingReferenceNotes=notes;pendingReferenceTimeMs=timeMs;tab=0;render();
-                        status.setText("Local reference frame draft ready · "+String.format(Locale.US,"%.1fs",elapsedMs/1000d)+" · review guesses");
-                        if(getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))reviewReferenceNotes();
-                    }
-                    public void onError(String message){pendingReferenceFrame=null;setBusy(false);status.setText(message);toast(message);}
-                });}finally{frame.recycle();}
+                try{
+                    if(!isCurrentReference(source,generation))return;
+                    float scale=Math.min(1f,256f/Math.max(frame.getWidth(),frame.getHeight()));
+                    android.graphics.Bitmap scaled=android.graphics.Bitmap.createScaledBitmap(frame,Math.max(1,Math.round(frame.getWidth()*scale)),Math.max(1,Math.round(frame.getHeight()*scale)),true);
+                    final android.graphics.Bitmap thumbnail=scaled==frame?frame.copy(android.graphics.Bitmap.Config.ARGB_8888,false):scaled;
+                    if(thumbnail==null)throw new IllegalStateException("Reference thumbnail unavailable");
+                    clearPendingReferenceFrame();pendingReferenceFrame=thumbnail;
+                    observer.observe(frame,new VisionReference.Listener(){
+                        public void onObservation(String notes,long elapsedMs,String model){
+                            if(!isCurrentReference(source,generation)){if(pendingReferenceFrame!=thumbnail&&!thumbnail.isRecycled())thumbnail.recycle();return;}
+                            setBusy(false);pendingReferenceNotes=notes;pendingReferenceTimeMs=timeMs;tab=0;render();
+                            status.setText("Local reference frame draft ready · "+String.format(Locale.US,"%.1fs",elapsedMs/1000d)+" · review guesses");
+                            if(getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))reviewReferenceNotes();
+                        }
+                        public void onError(String message){
+                            if(!isCurrentReference(source,generation)){if(pendingReferenceFrame!=thumbnail&&!thumbnail.isRecycled())thumbnail.recycle();return;}
+                            clearPendingReferenceFrame();setBusy(false);status.setText(message);toast(message);
+                        }
+                    });
+                }catch(RuntimeException failure){if(isCurrentReference(source,generation)){clearPendingReferenceFrame();setBusy(false);status.setText("This reference frame could not be prepared. Try another moment or use manual notes.");}}
+                finally{frame.recycle();}
             }
-            public void onError(String message){setBusy(false);status.setText(message);toast(message);}
+            public void onError(String message){if(!isCurrentReference(source,generation))return;setBusy(false);status.setText(message);toast(message);}
         });
     }
     private void reviewReferenceNotes(){
-        if(pendingReferenceNotes.isEmpty()||busy)return;
+        if(pendingReferenceNotes.isEmpty()||busy||referenceVideoUri==null||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        final Uri source=referenceVideoUri;final int generation=referenceAnalysisGeneration;final long requestedTime=pendingReferenceTimeMs;
+        dismissReferenceNotesDialog();
         LinearLayout form=column();form.setPadding(dp(20),dp(12),dp(20),dp(12));
-        if(pendingReferenceFrame!=null){ImageView frame=new ImageView(this);frame.setImageBitmap(pendingReferenceFrame);frame.setScaleType(ImageView.ScaleType.FIT_CENTER);frame.setContentDescription("Selected local reference frame");form.addView(frame,new LinearLayout.LayoutParams(-1,dp(240)));}
-        form.addView(text("One frame near "+SubtitleTime.format(pendingReferenceTimeMs)+"s. Body framing checks visible pose landmarks. Correct the model's subject notes and any framing mistakes; one frame does not establish the video's story.",13,MUTED));
+        final ImageView image=new ImageView(this);
+        final android.graphics.Bitmap uiFrame=pendingReferenceFrame!=null&&!pendingReferenceFrame.isRecycled()?pendingReferenceFrame.copy(android.graphics.Bitmap.Config.ARGB_8888,false):null;
+        if(uiFrame!=null){image.setImageBitmap(uiFrame);image.setScaleType(ImageView.ScaleType.FIT_CENTER);image.setContentDescription("Selected local reference frame");form.addView(image,new LinearLayout.LayoutParams(-1,dp(240)));}
+        form.addView(text("One frame near "+SubtitleTime.format(requestedTime)+"s. Body framing checks visible pose landmarks. Correct the model's subject notes and any framing mistakes; one frame does not establish the video's story.",13,MUTED));
         EditText notes=input(pendingReferenceNotes,"Correct the frame observations");notes.setMinLines(4);notes.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(300)});form.addView(notes);
-        ScrollView review=new ScrollView(this);review.addView(form);new AlertDialog.Builder(this).setTitle("Review reference notes").setView(review)
-                .setPositiveButton("Use corrected notes",(d,w)->{String corrected=notes.getText().toString().trim();if(corrected.isEmpty()){toast("No notes were added.");return;}clearReferenceBoards();referenceSummary="Creator-reviewed frame near "+SubtitleTime.format(pendingReferenceTimeMs)+"s: "+corrected;pendingReferenceNotes="";pendingReferenceFrame=null;save();render();status.setText("Corrected reference notes will inform your next plan.");})
-                .setNegativeButton("Discard",(d,w)->{pendingReferenceNotes="";pendingReferenceFrame=null;render();}).show();
+        ScrollView review=new ScrollView(this);review.addView(form);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Review reference notes").setView(review)
+                .setPositiveButton("Use corrected notes",null).setNegativeButton("Discard",null).create();
+        referenceNotesDialog=dialog;
+        dialog.setOnDismissListener(d->{if(referenceNotesDialog==dialog)referenceNotesDialog=null;image.setImageDrawable(null);if(uiFrame!=null&&!uiFrame.isRecycled())uiFrame.recycle();});
+        dialog.setOnShowListener(d->{
+            dialog.getButton(-1).setOnClickListener(v->{
+                if(!dialog.isShowing()||!isCurrentReference(source,generation)||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){dialog.dismiss();return;}
+                String corrected=notes.getText().toString().trim();if(corrected.isEmpty()){notes.setError("Add corrected notes before using them.");return;}
+                clearReferenceBoards();referenceSummary="Creator-reviewed frame near "+SubtitleTime.format(requestedTime)+"s: "+corrected;pendingReferenceNotes="";clearPendingReferenceFrame();save();dialog.dismiss();render();status.setText("Corrected reference notes will inform your next plan.");
+            });
+            dialog.getButton(-2).setOnClickListener(v->{if(isCurrentReference(source,generation)){pendingReferenceNotes="";clearPendingReferenceFrame();}dialog.dismiss();if(isCurrentReference(source,generation))render();});
+        });dialog.show();
+    }
+    private void readReferenceSpeech() {
+        if(busy||referenceSpeechReader!=null||hasVoiceBriefWork()||capture!=null&&capture.isRecording()||referenceVideoUri==null||tab!=0||destroying
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        if(!ensureVoiceRecorderReleased())return;
+        if(!transcriber.isModelAvailable()){status.setText("The local English speech model is unavailable. Write the reference context in your brief instead.");return;}
+        cancelReferenceSpeech();releasePlannerForMedia();stopVoiceInput();speech.stop();
+        final int generation=++referenceSpeechGeneration;
+        final Uri source=referenceVideoUri;
+        final ClipTranscriber reader=transcriber;
+        referenceSpeechReader=reader;referenceSpeechOwnsBusy=true;setBusy(true);status.setText("Reading English reference speech locally… no microphone is opened");
+        reader.transcribe(source,new ClipTranscriber.Listener(){
+            public void onComplete(List<SubtitleCue> cues,long elapsedMs){
+                if(cues==null||cues.isEmpty()){finishReferenceSpeech(reader,source,generation,null,"No English words were recognized. Add reference context yourself.");return;}
+                ReferenceSpeechContext.Draft draft;
+                try{draft=new ReferenceSpeechContext.Draft(source,cues,elapsedMs);}
+                catch(IllegalArgumentException invalid){finishReferenceSpeech(reader,source,generation,null,"The speech draft could not be reviewed. Describe the reference in your own words.");return;}
+                finishReferenceSpeech(reader,source,generation,draft,null);
+            }
+            public void onError(String message){finishReferenceSpeech(reader,source,generation,null,message);}
+        });
+    }
+    private void finishReferenceSpeech(ClipTranscriber reader,Uri source,int generation,ReferenceSpeechContext.Draft draft,String error){
+        if(generation!=referenceSpeechGeneration||referenceSpeechReader!=reader)return;
+        // Completion can reach the main loop before the native finally block. Keep the busy
+        // gate until that exact borrowed reader releases its request; never delete its source.
+        reader.closeWhenIdle(()->handler.post(()->{
+            if(referenceSpeechReader==reader){referenceSpeechReader=null;referenceSpeechOwnsBusy=false;}
+            if(generation!=referenceSpeechGeneration||destroying||!source.equals(referenceVideoUri))return;
+            setBusy(false);
+            if(tab!=0||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+            if(error!=null){status.setText(error);return;}
+            referenceSpeechDraft=draft;reviewReferenceSpeech(draft,generation);
+        }));
+        if(transcriber==reader&&!destroying)transcriber=new ClipTranscriber(this);
+    }
+    private void cancelReferenceSpeech(){
+        referenceSpeechDraft=null;
+        if(referenceSpeechDialog!=null){referenceSpeechDialog.dismiss();referenceSpeechDialog=null;}
+        final int generation=++referenceSpeechGeneration;
+        final boolean ownedBusy=referenceSpeechOwnsBusy;
+        final ClipTranscriber reader=referenceSpeechReader;
+        if(reader==null)return;
+        reader.closeWhenIdle(()->handler.post(()->{
+            if(referenceSpeechReader==reader){referenceSpeechReader=null;referenceSpeechOwnsBusy=false;}
+            if(ownedBusy&&generation==referenceSpeechGeneration&&!destroying){setBusy(false);if(status!=null)status.setText("Reference speech canceled. Your confirmed context and original video are kept.");}
+        }));
+        if(transcriber==reader&&!destroying)transcriber=new ClipTranscriber(this);
+    }
+    private void reviewReferenceSpeech(ReferenceSpeechContext.Draft draft,int generation){
+        showReferenceSpeechContext(draft.sourceUri,draft,null,generation);
+    }
+    private void editReferenceSpeechContext(){
+        ReferenceSpeechContext.Reviewed saved=referenceSpeechContext;
+        if(busy||referenceSpeechReader!=null||saved==null||!saved.matchesSource(referenceVideoUri))return;
+        showReferenceSpeechContext(saved.sourceUri,null,saved,referenceSpeechGeneration);
+    }
+    private void showReferenceSpeechContext(Uri source,ReferenceSpeechContext.Draft draft,ReferenceSpeechContext.Reviewed saved,int generation){
+        if(destroying||generation!=referenceSpeechGeneration||referenceVideoUri==null||!source.equals(referenceVideoUri)
+                ||tab!=0||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        referenceSpeechDraft=draft;
+        LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));
+        if(draft!=null){
+            form.addView(text("Source-timed English draft · check every word. This reads audio only; it does not establish the visual story or what is true.",13,MUTED));
+            form.addView(text(draft.formatTimedText(),14,FG));
+        }else form.addView(text("Saved corrected speech context. The original transcript and times were not saved. Edit these reviewed words without reading the video again.",13,MUTED));
+        String initial=saved!=null?saved.text:referenceSpeechContext!=null&&referenceSpeechContext.matchesSource(source)?referenceSpeechContext.text:"";
+        EditText context=input(initial,"Write 1–210 corrected characters of useful speech context");context.setMinLines(3);form.addView(context);
+        TextView counts=text("",12,LIME);form.addView(counts);
+        Runnable updateCounts=()->counts.setText(context.getText().length()+" / 210 context characters · "+ReferenceSpeechContext.composedLength(brief,referenceSummary,reviewedReferenceBoard!=null,context.getText().toString())+" / 500 combined plan characters, including labels");
+        context.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){updateCounts.run();}public void afterTextChanged(android.text.Editable e){}});updateCounts.run();
+        form.addView(text("Only your confirmed concise context guides planning. Your typed brief and shot plan stay unchanged.",12,MUTED));
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle(draft!=null?"Review reference speech":"Edit reviewed speech context").setView(scroll)
+                .setPositiveButton("Use speech context",null).setNegativeButton("Keep previous context",null).create();
+        referenceSpeechDialog=dialog;
+        dialog.setOnDismissListener(d->{if(referenceSpeechDialog==dialog){referenceSpeechDialog=null;++referenceSpeechGeneration;}if(referenceSpeechDraft==draft)referenceSpeechDraft=null;});
+        dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
+            if(!dialog.isShowing()||generation!=referenceSpeechGeneration||destroying||tab!=0||!source.equals(referenceVideoUri)
+                    ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){dialog.dismiss();return;}
+            try{
+                ReferenceSpeechContext.Reviewed reviewed=draft!=null?draft.reviewed(context.getText().toString()):saved.reviewed(context.getText().toString());
+                ReferenceSpeechContext.composePlanBrief(brief,referenceSummary,reviewedReferenceBoard!=null,reviewed);
+                referenceSpeechContext=reviewed;save();dialog.dismiss();render();status.setText("Reviewed speech context saved. Build a shot plan when you choose.");
+            }catch(IllegalArgumentException invalid){context.setError(invalid.getMessage());}
+        }));dialog.show();
     }
     private void pickReference(){Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,52);}
-    private void analyzeReference(Uri uri){referenceSummary="";clearReferenceBoards();referenceDurationMs=0;referenceVideoUri=uri;pendingReferenceNotes="";pendingReferenceFrame=null;save();try{getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(Exception ignored){}setBusy(true);status.setText("Inspecting selected frames locally…");references.analyze(uri,new ReferenceAnalyzer.Listener(){public void onResult(String summary,long elapsedMs,long durationMs){referenceDurationMs=durationMs;onResult(summary,elapsedMs);}public void onResult(String summary,long elapsedMs){setBusy(false);referenceSummary=summary;save();tab=0;render();status.setText("Reference samples ready. Choose a frame for local visual notes, or describe the story yourself.");}public void onError(String error){setBusy(false);status.setText(error);toast(error);}});}
+    private void changeReferenceSource(Uri uri){
+        ++referenceAnalysisGeneration;
+        referenceSpeechOwnsBusy=false;cancelReferenceSpeech();++referenceSpeechGeneration;
+        dismissReferenceNotesDialog();if(referenceBoardDialog!=null){referenceBoardDialog.dismiss();referenceBoardDialog=null;}
+        boardInspection.close();referenceFrames.close();referenceVision.close();
+        boardInspection=new ReferenceBoardInspection(this);referenceFrames=new ReferenceFrameDecoder(this);referenceVision=new VisionReference(this);
+        closePendingReferenceBoard();pendingReferenceNotes="";clearPendingReferenceFrame();
+        if(!uri.equals(referenceVideoUri))referenceSpeechContext=null;referenceVideoUri=uri;
+    }
+    private void analyzeReference(Uri uri){changeReferenceSource(uri);referenceSummary="";clearReferenceBoards();referenceDurationMs=0;pendingReferenceNotes="";clearPendingReferenceFrame();references.close();references=new ReferenceAnalyzer(this);final int generation=++referenceAnalysisGeneration;save();try{getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(Exception ignored){}setBusy(true);status.setText("Inspecting selected frames locally…");references.analyze(uri,new ReferenceAnalyzer.Listener(){private boolean current(){return generation==referenceAnalysisGeneration&&!destroying&&uri.equals(referenceVideoUri);}public void onResult(String summary,long elapsedMs,long durationMs){if(!current())return;referenceDurationMs=durationMs;onResult(summary,elapsedMs);}public void onResult(String summary,long elapsedMs){if(!current())return;setBusy(false);referenceSummary=summary;save();tab=0;render();status.setText("Reference samples ready. Choose a frame for local visual notes, or describe the story yourself.");}public void onError(String error){if(!current())return;setBusy(false);status.setText(error);toast(error);}});}
     private void packageProject(){
         if(busy)return;
         discardPendingPack();setBusy(true);status.setText("Packing your selected originals and edits locally…");
@@ -487,12 +625,12 @@ public class MainActivity extends ComponentActivity {
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
-    @Override protected void onStop(){super.onStop();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
-    @Override protected void onDestroy(){destroying=true;cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();pendingReferenceFrame=null;++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
+    @Override protected void onStop(){super.onStop();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
+    @Override protected void onDestroy(){destroying=true;cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
     private JSONArray serializeTakes() throws JSONException{JSONArray tt=new JSONArray();for(Take t:takes){JSONArray subs=new JSONArray();for(SubtitleCue cue:t.subtitles)subs.put(new JSONObject().put("start",cue.startMs).put("end",cue.endMs).put("text",cue.text));tt.put(new JSONObject().put("subtitles",subs).put("captionOrigin",t.captionOrigin).put("uri",t.uri.toString()).put("id",t.shotId).put("title",t.title).put("caption",t.caption).put("duration",t.durationMs).put("in",t.inMs).put("out",t.outMs).put("selected",t.selected));}return tt;}
     private String packSnapshot(JSONArray serialized) throws JSONException{return new JSONObject().put("reelTitle",reelTitle).put("look",look).put("takes",serialized).toString();}
     private String packSnapshot(){try{return packSnapshot(serializeTakes());}catch(JSONException impossible){return "";}}
-    private void save(){try{JSONObject o=new JSONObject();if(referenceVideoUri!=null)o.put("referenceVideoUri",referenceVideoUri.toString());if(reviewedReferenceBoard!=null)o.put("referenceBoard",reviewedReferenceBoard.toJson());o.put("referenceDurationMs",referenceDurationMs);o.put("lens",desiredLens).put("guideSequence",guideSequence).put("reelTitle",reelTitle).put("referenceSummary",referenceSummary).put("brief",brief).put("style",style).put("look",look).put("source",planSource).put("shot",shotIndex).put("voice",voice);JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs));o.put("shots",ss);JSONArray tt=serializeTakes();if(pendingPack!=null&&!pendingPackSnapshot.equals(packSnapshot(tt))){pendingPack.delete();pendingPack=null;pendingPackSnapshot="";if(packageSaveButton!=null)packageSaveButton.setText("Save clips + edits for my laptop");}if(pendingPack!=null)o.put("pendingPack",pendingPack.getName()).put("pendingPackSnapshot",pendingPackSnapshot);o.put("takes",tt);if(lastVideo!=null)o.put("lastVideo",lastVideo.toString());if(lastEdit!=null)o.put("lastEdit",lastEdit.toString());getSharedPreferences("shoot",0).edit().putString("state",o.toString()).apply();}catch(Exception ignored){}}
+    private void save(){try{JSONObject o=new JSONObject();if(referenceVideoUri!=null)o.put("referenceVideoUri",referenceVideoUri.toString());if(reviewedReferenceBoard!=null)o.put("referenceBoard",reviewedReferenceBoard.toJson());if(referenceSpeechContext!=null&&referenceSpeechContext.matchesSource(referenceVideoUri))o.put("referenceSpeech",referenceSpeechContext.toJson());o.put("referenceDurationMs",referenceDurationMs);o.put("lens",desiredLens).put("guideSequence",guideSequence).put("reelTitle",reelTitle).put("referenceSummary",referenceSummary).put("brief",brief).put("style",style).put("look",look).put("source",planSource).put("shot",shotIndex).put("voice",voice);JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs));o.put("shots",ss);JSONArray tt=serializeTakes();if(pendingPack!=null&&!pendingPackSnapshot.equals(packSnapshot(tt))){pendingPack.delete();pendingPack=null;pendingPackSnapshot="";if(packageSaveButton!=null)packageSaveButton.setText("Save clips + edits for my laptop");}if(pendingPack!=null)o.put("pendingPack",pendingPack.getName()).put("pendingPackSnapshot",pendingPackSnapshot);o.put("takes",tt);if(lastVideo!=null)o.put("lastVideo",lastVideo.toString());if(lastEdit!=null)o.put("lastEdit",lastEdit.toString());getSharedPreferences("shoot",0).edit().putString("state",o.toString()).apply();}catch(Exception ignored){}}
     private void recoverTakes(){File dir=new File(getFilesDir(),"takes");File[] files=dir.listFiles((d,n)->n.endsWith(".mp4"));if(files==null)return;for(File f:files){Uri u=Uri.fromFile(f);if(takes.stream().anyMatch(t->t.uri.equals(u)))continue;MediaMetadataRetriever m=new MediaMetadataRetriever();try{m.setDataSource(f.getAbsolutePath());long duration=Long.parseLong(m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));if(duration>300)takes.add(new Take(u,"recovered","Recovered take","",duration));}catch(Exception ignored){}finally{try{m.release();}catch(Exception ignored){}}}}
-    private void restore(){try{JSONObject o=new JSONObject(getSharedPreferences("shoot",0).getString("state","{}"));pendingPack=restorePendingPack(o.optString("pendingPack",""));pendingPackSnapshot=o.optString("pendingPackSnapshot","");desiredLens=o.optInt("lens",CameraSelector.LENS_FACING_FRONT);if(desiredLens!=CameraSelector.LENS_FACING_BACK)desiredLens=CameraSelector.LENS_FACING_FRONT;guideSequence=o.optBoolean("guideSequence",false);reelTitle=o.optString("reelTitle","");referenceSummary=o.optString("referenceSummary","");String referenceUri=o.optString("referenceVideoUri","");if(!referenceUri.isEmpty()){Uri candidate=Uri.parse(referenceUri);if("file".equals(candidate.getScheme())||"content".equals(candidate.getScheme()))referenceVideoUri=candidate;}referenceDurationMs=Math.max(0,Math.min(180000,o.optLong("referenceDurationMs",0)));try{String boardJson=o.optString("referenceBoard","");if(!boardJson.isEmpty()&&referenceVideoUri!=null){ReferenceBoard restored=ReferenceBoard.fromJson(boardJson);if(restored.sourceUri.equals(referenceVideoUri)){reviewedReferenceBoard=restored;referenceSummary=restored.planningSummary();}else restored.close();}}catch(Exception invalidBoard){reviewedReferenceBoard=null;}brief=o.optString("brief",brief);style=o.optString("style",style);look=o.optString("look",look);planSource=o.optString("source",planSource);shotIndex=o.optInt("shot",0);voice=o.optBoolean("voice",true);JSONArray ss=o.optJSONArray("shots");if(ss!=null)for(int i=0;i<ss.length();i++){JSONObject s=ss.getJSONObject(i);shots.add(new Shot(s.getString("id"),s.getString("title"),s.getString("cue"),s.getString("caption"),s.getLong("duration")));}JSONArray tt=o.optJSONArray("takes");if(tt!=null)for(int i=0;i<tt.length();i++){JSONObject t=tt.getJSONObject(i);Take a=new Take(Uri.parse(t.getString("uri")),t.getString("id"),t.getString("title"),t.getString("caption"),t.getLong("duration"));a.inMs=t.getLong("in");a.outMs=t.getLong("out");a.selected=t.getBoolean("selected");a.captionOrigin=t.optString("captionOrigin","manual");JSONArray cues=t.optJSONArray("subtitles");if(cues!=null)for(int j=0;j<cues.length();j++){JSONObject cue=cues.getJSONObject(j);a.subtitles.add(new SubtitleCue(cue.getLong("start"),cue.getLong("end"),cue.getString("text")));}takes.add(a);}if(o.has("lastVideo"))lastVideo=Uri.parse(o.getString("lastVideo"));if(o.has("lastEdit"))lastEdit=Uri.parse(o.getString("lastEdit"));}catch(Exception ignored){}}
+    private void restore(){try{JSONObject o=new JSONObject(getSharedPreferences("shoot",0).getString("state","{}"));pendingPack=restorePendingPack(o.optString("pendingPack",""));pendingPackSnapshot=o.optString("pendingPackSnapshot","");desiredLens=o.optInt("lens",CameraSelector.LENS_FACING_FRONT);if(desiredLens!=CameraSelector.LENS_FACING_BACK)desiredLens=CameraSelector.LENS_FACING_FRONT;guideSequence=o.optBoolean("guideSequence",false);reelTitle=o.optString("reelTitle","");referenceSummary=o.optString("referenceSummary","");String referenceUri=o.optString("referenceVideoUri","");if(!referenceUri.isEmpty()){Uri candidate=Uri.parse(referenceUri);if("file".equals(candidate.getScheme())||"content".equals(candidate.getScheme()))referenceVideoUri=candidate;}try{referenceSpeechContext=ReferenceSpeechContext.Reviewed.fromJson(o.optString("referenceSpeech",""),referenceVideoUri);}catch(Exception invalidSpeech){referenceSpeechContext=null;}referenceDurationMs=Math.max(0,Math.min(180000,o.optLong("referenceDurationMs",0)));try{String boardJson=o.optString("referenceBoard","");if(!boardJson.isEmpty()&&referenceVideoUri!=null){ReferenceBoard restored=ReferenceBoard.fromJson(boardJson);if(restored.sourceUri.equals(referenceVideoUri)){reviewedReferenceBoard=restored;referenceSummary=restored.planningSummary();}else restored.close();}}catch(Exception invalidBoard){reviewedReferenceBoard=null;}brief=o.optString("brief",brief);style=o.optString("style",style);look=o.optString("look",look);planSource=o.optString("source",planSource);shotIndex=o.optInt("shot",0);voice=o.optBoolean("voice",true);JSONArray ss=o.optJSONArray("shots");if(ss!=null)for(int i=0;i<ss.length();i++){JSONObject s=ss.getJSONObject(i);shots.add(new Shot(s.getString("id"),s.getString("title"),s.getString("cue"),s.getString("caption"),s.getLong("duration")));}JSONArray tt=o.optJSONArray("takes");if(tt!=null)for(int i=0;i<tt.length();i++){JSONObject t=tt.getJSONObject(i);Take a=new Take(Uri.parse(t.getString("uri")),t.getString("id"),t.getString("title"),t.getString("caption"),t.getLong("duration"));a.inMs=t.getLong("in");a.outMs=t.getLong("out");a.selected=t.getBoolean("selected");a.captionOrigin=t.optString("captionOrigin","manual");JSONArray cues=t.optJSONArray("subtitles");if(cues!=null)for(int j=0;j<cues.length();j++){JSONObject cue=cues.getJSONObject(j);a.subtitles.add(new SubtitleCue(cue.getLong("start"),cue.getLong("end"),cue.getString("text")));}takes.add(a);}if(o.has("lastVideo"))lastVideo=Uri.parse(o.getString("lastVideo"));if(o.has("lastEdit"))lastEdit=Uri.parse(o.getString("lastEdit"));}catch(Exception ignored){}}
 }

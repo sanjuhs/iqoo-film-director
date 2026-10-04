@@ -17,6 +17,16 @@ fashion Detail uses a disclosed creator-choice grammar constraint. Prompting
 alone failed to reliably preserve poses; this retention is not learned grounding.
 See [reference-board evidence](../../docs/reference-board-evidence.md).
 
+**Read reference speech locally** reads the selected video's encoded audio with
+tiny.en, without opening a microphone or playing it. Review the full timed draft,
+write 1–210 corrected characters and explicitly choose **Use speech context**.
+Saved corrected words can be edited without reading the video again. Both
+reviews display the combined brief/reference budget: 500 characters including
+labels, preserving all visual notes and rejecting overflow without truncation.
+Speech stays bound to its selected source and precedes the canonical reviewed
+moments suffix. Source changes/cancel/background reject stale results; original
+clips remain intact. See [reviewed speech](../../docs/reference-speech-evidence.md).
+
 The optional full-shot sequence speaks instructions between takes, waits for actual cue completion, allows an eight-second pose break, speaks each countdown number to completion, and auto-stops each take. Stop or leaving the app ends the sequence; it never resumes on return. This sequence and real camera capture still need an attended shoot check.
 
 **Wait for a quiet pause · experimental** is off by default. With a timed stop or
@@ -81,6 +91,13 @@ unlocked-only; its six methods are compiled, unrun. Fixture failure/repair repor
 are preserved. The focused codec check passed with actual AAC-LC/16kHz/mono
 header verification and local Whisper transcription; remux/codec checks are not
 MediaRecorder or microphone-recording acceptance.
+
+ReferenceSpeechContextTest and ReferenceSpeechDeviceTest are headless: bounded
+draft/review/persistence/composition checks and one actual synthetic-audio →
+explicit test-authored correction → local Qwen request. The seven
+ReferenceSpeechUiTest methods are unlocked-only and compile without establishing
+visible dialog or attended acceptance. Select these classes individually; do
+not run the entire test APK unattended.
 
 ExportProcessDeathTest requires its methods to be selected separately: Phase1
 never passes normally and needs an externally recorded stop while genuine

@@ -97,6 +97,13 @@ cropped and black public/synthetic fixtures demonstrated conservative unknown
 results as well as model mistakes. Single-frame execution does not establish
 accurate clothing, age, framing or whole-trend understanding.
 
+The reference speech addition reads that selected video's English audio locally,
+keeps its full timed draft for review and uses only explicitly corrected concise
+context alongside the visual notes. A synthetic tiny.en → test-authored corrected
+context → Qwen CPU plan passed, preserving original bytes. The combined input
+rejects overflow rather than truncating either source. This does not establish
+learned speech/story grounding; the visible review still needs an unlocked check.
+
 Whisper tiny.en through whisper.cpp runs locally on CPU to create editable
 English subtitle drafts from selected clip audio. Media3 assembles reviewed
 trims with timed text, typography and deterministic color presets, preserving
@@ -106,9 +113,18 @@ learned creative grading and word-level karaoke timing remain future work. A
 portable ZIP includes selected originals, relative media paths, hashes and the
 reviewed timeline; actual Office Kit transfer is a separate gate.
 
-Android's dedicated on-device recognizer is used only when available; otherwise
-the creator types the brief. A non-network Android TTS voice synthesizes cues.
-Actual earbud playback and live spoken-brief recognition remain separate tests.
+An opt-in local voice-brief design records at most 45 seconds, then requires
+Stop and explicit review before words can replace the typed brief. Whisper reads
+the temporary encoded audio locally; cancel/background discards the draft.
+Actual AAC-LC encoding at the requested 16 kHz/mono/64 kbps and subsequent local
+transcription passed with synthetic PCM, without opening a microphone. That
+does not establish MediaRecorder or live spoken-brief acceptance.
+
+Android's dedicated on-device dictation remains a separate option when its
+offline English model is installed; it was absent on the development phone at
+the last readiness check. The creator can always type. A non-network Android TTS
+voice synthesizes cues. Actual earbud playback and live microphone use remain
+separate attended tests.
 The installed target was checked to have no INTERNET permission. No provider
 key is packaged in the app, and no private-media upload is part of this workflow.
 
@@ -128,7 +144,7 @@ attributed public documentation image; no private shoot was captured. See
 | Cue synthesis | Offline-voice synthetic cue produced audio bytes in **511 ms** | Synthesis only: no audible playback, AirPods route or Bluetooth microphone result |
 | English subtitles | CPU tiny.en produced **three draft segments in 3.458 s** from one labelled synthetic spoken clip | End-to-end decoding/load/transcription time; expected words checked, not general ASR accuracy |
 | Reel assembly | Actual **720×1280 H.264/AAC MP4**, **6.060 s** long, correct three-scene order and decoded subtitle visibility | Synthetic inputs; real camera audio, crop quality, HDR and multicamera synchronization remain untested |
-| Media correctness | **Six media tests passed**, including actual 199-character full captions and overflow rejection; staged recovery five tests passed | Fixture media, not an attended shoot; test-suite time is not an export benchmark |
+| Media correctness | **Six media tests passed**, including actual 199-character full captions and overflow rejection; staged recovery five tests passed. One real externally stopped ENCODING export also passed fresh-process recovery in **0.242 s**, preserving original bytes and the earlier completed reel | Fixture media, not an attended shoot; other process-death publication windows remain unverified; test-suite time is not an export benchmark |
 | Auto balance / portable ZIP | Seven analyzer/export checks reduced mild neutral RGB cast spread 12.1742→1.5267 and dim-luma +6.0603; six package checks preserved original bytes/hashes and portable timing | Deterministic heuristic, synthetic inputs; real grading, normal Files ZIP save and Office Kit remain unverified |
 | Reference inspection | **Three device tests passed in 4.883 s**: flat-color negative, two synthetic change boundaries and web-URI rejection | Sparse heuristics only; no semantic trend recognition or general cut-detection accuracy |
 | Phone capture | Explicit foreground implementation is present | Real preview/recorded audio/video, background stop and creator review |

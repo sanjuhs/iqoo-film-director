@@ -1069,3 +1069,70 @@ notes. It cannot be presented as music-beat or whole-trend understanding. Full
 attended creator/AirPods workflow, iQOO/NPU/Office Kit, eligible event-written code
 and accepted submission remain open. This turn produced genuine recovery and
 storage evidence; the goal remains active.
+
+### Reviewed reference speech and source ownership — 4 October, 17:37 IST
+
+The reference workflow now reads English audio from an explicitly selected local
+video with existing tiny.en. Its full source-timed draft remains visible; only
+explicitly corrected 1–210-character context is saved for the matching source.
+Saved words can be edited without reading the video again. Both dialogs show
+the combined 500-character budget, including labels, typed brief and visual
+notes; overflow preserves previous context and never truncates inputs. Speech
+precedes the canonical reviewed-moments suffix. It never starts planning,
+recording, playback or microphone access. [Detailed evidence](reference-speech-evidence.md).
+
+Read-only review found and repaired a real ownership race: an old speech reader
+could drain after source replacement and clear a newer frame inspector's busy
+state; specialized cancel also skipped that inspector. Reader resource cleanup
+now remains distinct from ownership of busy. A separate existing visual race
+cleared busy before checking a replaced source or attached old frame notes to
+it. Board/frame callbacks and retained review actions now check source/generation
+first. Replacement closes old visual helpers and disposes owned pixels without
+recycling an attached review image. These MainActivity repairs were reviewed;
+their seven synthetic unlocked UI methods compile but are **unrun** behind lock.
+
+The actual headless reference-speech runner passed **7 methods/47.335s**:
+six boundary/parser methods plus one tiny.en → explicit test-authored correction
+→ actual Qwen3.5 0.8B CPU plan. The known synthetic source measured 8,759ms;
+three timed cues took 4,516ms. A 216-character composed input returned five shots
+in 42,400ms. Source SHA/size/mtime, main-thread callback delivery and worker/core
+release passed. Hero/Closing directions are labelled creator-authored retention;
+Detail is a disclosed creator-choice constraint. The other cues/captions remain
+editable drafts. This is not learned grounding or artistic/usefulness evidence.
+
+A focused related runner passed **6 methods/2.828s**: three frame-decoder checks,
+two board cancellation/selection/bitmap checks without vision loading and
+read-only gallery inventory. Gallery remained 19 owned rows, zero pending and
+5,598,886 logical bytes. An initial log collector used the wrong tag; the scoped
+MiniFilmStorageTest buffer supplied the actual aggregate. No runner failure.
+Both builds/installations passed using existing tools. Saved/built/independently
+read installed app match **52,838,059 bytes**, SHA-256
+**90ad51be1bedab35941cf084c97f1bcb418e96ad7c6976fafa51d60c4bd9708f**.
+Publisher notices unchanged; separate Qwen/Whisper weights remain outside
+Git/APK, bundled ML Kit assets remain. No INTERNET/ACCESS_NETWORK_STATE permission.
+CAMERA/RECORD_AUDIO still denied, keyguard showing before/after; normal launch
+requested afterward. No attended visible launch is claimed.
+
+The six-page Phase 1 PDF was refreshed and all pages rendered/visually checked.
+Its 72,704 bytes/SHA-256
+**459d47b48291297596ac4db66afc924bf686b3252062c692aa9f0a0b68c6f23b**
+include the opt-in voice design, actual AAC/recovery evidence, clear live gates
+and event-code disclosure. The previous PDF is preserved privately. A first
+text probe missed a wrapped phrase; whitespace-normalized disclosure checks
+passed without changing content. A dated builder is now retained under
+prototype/phase-one-document. The Codex PDF tab is queued for this chat.
+
+Read-only signed-in Chrome dashboard refresh at approximately 17:24 IST still
+showed **5 Oct 2026** with 1 day, 6 hours, 36 minutes remaining, consistent with about
+**23:59 IST on 5 October**, timezone inferred. The form was empty/attestation
+unchecked; no field, upload, team setting, submission or receipt changed.
+
+Qualified storage is **9,290,146,735 bytes (9.290GB)**, below the 10GB aim/15GB
+limit, including the three installed APKs/private directories and owned gallery
+logical bytes. Missing-archive/cache/oat/provider-thumbnail inventory limits
+remain. No model/SDK/JDK download, private capture/playback/upload, permission
+bypass, aircraft action, credential change, archive or original-file deletion.
+The goal made source/device/document progress and remains active. Full attended
+creator/AirPods capture, iQOO/NPU/Office Kit, eligible event-written code and
+accepted submission remain unfinished; tonight's work continues within those
+existing gates.

@@ -62,6 +62,12 @@ with **5 October at 23:59 IST**. That time is inferred from the countdown; the
 visible date label does not separately state timezone. The finale remains
 9–11 October, and this deadline is for the idea, not the completed finale build.
 
+A read-only refresh of the existing signed-in Chrome dashboard at approximately
+17:24 IST on 4 October again showed **5 Oct 2026** and a countdown of **1 day,
+6 hours, 36 minutes**. This remains consistent with approximately **23:59 IST on
+5 October**; timezone is still inferred. The form was empty and the original-work
+attestation unchecked. No form field, team setting, upload or submission changed.
+
 The rendered official guide reconfirms: “Original work only: code written during
 the event window. No shipping a pre-built product.” Open-source libraries are
 allowed with attribution; a completed preparation app cannot be relabelled as
