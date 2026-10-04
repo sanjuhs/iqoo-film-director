@@ -271,7 +271,7 @@ public final class AssemblyEditUiTest {
             assertTrue(move.performClick()); assertFalse(menu.isShowing()); assertNull(field(activity, "takeToolsDialog")); assertQuiescent(activity);
         });
     }
-    private static void assemble(MainActivity activity) { Button button = find(activity.getWindow().getDecorView(), Button.class, "03  Assemble"); assertNotNull(button); assertTrue(button.performClick()); }
+    private static void assemble(MainActivity activity) { Button button = find(activity.getWindow().getDecorView(), Button.class, "Reel"); assertNotNull(button); assertTrue(button.performClick()); }
     private static void assertAssemblyRestored(MainActivity activity) {
         assertEquals("Recreation must retain the creator's assembly screen", 2, ((Number) field(activity, "tab")).intValue());
         assertNotNull(find(activity.getWindow().getDecorView(), Button.class, "Export my reel"));

@@ -110,7 +110,7 @@ public final class CaptureTakeRecoveryUiTest {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             scenario.onActivity(activity -> { set(activity, "captureTakeStore", store); assertEquals(2, takes(activity).size()); assertExisting(activity); assertQuiescent(activity); });
             File first = readyCopy(0);
-            scenario.onActivity(activity -> { click(activity, "03  Assemble"); assertRecovered(activity, 1); assertEquals(Uri.fromFile(first), takes(activity).get(2).uri); });
+            scenario.onActivity(activity -> { click(activity, "Reel"); assertRecovered(activity, 1); assertEquals(Uri.fromFile(first), takes(activity).get(2).uri); });
             File second = readyCopy(1);
             scenario.onActivity(activity -> { click(activity, "Find saved phone takes"); assertRecovered(activity, 2); assertEquals(Uri.fromFile(second), takes(activity).get(3).uri); });
             // Repeating the real control must keep order, selections and edits without duplicates.

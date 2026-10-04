@@ -15,13 +15,17 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Fresh JNI integration of pinned llama.cpp. Text only; no image, network or flight API. */
 public final class LocalPlanner {
     public interface Listener {
+        /** Actual worker phase, without token text or an invented completion percentage. */
+        default void onProgress(String stage) { }
         void onPlan(List<Shot> shots, long elapsedMs, String modelLabel);
         void onError(String message);
     }
@@ -148,6 +152,7 @@ public final class LocalPlanner {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
     private final AtomicBoolean busy = new AtomicBoolean(false);
+    private final AtomicLong requestGeneration = new AtomicLong();
     private volatile long handle;
     private volatile boolean closed;
     // Owned by the worker; retained while handle exists, even between planning requests.
@@ -168,10 +173,20 @@ public final class LocalPlanner {
         modelFile = new File(context.getFilesDir(), "director-model.gguf"); this.retainCreatorSpeech = retainCreatorSpeech;
     }
     public boolean isModelAvailable() { return runtimeLoaded && modelFile.isFile() && modelFile.length() > 10000000; }
+    /** Presence/runtime check only, not evidence that this model will generate a useful draft. */
+    public String unavailableReason() {
+        if (closed) return "The local planner is closed. Open the planning screen again.";
+        if (!runtimeLoaded) return "The local AI runtime is unavailable in this app build. The starter plan is editable, but it is not AI output.";
+        if (!modelFile.isFile() || modelFile.length() <= 10000000)
+            return "The local AI model is missing or incomplete on this phone. The starter plan is editable, but it is not AI output.";
+        return "";
+    }
 
     public void generate(String brief, String style, Listener listener) {
-        if (closed || !isModelAvailable()) { listener.onError("Local model isn't installed. Use the editable template."); return; }
+        String unavailable = unavailableReason();
+        if (!unavailable.isEmpty()) { listener.onError(unavailable); return; }
         if (!busy.compareAndSet(false, true)) { listener.onError("The local planner is already working."); return; }
+        final long request = requestGeneration.incrementAndGet();
         String originalBrief = brief == null ? "" : brief.trim();
         String safeBrief = clip(originalBrief, 500).replace("<|", "").replace("|>", "");
         String safeStyle = clip(style, 60).replace("<|", "").replace("|>", "");
@@ -189,7 +204,7 @@ public final class LocalPlanner {
             creatorSpeech = creatorSpeechRequest(originalBrief, fashionIntent, reviewedCues, retainCreatorSpeech);
         } catch (IllegalArgumentException failure) {
             busy.set(false);
-            main.post(() -> { if (!closed) listener.onError(failure.getMessage()); });
+            main.post(() -> { if (current(request)) listener.onError(failure.getMessage()); });
             return;
         }
         boolean reviewedMoments = reviewedCues.present;
@@ -199,11 +214,16 @@ public final class LocalPlanner {
         String grammar = grammarForRoles(roles, roleActions, constrainDetail, fashionIntent);
         try { worker.execute(() -> {
             long began = SystemClock.elapsedRealtime();
+            List<Shot> completedPlan = null;
+            long completedElapsed = 0;
+            String completedLabel = null, completedError = null;
             try {
                 if (closed) return;
                 if (handle == 0) {
+                    postProgress(request, listener, "Waiting for earlier local model work to finish…");
                     modelLease = LocalModelLease.acquire("planner", () -> closed, 5000);
                     if (closed) return;
+                    postProgress(request, listener, "Loading the AI model on this phone…");
                     long loaded = nativeLoad(modelFile.getAbsolutePath());
                     synchronized (this) {
                         handle = loaded;
@@ -213,8 +233,10 @@ public final class LocalPlanner {
                 if (closed) return;
                 String prompt = buildPrompt(safeBrief, safeStyle, roles, roleActions, reviewedMoments, constrainDetail, true, fashionIntent);
                 if (closed) return;
+                postProgress(request, listener, "Writing five shot directions on this phone. This can take a minute…");
                 String result = new String(nativeGenerate(handle, prompt.getBytes(StandardCharsets.UTF_8),
                         grammar.getBytes(StandardCharsets.UTF_8), 580), StandardCharsets.UTF_8);
+                postProgress(request, listener, "Checking the editable AI draft…");
                 List<Shot> plan = parse(result, roles, roleActions, constrainDetail, fashionIntent);
                 // Native output is still a real five-shot draft. Named instructions below are creator-authored
                 // authoritative edits, not evidence that the model understood or preserved the reviewed direction.
@@ -235,8 +257,9 @@ public final class LocalPlanner {
                         + (creatorSpeech != null ? " · Closing: creator-authored speech request retained" : "")
                         + (roles == TALKING_ROLES ? " · creator-choice cutaway constraint" : "")
                         + (reviewedCues.hasAny() ? " · creator-authored reviewed cues retained" : "");
-                List<Shot> publishedPlan = plan;
-                main.post(() -> { if (!closed) listener.onPlan(publishedPlan, elapsed, modelLabel); });
+                completedPlan = plan;
+                completedElapsed = elapsed;
+                completedLabel = modelLabel;
             } catch (Exception | LinkageError failure) {
                 boolean invalidMovement = failure instanceof FashionMovementException;
                 boolean invalidCaption = failure instanceof FashionCaptionException;
@@ -244,19 +267,55 @@ public final class LocalPlanner {
                 Log.w("MiniFilmLocalAI", invalidMovement ? "planner_failed category=fashion_movement"
                         : invalidCaption ? "planner_failed category=fashion_caption_labels"
                         : "planner_failed type=" + failure.getClass().getSimpleName());
-                String message = invalidMovement
-                        ? "Local AI proposed an unusable movement. Keep your current plan or use the editable starter."
-                        : invalidCaption ? "Local AI proposed incomplete fashion captions. Keep your current plan or use the editable starter."
-                        : "Local AI couldn't produce a valid plan. Use the editable template or try a shorter brief.";
-                main.post(() -> { if (!closed) listener.onError(message); });
+                completedError = errorMessage(failure);
             } finally {
                 if (closed || handle == 0) freeNativeAndRelease();
                 busy.set(false);
             }
+            // A terminal callback may immediately start another request. Release worker admission
+            // first; an idle native model deliberately retains its lease until close/nativeFree.
+            final List<Shot> publishedPlan = completedPlan;
+            final long elapsed = completedElapsed;
+            final String label = completedLabel, error = completedError;
+            main.post(() -> {
+                if (!current(request)) return;
+                if (publishedPlan != null) listener.onPlan(publishedPlan, elapsed, label);
+                else if (error != null) listener.onError(error);
+            });
         }); } catch (RejectedExecutionException failure) {
             busy.set(false);
             if (!closed) listener.onError("The local planner is closed.");
         }
+    }
+
+    private boolean current(long request) { return !closed && requestGeneration.get() == request; }
+    private void postProgress(long request, Listener listener, String stage) {
+        main.post(() -> { if (current(request)) listener.onProgress(stage); });
+    }
+    /** Only controlled native literals select errors; never disclose arbitrary exception text. */
+    private static String errorMessage(Throwable failure) {
+        if (failure instanceof FashionMovementException)
+            return "Local AI proposed an unusable movement. Keep your current plan or use the editable starter.";
+        if (failure instanceof FashionCaptionException)
+            return "Local AI proposed incomplete fashion captions. Keep your current plan or use the editable starter.";
+        if (failure instanceof TimeoutException)
+            return "Earlier local model work is still stopping. Wait a moment, then generate your plan again.";
+        if (failure instanceof LinkageError)
+            return "The local AI runtime could not start in this app build. Your current plan is unchanged.";
+        if (failure instanceof IllegalStateException) {
+            String message = failure.getMessage();
+            if ("Brief is too long for the local planner.".equals(message))
+                return "This brief is too long for the phone model's token budget. Shorten the brief or reviewed notes and try again.";
+            if ("This model build requires CPU dot-product and FP16 support. Use the editable template.".equals(message))
+                return "This local AI build cannot run on this phone's CPU. Your current plan is unchanged.";
+            if ("Local model could not load. Use the editable template.".equals(message))
+                return "The phone could not load the local model. Its file may be unreadable or incomplete. Your current plan is unchanged.";
+            if ("Local model context could not initialize. Use the editable template.".equals(message))
+                return "The phone could not allocate the local AI context. Close other heavy apps and try again.";
+            if ("Local planning timed out or was cancelled. Use the editable template.".equals(message))
+                return "Local AI stopped before finishing its draft. Your current plan is unchanged; you can retry or edit the starter.";
+        }
+        return "Local AI couldn't produce a valid plan. Your current plan is unchanged; shorten the brief or use the editable starter.";
     }
 
     /** Shared production prompt; only the explicit chat adapter changes for a comparison model. */

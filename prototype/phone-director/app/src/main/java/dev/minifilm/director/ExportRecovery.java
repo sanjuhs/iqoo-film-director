@@ -54,7 +54,7 @@ public final class ExportRecovery {
                                 || !validPair(journal, row)) {
                             warn(result); continue;
                         }
-                        try { journal.complete(); } catch (Exception ignored) { warn(result); }
+                        try { if (!journal.state.equals("COMPLETE")) journal.complete(); } catch (Exception ignored) { warn(result); }
                         remove(journal.temp());
                         completed.add(journal);
                         if (latest == null || journal.createdMs > latest.createdMs) {

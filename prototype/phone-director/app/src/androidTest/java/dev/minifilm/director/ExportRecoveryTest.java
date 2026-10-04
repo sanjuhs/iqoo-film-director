@@ -86,7 +86,12 @@ public final class ExportRecoveryTest {
             assertEquals(row, result.videoUri); assertNotNull(result.editListUri);
             assertTrue(exists(row)); assertTrue(journal.edit().exists()); assertFalse(journal.temp().exists());
             assertTrue("Newest pointer must survive until activity persists it", journal.atomic().getBaseFile().exists());
+            File completeRecord=journal.atomic().getBaseFile();
+            long completeModified=completeRecord.lastModified();
+            byte[] completeBytes=Files.readAllBytes(completeRecord.toPath());
             ExportRecovery.Result again = ExportRecovery.reconcile(context);
+            assertEquals("Completed recovery is read-only",completeModified,completeRecord.lastModified());
+            assertArrayEquals(completeBytes,Files.readAllBytes(completeRecord.toPath()));
             assertEquals(result.videoUri, again.videoUri); assertEquals(result.editListUri, again.editListUri);
             assertArrayEquals("Source preserved", original, Files.readAllBytes(source.toPath()));
             ExportRecovery.Journal persisted = ExportRecovery.Journal.read(context, journal.id);

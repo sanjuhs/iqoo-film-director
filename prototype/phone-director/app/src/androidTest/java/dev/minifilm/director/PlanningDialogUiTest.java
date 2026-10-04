@@ -51,9 +51,10 @@ public final class PlanningDialogUiTest {
         }
     }
     @Test(timeout=60_000) public void currentReplaceUsesLabelledTemplateKeepsTakeEditsAndRestartsFirstShot(){
+        AtomicReference<String> takeJson=new AtomicReference<>();AtomicReference<String> oldPlan=new AtomicReference<>();AtomicReference<Take> take=new AtomicReference<>();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
-            prepare(scenario);openReplace(scenario);scenario.onActivity(a->{Take take=takes(a).get(0);String takeJson=invoke(a,"serializeTakes").toString();String oldPlan=plan(a);
-                assertTrue(dialog(a).getButton(-1).performClick());assertNull(field(a,"planningDialog"));assertNotEquals(oldPlan,plan(a));assertEquals("Editable template · local LLM not installed",field(a,"planSource"));assertEquals(0,field(a,"shotIndex"));assertSame(take,takes(a).get(0));assertEquals(takeJson,invoke(a,"serializeTakes").toString());quiet(a);});
+            prepare(scenario);openReplace(scenario);scenario.onActivity(a->{take.set(takes(a).get(0));takeJson.set(invoke(a,"serializeTakes").toString());oldPlan.set(plan(a));assertTrue(dialog(a).getButton(-1).performClick());assertEquals(oldPlan.get(),plan(a));});idle();
+            scenario.onActivity(a->{assertTrue(dialog(a).isShowing());assertTrue(dialog(a).getButton(-1).performClick());assertNull(field(a,"planningDialog"));assertNotEquals(oldPlan.get(),plan(a));assertEquals("Editable template · local AI unavailable",field(a,"planSource"));assertEquals(0,field(a,"shotIndex"));assertSame(take.get(),takes(a).get(0));assertEquals(takeJson.get(),invoke(a,"serializeTakes").toString());quiet(a);});
         }
     }
     @Test(timeout=60_000) public void fallbackKeepAndCurrentExplicitTemplateHaveSeparateOwnershipAndFailureLabel(){

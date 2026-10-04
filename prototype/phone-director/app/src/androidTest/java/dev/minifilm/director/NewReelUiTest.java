@@ -74,16 +74,16 @@ public final class NewReelUiTest {
                 List<TakeFacts> snapshots=new ArrayList<>();for(Take t:takes(a))snapshots.add(new TakeFacts(t));facts.set(snapshots);plan.set(new ArrayList<>(shots(a)));shotsJson.set(invoke(a,"serializeShots").toString());});idle();File pointer=pointer();
             scenario.onActivity(a->{set(a,"pendingPack",pointer);set(a,"pendingPackSnapshot",invoke(a,"packSnapshot"));invoke(a,"save");});openNewReel(scenario);
             scenario.onActivity(a->dialog(a).getButton(-1).performClick());idle();
-            scenario.onActivity(a->{assertNull(field(a,"newReelDialog"));assertEquals(0,field(a,"tab"));assertEquals("The next reel begins at the first retained plan shot",0,field(a,"shotIndex"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());
+            scenario.onActivity(a->{assertNull(field(a,"newReelDialog"));assertEquals(1,field(a,"tab"));assertEquals("The next reel begins at the first retained plan shot",0,field(a,"shotIndex"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());
                 for(int i=0;i<facts.get().size();i++){assertSame(facts.get().get(i).identity,takes(a).get(i));facts.get().get(i).check(takes(a).get(i),true);}
                 for(int i=0;i<plan.get().size();i++)assertSame(plan.get().get(i),shots(a).get(i));assertEquals(shotsJson.get(),invoke(a,"serializeShots").toString());
                 assertKeptContext(a);assertNull(field(a,"pendingPack"));assertFalse(pointer.exists());assertTrue(((TextView)field(a,"status")).getText().toString().contains("Review the existing brief and shot plan"));assertNoMedia(a);
-                try{JSONObject saved=new JSONObject(preferences.getString("state",""));assertEquals(0,saved.getInt("tab"));assertEquals(0,saved.getInt("shot"));assertEquals("",saved.getString("reelTitle"));for(int i=0;i<saved.getJSONArray("takes").length();i++)assertFalse(saved.getJSONArray("takes").getJSONObject(i).getBoolean("selected"));}catch(Exception e){throw new AssertionError(e);}
+                try{JSONObject saved=new JSONObject(preferences.getString("state",""));assertEquals(1,saved.getInt("tab"));assertEquals(0,saved.getInt("shot"));assertEquals("",saved.getString("reelTitle"));for(int i=0;i<saved.getJSONArray("takes").length();i++)assertFalse(saved.getJSONArray("takes").getJSONObject(i).getBoolean("selected"));}catch(Exception e){throw new AssertionError(e);}
             });scenario.recreate();idle();
-            scenario.onActivity(a->{assertEquals(0,field(a,"tab"));assertEquals("The persisted first-shot position survives recreation",0,field(a,"shotIndex"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());for(int i=0;i<facts.get().size();i++)facts.get().get(i).check(takes(a).get(i),false);
+            scenario.onActivity(a->{assertEquals(1,field(a,"tab"));assertEquals("The persisted first-shot position survives recreation",0,field(a,"shotIndex"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());for(int i=0;i<facts.get().size();i++)facts.get().get(i).check(takes(a).get(i),false);
                 assertEquals(shotsJson.get(),invoke(a,"serializeShots").toString());assertKeptContext(a);assertNoMedia(a);});
-            scenario.onActivity(a->clickVisible((Button)find((View)field(a,"nav"),Button.class,"02  Direct")));idle();
-            scenario.onActivity(a->{assertEquals(1,field(a,"tab"));assertEquals(0,field(a,"shotIndex"));assertTrue("Direct displays the first retained plan title",hasText((View)field(a,"root"),"SHOT 01 OF 02  ·  Hero pose"));assertEquals("Pose in your own outfit.",((TextView)field(a,"cueView")).getText().toString());assertNoMedia(a);});
+            scenario.onActivity(a->clickVisible((Button)find((View)field(a,"nav"),Button.class,"Camera")));idle();
+            scenario.onActivity(a->{assertEquals(1,field(a,"tab"));assertEquals(0,field(a,"shotIndex"));assertTrue("Direct displays the first retained plan title",hasText((View)field(a,"root"),"Hero pose  ·  1 / 2"));assertEquals("Pose in your own outfit.",((TextView)field(a,"cueView")).getText().toString());assertNoMedia(a);});
         }
     }
 
@@ -108,9 +108,9 @@ public final class NewReelUiTest {
     @Test(timeout=60_000) public void zeroTakesCanClearOnlyTitleAndUnchangedEmptyReelKeepsMatchingReadyCache() throws Exception{
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
             scenario.onActivity(a->prepare(a,false));idle();openNewReel(scenario);scenario.onActivity(a->dialog(a).getButton(-1).performClick());idle();
-            scenario.onActivity(a->{assertEquals(0,field(a,"tab"));assertTrue(takes(a).isEmpty());assertEquals("",field(a,"reelTitle"));assertKeptContext(a);set(a,"tab",2);invoke(a,"save");invoke(a,"render");});idle();File pointer=pointer();
+            scenario.onActivity(a->{assertEquals(1,field(a,"tab"));assertTrue(takes(a).isEmpty());assertEquals("",field(a,"reelTitle"));assertKeptContext(a);set(a,"tab",2);invoke(a,"save");invoke(a,"render");});idle();File pointer=pointer();
             scenario.onActivity(a->{set(a,"pendingPack",pointer);set(a,"pendingPackSnapshot",invoke(a,"packSnapshot"));invoke(a,"save");});openNewReel(scenario);
-            scenario.onActivity(a->dialog(a).getButton(-1).performClick());idle();scenario.onActivity(a->{assertEquals(0,field(a,"tab"));assertTrue(takes(a).isEmpty());assertEquals("",field(a,"reelTitle"));assertSame(pointer,field(a,"pendingPack"));assertTrue(pointer.exists());assertKeptContext(a);assertNoMedia(a);});
+            scenario.onActivity(a->dialog(a).getButton(-1).performClick());idle();scenario.onActivity(a->{assertEquals(1,field(a,"tab"));assertTrue(takes(a).isEmpty());assertEquals("",field(a,"reelTitle"));assertSame(pointer,field(a,"pendingPack"));assertTrue(pointer.exists());assertKeptContext(a);assertNoMedia(a);});
         }
     }
 

@@ -57,7 +57,7 @@ public final class UiWorkflowTest {
         assertFalse("Unlock the phone before UI checks; screen layout/lifecycle cannot be verified behind its lock.", keyguard != null && keyguard.isKeyguardLocked());
         assertDenied(context);
         originalPreferences = new HashMap<>(preferences.getAll());
-        assertTrue(preferences.edit().clear().putString("state", "{}").commit());
+        assertTrue(preferences.edit().clear().putString("state", "{\"tab\":0}").commit());
     }
     @After public void restoreShootState() {
         if (originalPreferences != null) {
@@ -88,7 +88,7 @@ public final class UiWorkflowTest {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             scenario.onActivity(activity -> {
                 assertNoCapture(activity);
-                click(activity, "02  Direct");
+                click(activity, "Camera");
                 Switch sequence = find(activity.getWindow().getDecorView(), Switch.class,
                         "Guide the full shot sequence");
                 assertNotNull(sequence); sequence.setChecked(true);
@@ -102,7 +102,7 @@ public final class UiWorkflowTest {
             scenario.onActivity(activity -> {
                 assertNoCapture(activity);
                 assertEquals("Reopening Direct preserves the screen without restarting capture", 1, field(activity, "tab"));
-                click(activity, "02  Direct");
+                click(activity, "Camera");
                 Switch sequence = find(activity.getWindow().getDecorView(), Switch.class,
                         "Guide the full shot sequence");
                 assertTrue("The option can persist without restarting recording", sequence.isChecked());
@@ -113,7 +113,7 @@ public final class UiWorkflowTest {
 
     @Test(timeout = 30_000) public void cameraStartAndStopRemainVisibleWhileNavigationDoesNotActivateCapture() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(activity -> click(activity, "02  Direct"));
+            scenario.onActivity(activity -> click(activity, "Camera"));
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
             scenario.onActivity(activity -> {
                 ScrollView scroll = find(activity.getWindow().getDecorView(), ScrollView.class, null);
@@ -122,14 +122,14 @@ public final class UiWorkflowTest {
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
             scenario.onActivity(activity -> {
                 Button record = find(activity.getWindow().getDecorView(), Button.class, "Start camera");
-                Button stop = find(activity.getWindow().getDecorView(), Button.class, "Stop take");
+                Button stop = find(activity.getWindow().getDecorView(), Button.class, "Stop camera");
                 assertNotNull(record); assertNotNull(stop);
                 assertVisible(record); assertVisible(stop);
                 // Leave Start camera untouched: no permission dialog, preview or microphone.
                 assertNoCapture(activity);
                 stop.performClick();
                 assertNoCapture(activity);
-                click(activity, "03  Assemble");
+                click(activity, "Reel");
                 assertNotNull(find(activity.getWindow().getDecorView(), Button.class, "Export my reel"));
                 assertNoCapture(activity);
             });
@@ -138,7 +138,7 @@ public final class UiWorkflowTest {
 
     @Test(timeout = 30_000) public void verticalViewfinderAndBackLensPersistWithoutOpeningCamera() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(activity -> click(activity, "02  Direct"));
+            scenario.onActivity(activity -> click(activity, "Camera"));
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
             scenario.onActivity(activity -> {
                 PreviewView preview = find(activity.getWindow().getDecorView(), PreviewView.class, null);
@@ -228,7 +228,7 @@ public final class UiWorkflowTest {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             scenario.onActivity(activity -> {
                 setField(activity, "style", "Product reveal");
-                click(activity, "02  Direct");
+                click(activity, "Camera");
                 assertEquals("Person-framing advice is off for this object shot. Follow your scene cue.",
                         ((TextView) field(activity, "framingView")).getText().toString());
                 assertEquals(false, invoke(activity, "isPoseShot"));
@@ -260,7 +260,7 @@ public final class UiWorkflowTest {
         pickerFilter.addDataType("application/zip");
         Instrumentation.ActivityMonitor picker = instrumentation.addMonitor(pickerFilter, null, true);
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(activity -> { click(activity, "03  Assemble"); setField(activity, "pendingPack", zip); setField(activity, "pendingPackSnapshot", invoke(activity, "packSnapshot")); invoke(activity, "save"); });
+            scenario.onActivity(activity -> { click(activity, "Reel"); setField(activity, "pendingPack", zip); setField(activity, "pendingPackSnapshot", invoke(activity, "packSnapshot")); invoke(activity, "save"); });
             scenario.recreate();
             scenario.onActivity(activity -> {
                 assertEquals("Ready cache ZIP must survive activity replacement", zip, field(activity, "pendingPack"));
@@ -299,7 +299,7 @@ public final class UiWorkflowTest {
                 setField(activity, "pendingPack", zip);
                 setField(activity, "pendingPackSnapshot", invoke(activity, "packSnapshot"));
                 invoke(activity, "save");
-                click(activity, "03  Assemble");
+                click(activity, "Reel");
                 assertEquals(zip, field(activity, "pendingPack"));
                 click(activity, "Select no takes");
                 assertEquals(10, takes.size());
@@ -323,7 +323,7 @@ public final class UiWorkflowTest {
     @Test(timeout = 30_000) public void audioInterruptionCancelsPreparationAndLeavesExplicitResumeRequired() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             scenario.onActivity(activity -> {
-                click(activity, "02  Direct");
+                click(activity, "Camera");
                 setField(activity, "countdown", true);
                 setField(activity, "sequenceActive", true);
                 int oldGeneration = (Integer) field(activity, "countdownGeneration");

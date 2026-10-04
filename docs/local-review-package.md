@@ -1,17 +1,16 @@
 # Mini Film Director — one local review package
 
-4 October 2026, pre-event research; no upload or submission receipt.
+5 October 2026, camera-first repair / pre-event research; no upload or submission receipt.
 
 [Download the local review ZIP](../output/review/MiniFilm-local-review.zip).
-28,011,118B; SHA256
-`ba482e0e08455da3f7bff5e8e7b4f04c64aace2eed30a7c6e5659cab67b7260b`.
+26,790,869B; SHA256
+`355eca8874387b4d0e572d4f7fabf1d61ba3f13b559a2f11d5b9d2b03451a80c`.
 
-Ten entries: the independently verified installed research APK, creator-review
-pitch PDF/editable PowerPoint, one-minute actual UI walkthrough, its actual
-synthetic exported reel, sanitized public deadline/output availability proofs,
-portable first-shoot instructions, README and manifest. The manifest retains
-exact payload lengths and SHA256; ZIP CRC and every manifest payload hash were
-checked by reading the completed archive. Source files remained unchanged.
+Eleven entries: current independently verified installed APK, creator-review
+pitch PDF/editable PowerPoint, dated prior UI walkthrough and synthetic reel,
+current camera-first emulator screen, sanitized deadline/repair evidence,
+updated instructions, README and manifest. ZIP CRC and every non-manifest
+payload hash were checked against the completed archive.
 
 This ZIP exceeds the portal's25MB attachment limit. Use a separately reviewed
 pitch PDF/PPT for an idea attachment; no declaration/upload/submission occurred.
@@ -24,10 +23,9 @@ identifiers, private recordings or other source data are included. Whitelisted
 known artifacts were packed, rather than a recursive workspace archive.
 
 The walkthrough remains silent emulator/template/synthetic footage from its
-recorded prior build. The APK is the latest verified planning-dialog build.
+recorded prior build. The APK is the latest verified camera-first repair build.
 Real filming/AirPods/iQOO/NPU/OfficeKit/drone and accepted-entry gates remain open.
 
-Adjacent qualified storage9,395,841,909B at23:52 includes this retained package,
-existing raw/walkthrough artifacts, external cover once and historic missing-
-archive/cache reserves, with existing inventory/runtime exclusions. Below10GB
-aim and15GBcap; no new dependency/model/SDK/JDK download or private upload.
+The final qualified storage measurement for this repair is recorded in
+[status](status.md). The old walkthrough is retained and explicitly dated;
+no private screenshot/recording or new dependency/model download was added.

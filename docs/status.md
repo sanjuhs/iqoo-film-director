@@ -1,13 +1,13 @@
 # Verified status — Mini Film Director
 
-Updated 4 October 2026 (IST). The user authorized archiving FocusPilot, removing
+Updated 5 October 2026 (IST). The user authorized archiving FocusPilot, removing
 its files from this workspace and proceeding with the DJI Mini film director.
 
 ## Current delivery
 
 The fresh phone app **Mini Film** (`dev.minifilm.director`) is installed and
-launched on the authorized Nothing Phone (3a), Android 16. The three screens
-are Brief → Direct → Assemble. Local CPU shot generation, bundled pose inference,
+launched on the authorized Nothing Phone (3a), Android 16. The visible tabs are **Camera → Reel**, with advanced shot/reference tools under
+Shoot options. Local CPU shot generation, bundled pose inference,
 offline English TTS synthesis, English clip transcription, reference-frame
 inspection and actual vertical reel export have passed fixture-based phone checks.
 See [app/build instructions](../prototype/phone-director/README.md),
@@ -32,12 +32,59 @@ configuration now confirms the Phase 1 idea deadline as **5 October 2026 at
 See [exact public evidence](phase1-deadline-evidence.json). Finale is 9–11 October and
 competition code must be created in the allowed event window unless organizers
 approve reuse. No form attestation, external message or submission was made.
-Autonomous preparation is now blocked on attended hardware/creator validation;
-the existing heartbeat retains the user's stop-initiating-work bound at midnight.
+The existing heartbeat is paused after the midnight bound. The creator returned
+and explicitly requested the camera/AI usability repair described below; that
+human request authorized this repair. Overall acceptance still needs attended
+creator/hardware validation.
 
 The sections below retain earlier research/migration history. Current measured
 phone evidence is in the final delivery ledger; older “not built” statements
 describe their dated checks and are superseded for the phone app.
+
+## 5 October — repair after creator live failure
+
+The creator reported a confusing interface and nonworking live flow. Earlier
+fixture checks did not prove that experience. The source exposed two concrete
+problems: hidden AI feedback and camera-ready publication before asynchronous
+OPEN/STREAMING. Saved metadata also showed a local-AI-labelled plan with guided
+shooting off; this does not identify every cause of the creator's failure.
+
+Camera now has a fixed prompt/Generate AI and Start/Record/Stop row, two tabs,
+a new original vector symbol/launcher icon, explicit Stop camera and collapsed
+Shoot options. AI reports loading stages and unavailable models require an
+explicit starter choice. Camera ready waits for real OPEN plus STREAMING with
+bounded retry errors. Generating from Camera enables guided shooting; recording
+still requires the creator's Record action. CPU generation temporarily closes
+preview rather than competing with media inference. Completed export recovery
+now avoids an unnecessary identical journal rewrite.
+
+[Sanitized repair evidence](camera-first-repair-evidence.json),
+[current device posture](camera-first-device-state.json), and
+[updated creator instructions](return-to-phone.md) record the limits.
+18 updated interface checks passed, plus seven readiness/planner feedback,
+four new-reel and two synthetic export/recovery methods across targeted runners.
+One actual Camera Generate AI request passed on the phone: 42.568 seconds native,
+five editable shots, four visible stages, released worker/model ownership,
+preserved model and source-video metadata and restored creator preferences.
+This is a pretrained Qwen3.5 0.8B CPU model with fixed-role/detail constraints,
+not custom training, Kev, NPU or demonstrated continuous conversational direction.
+
+The phone reached actual camera OPEN/STREAMING in957ms on the first attempt.
+Its strict preservation assertion found the completed export journal rewrite;
+the repaired preview/Stop camera/background-resume check then passed in2.864s,
+with all app-file metadata/preferences preserved and no recording/audio/pixel
+export. The real UI screenshot is a camera-disabled owned emulator. The built,
+saved and independently read installed APK match; the evidence records its hash.
+No new model/runtime download, private upload, aircraft action or submission.
+Real creator recording/sound, AirPods playback and useful live coaching remain
+attended acceptance gates; prototype completion is not asserted.
+
+Qualified adjacent storage at01:57 IST is9,441,245,648B; peak11,008,397,888B,
+including historic missing-archive/cache reserves and existing inventory
+exclusions. Below15GB cap and final below10GB aim. Only the owned camera-disabled
+AVD and its registration were removed; the other AVD was preserved. Updated
+local review ZIP26,790,869B /11entries was CRC/payload-hash verified; its older
+walkthrough is explicitly dated. [Review package](local-review-package.md).
 
 ## Archive and migration
 

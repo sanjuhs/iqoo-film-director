@@ -623,3 +623,18 @@ Only own AVD/reg removed; otheruntouched. Qualified peak10643047341B,
 finaladjacent9327293357B with existing inventory/reserve
 limits. No new downloads, private upload/recording or aircraft action. Goal
 active; attended/device/usefulness/event acceptance gates remain open.
+
+
+### 5 October — camera-first live-failure repair
+
+The creator returned after midnight and requested this repair. New Camera/Reel
+interface, original symbol, fixed Generate AI/Start/Stop controls, visible CPU
+progress and real OPEN/STREAMING readiness replace the earlier confusing flow.
+[Repair evidence](camera-first-repair-evidence.json) records one actual camera-page
+CPU request (42.568s), final preview/stop/background check with strict metadata
+preservation, 18 interface checks, seven readiness/feedback, four new-reel and
+two synthetic export/recovery methods. Initial test assumptions and completed
+export-journal rewrite failures are retained in the status ledger. No private
+recording/audio/upload/aircraft action. Real creator capture, sound/AirPods, useful
+coaching, required event hardware and accepted eligible submission remain open.
+The heartbeat remains paused; this repair does not resume autonomous work.

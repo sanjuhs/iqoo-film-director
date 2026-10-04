@@ -1,0 +1,65 @@
+{
+  "dateIst": "2026-10-05",
+  "classification": "pre-event research repair requested by creator after midnight",
+  "interface": {
+    "tabs": [
+      "Camera",
+      "Reel"
+    ],
+    "cameraDefaultForFreshState": true,
+    "fixedPromptAndGenerateAi": true,
+    "explicitStopCamera": true,
+    "logo": "original viewfinder/play/spark vector"
+  },
+  "cpuAi": {
+    "entryPoint": "actual Camera Generate AI button",
+    "model": "Qwen3.5 0.8B Q4_0",
+    "backend": "CPU",
+    "attempts": 1,
+    "nativeGenerationMs": 42568,
+    "visibleProgressStages": 4,
+    "editableShots": 5,
+    "preferencesRestored": true,
+    "modelHashPreserved": true,
+    "sourceVideoMetadataPreserved": true,
+    "creativeQualityProven": false
+  },
+  "cameraPreview": {
+    "actualOpenStreamingMsFirstAttempt": 957,
+    "finalPreviewStopBackgroundCheckPassed": true,
+    "recordingStarted": false,
+    "microphoneStarted": false,
+    "preferencesRestored": true,
+    "allAppFileMetadataPreservedFinalCheck": true,
+    "privatePixelsSavedOrUploaded": false
+  },
+  "checks": {
+    "updatedInterfaceTests": 18,
+    "captureReadinessAndPlannerFeedbackTests": 7,
+    "newReelTests": 4,
+    "syntheticExportAndIdempotentRecoveryTests": 2,
+    "phoneCpuMainRequestTests": 1,
+    "phonePreviewTests": 1,
+    "initialInterfaceFailures": "Five obsolete/too-early test assumptions repaired; no final unresolved failures in these selectors.",
+    "initialPhoneFailure": "Completed export journal was unnecessarily rewritten on startup; idempotence fix passed strict preservation recheck."
+  },
+  "installedApk": {
+    "sizeBytes": 52838570,
+    "sha256": "3076dc06c3b3b348d162efc0f997abf4d307ef05a8085db147011bd1dfcee75e",
+    "builtSavedInstalledMatch": true,
+    "installedAPKIndependentlyRead": true,
+    "separateQwenWhisperWeightsInAPK": false,
+    "bundledMLKitAssetsRemain": true,
+    "packagedNoticesMatchSource": true,
+    "noticeSizeBytes": 31635,
+    "noticeSHA256": "02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68"
+  },
+  "remaining": [
+    "Attended recording and source sound",
+    "AirPods actual playback/microphone",
+    "Real creator coaching usefulness",
+    "iQOO/NPU/Office Kit",
+    "Event-created source or organizer reuse approval and accepted submission",
+    "Optional supported DJI hardware test"
+  ]
+}

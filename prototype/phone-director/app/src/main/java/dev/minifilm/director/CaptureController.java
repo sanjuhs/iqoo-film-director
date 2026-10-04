@@ -5,12 +5,15 @@ import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Looper;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Rational;
 import android.util.Size;
 
 import androidx.activity.ComponentActivity;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraState;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
@@ -28,6 +31,8 @@ import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -88,6 +93,13 @@ public final class CaptureController implements AutoCloseable {
     private volatile boolean analysisAvailable;
     private int lensFacing = CameraSelector.LENS_FACING_FRONT;
     private int bindingGeneration;
+    private final Handler previewHandler = new Handler(Looper.getMainLooper());
+    private static final long PREVIEW_START_TIMEOUT_MS = 15_000L;
+    private LiveData<CameraState> cameraStates;
+    private Observer<CameraState> cameraStateObserver;
+    private Observer<PreviewView.StreamState> streamStateObserver;
+    private Runnable previewTimeout;
+    private boolean cameraOpen, previewStreaming, streamSawIdle;
     private long nextRecordingId;
     private volatile long recordingId;
     private boolean recordingStarted;
@@ -147,15 +159,23 @@ public final class CaptureController implements AutoCloseable {
             listener.onError("Allow camera access to start your shoot preview.");
             return;
         }
+        if (!activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+            listener.onError("Keep the camera screen visible while opening preview.");
+            return;
+        }
+        clearPreviewObservers();
         previewRequested = true;
         ready = false;
         int generation = ++bindingGeneration;
+        observePreviewStream(generation);
+        previewTimeout = () -> onPreviewTimeout(generation);
+        previewHandler.postDelayed(previewTimeout, PREVIEW_START_TIMEOUT_MS);
         ListenableFuture<ProcessCameraProvider> future = ProcessCameraProvider.getInstance(activity);
         future.addListener(() -> {
             if (closed || !previewRequested || generation != bindingGeneration) return;
             try {
                 provider = future.get();
-                bindCamera();
+                bindCamera(generation);
             } catch (Exception exception) {
                 previewFailed();
             }
@@ -165,12 +185,79 @@ public final class CaptureController implements AutoCloseable {
     /** A terminal failure is no longer a binding in progress when the UI sees its error. */
     private void previewFailed() {
         requireMainThread();
-        if (closed || !previewRequested) return;
-        stopPreview();
-        listener.onError("Camera could not open. Close other camera apps and try again.");
+        previewFailed("Camera could not open. Close other camera apps and try again.");
     }
 
-    private void bindCamera() throws Exception {
+    private void previewFailed(String message) {
+        requireMainThread();
+        if (closed || !previewRequested) return;
+        stopPreview();
+        listener.onError(message);
+    }
+
+    private void onPreviewTimeout(int binding) {
+        if (currentBinding(binding) && !ready)
+            previewFailed("Camera preview did not start. Close other camera apps and try again.");
+    }
+
+    private boolean currentBinding(int binding) {
+        return !closed && previewRequested && binding == bindingGeneration;
+    }
+
+    private void observePreviewStream(int binding) {
+        // A reused PreviewView may still hold the previous camera's STREAMING value.
+        // Require this binding's IDLE -> STREAMING transition instead of that cache.
+        streamSawIdle = previewView.getPreviewStreamState().getValue() != PreviewView.StreamState.STREAMING;
+        streamStateObserver = state -> onPreviewStream(binding, state);
+        previewView.getPreviewStreamState().observe(activity, streamStateObserver);
+    }
+
+    private void onPreviewStream(int binding, PreviewView.StreamState state) {
+        if (!currentBinding(binding) || state == null) return;
+        if (state == PreviewView.StreamState.IDLE) { streamSawIdle = true; previewStreaming = false; }
+        else if (streamSawIdle) previewStreaming = true;
+        publishPreviewReady(binding);
+    }
+
+    private void onCameraState(int binding, CameraState state) {
+        if (!currentBinding(binding) || state == null) return;
+        CameraState.StateError error = state.getError();
+        if (error != null) {
+            String message;
+            switch (error.getCode()) {
+                case CameraState.ERROR_CAMERA_IN_USE:
+                case CameraState.ERROR_MAX_CAMERAS_IN_USE:
+                    message = "Another app is using the camera. Close it, then tap Start camera."; break;
+                case CameraState.ERROR_CAMERA_DISABLED:
+                    message = "Camera access is disabled. Check Android camera privacy and app permissions."; break;
+                default:
+                    message = "The camera stopped working. Tap Start camera to try again.";
+            }
+            previewFailed(message);
+            return;
+        }
+        cameraOpen = state.getType() == CameraState.Type.OPEN;
+        publishPreviewReady(binding);
+    }
+
+    private void publishPreviewReady(int binding) {
+        if (!currentBinding(binding) || ready || !cameraOpen || !previewStreaming) return;
+        ready = true;
+        if (previewTimeout != null) previewHandler.removeCallbacks(previewTimeout);
+        previewTimeout = null;
+        listener.onReady();
+    }
+
+    private void clearPreviewObservers() {
+        if (previewTimeout != null) previewHandler.removeCallbacks(previewTimeout);
+        previewTimeout = null;
+        if (cameraStates != null && cameraStateObserver != null) cameraStates.removeObserver(cameraStateObserver);
+        if (streamStateObserver != null) previewView.getPreviewStreamState().removeObserver(streamStateObserver);
+        cameraStates = null; cameraStateObserver = null; streamStateObserver = null;
+        cameraOpen = false; previewStreaming = false; streamSawIdle = false;
+    }
+
+    private void bindCamera(int binding) throws Exception {
         if (closed || !previewRequested || !hasPermission(Manifest.permission.CAMERA)) return;
         CameraSelector selector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         if (!provider.hasCamera(selector)) {
@@ -197,10 +284,11 @@ public final class CaptureController implements AutoCloseable {
         // Same sensor crop for the phone's portrait reel, visible preview and pose frames.
         ViewPort viewport = new ViewPort.Builder(new Rational(9, 16), rotation)
                 .setScaleType(ViewPort.FILL_CENTER).build();
+        Camera camera;
         try {
             UseCaseGroup group = new UseCaseGroup.Builder().setViewPort(viewport)
                     .addUseCase(preview).addUseCase(videoCapture).addUseCase(analysis).build();
-            provider.bindToLifecycle(activity, selector, group);
+            camera = provider.bindToLifecycle(activity, selector, group);
             analysisAvailable = true;
         } catch (IllegalArgumentException unsupportedCombination) {
             // Some cameras cannot provide video, preview and analysis together.
@@ -211,10 +299,12 @@ public final class CaptureController implements AutoCloseable {
             analysisAvailable = false;
             UseCaseGroup group = new UseCaseGroup.Builder().setViewPort(viewport)
                     .addUseCase(preview).addUseCase(videoCapture).build();
-            provider.bindToLifecycle(activity, selector, group);
+            camera = provider.bindToLifecycle(activity, selector, group);
         }
-        ready = true;
-        listener.onReady();
+        if (!currentBinding(binding)) return;
+        cameraStates = camera.getCameraInfo().getCameraState();
+        cameraStateObserver = state -> onCameraState(binding, state);
+        cameraStates.observe(activity, cameraStateObserver);
     }
 
     private void attachAnalyzer() {
@@ -387,6 +477,7 @@ public final class CaptureController implements AutoCloseable {
         ready = false;
         analysisAvailable = false;
         ++bindingGeneration;
+        clearPreviewObservers();
         stopRecording();
         if (analysis != null) analysis.clearAnalyzer();
         if (provider != null) provider.unbindAll();
