@@ -82,6 +82,15 @@ are preserved. The focused codec check passed with actual AAC-LC/16kHz/mono
 header verification and local Whisper transcription; remux/codec checks are not
 MediaRecorder or microphone-recording acceptance.
 
+ExportProcessDeathTest requires its methods to be selected separately: Phase1
+never passes normally and needs an externally recorded stop while genuine
+encoding is live; Phase2 checks fresh-process recovery. A missed kill window is
+retained as a failure; Phase3 only cleans a reviewed synthetic trial. See
+[actual process-death evidence](../../docs/export-process-death-evidence.md).
+ProjectMediaStorageTest inventories only app-owned MiniFilm gallery rows by
+metadata/fd size without reading contents. Its result is included in qualified
+storage accounting, separately from private files/cache/APKs.
+
 Recent CPU plans have taken roughly 25–53 seconds per five-shot draft on the connected Phone (3a); wording/grammar changes mean timings are not a controlled performance comparison. Six media checks passed, including real decoded subtitle visibility after trims, synthetic speech transcription, vertical clip assembly and safe cancellation. Reference and pose checks establish execution on fixtures, not accuracy on unseen creators. [Current status](../../docs/status.md) contains the complete measured ledger and failures.
 
 ## Demo and outstanding checks

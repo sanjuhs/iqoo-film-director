@@ -1024,3 +1024,48 @@ remains authoritative for this ledger:5October, approximately23:59IST, timezone
 inferred. No attestation/submission/receipt. Full attended creator workflow,
 AirPods, iQOO/NPU/Office Kit and eligible event-written delivery remain open.
 This goal turn made implementation and real-codec progress; the goal stays active.
+
+### Genuine export process-death recovery — 4 October, 17:17 IST
+
+A real 12-cut/36-second Media3 export from the existing labelled synthetic speech
+fixture was externally stopped while still encoding. The host observed actual
+progress 4%, growing output 68,121→121,399 bytes, matching live process, showing
+keyguard and denied capture permissions. After force-stop, the process was absent
+and the same journal remained ENCODING with 121,399 bytes. The intentionally
+interrupted runner reported Process crashed; exit 0 does not make it a green test.
+
+Fresh-process recovery passed **one method/0.242s**: real ExportRecovery cleaned
+exactly one job/no warning, removed its temp/journal, and preserved original
+hash/size/mtime, an unrelated cache sentinel and the exact earlier published
+video/edit pair. Recovery returned that prior pair. A normal app launch was
+requested afterward; a read-only check retained only the original COMPLETE
+journal and found the test marker absent. Details and external kill provenance:
+[actual process-death evidence](export-process-death-evidence.md).
+
+The first attempt missed the kill window and failed one method/13.274s when
+encoding advanced to SAVING; its retained journal was later READY. No host kill
+occurred. Explicit reviewed cleanup passed one method/0.322s before the corrected
+attempt. This cleanup is not recovery evidence; both failed and interrupted
+reports remain retained. No production repair was needed. Test builds/installations
+passed; the saved/installed app remains 52,838,059 bytes, SHA256
+**1ab6cc3d804127113f21a9fd29fdce5360a0911351ccbd2df4ee3ec1a346231b**.
+
+Read-only project gallery accounting passed **one method/0.777s**: 19 app-owned
+Movies/MiniFilm rows, zero pending, **5,598,886 logical bytes**, using the larger
+provider-size/fd-stat observation per row without reading media contents. These
+outputs are now included separately from private files/cache/APKs. The updated
+qualified snapshot is **9,288,930,775 bytes (9.289GB)**, below the 10GB aim/15GB
+limit. Missing-archive/global-cache/oat/provider-thumbnail inventory limitations
+remain; this is not a certified full-machine inventory. No model/SDK/JDK download,
+private capture/playback/upload, permission bypass, aircraft action, credential
+change or backup removal occurred. Only newly created synthetic trial outputs
+and markers were cleaned; existing originals/results stayed intact.
+
+The next useful reference-reel addition is explicitly reviewed English speech
+context, alongside the current frame notes, using installed Whisper. This is
+design-only so far: source binding, timed editable draft, concise explicit
+confirmation and a 500-character combined prompt budget without truncating visual
+notes. It cannot be presented as music-beat or whole-trend understanding. Full
+attended creator/AirPods workflow, iQOO/NPU/Office Kit, eligible event-written code
+and accepted submission remain open. This turn produced genuine recovery and
+storage evidence; the goal remains active.
