@@ -375,3 +375,14 @@ early. Wait for it to save before the next direction; Stop ends the sequence.
 It does not extend planned duration. Verify this actual filming/earbud flow in
 an attended shoot; [current checks](finish-continue-evidence.md) cover synthetic
 request/terminal ownership and actual finalized-container validation separately.
+
+Start/Record and Stop stay at the bottom while Direct scrolls. When eligible,
+Finish & continue replaces Start/Record; Saving stays disabled until finalization.
+Stop ends continuation even while unrelated local processing is busy.
+[Fixed control evidence](fixed-direct-controls-evidence.md) covers actual layout
+and synthetic pending requests, not positive live recording.
+
+Manual planned-stop and experimental quiet-pause choices survive reopening.
+Guided mode still requires planned stopping, but turning it off restores your
+manual choice. Changing settings affects the next take.
+[Persistence evidence](direct-stop-preferences-evidence.md).

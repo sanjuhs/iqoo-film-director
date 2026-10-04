@@ -2,12 +2,24 @@
 
 The **pre-event phone prototype is installed and its local media pipeline has
 real fixture evidence**, including reviewed speech-edge application and local image input. The attended Pose → Perform → Assemble workflow and
-competition delivery remain incomplete. A fresh synthetic emulator now passed
-25 interface methods and one actual DocumentsUI ZIP save; physical capture/audio
-still needs attended acceptance. This audit separates current source,
-passed checks and observed failures. Latest focused Fashion and Talking repairs passed17 methods across three
-runners. Earlier invented-shot failures remain retained; creative accuracy
-across unseen briefs and the attended workflow remain unverified.
+competition delivery remain incomplete. An earlier synthetic-emulator checkpoint passed25 interface methods and an
+actual DocumentsUI ZIP save; later dated checks below supersede that count.
+Physical capture/audio still needs attended acceptance. Earlier focused Fashion
+and Talking repairs passed17 methods across three runners, while newer
+prospective native tests retained speech-topic failures. One default hybrid
+retained the creator-authored Closing explicitly. Creative accuracy across
+unseen briefs and the attended workflow remain unverified.
+
+Latest22:59 control/persistence increment passed39 fresh-emulator methods in
+63.629s. Main Direct controls stay fixed while scrolling; current Stop works
+during unrelated processing. Manual planned/quiet-stop choices survive reopening
+without changing current-take timing. Normal installedAPK independently matches
+built/saved SHA256f416d78b500ad0d241b08ab37deac3bd1ed6b53a5004fb1eba3a6e2547e27819.
+[Fixed controls](fixed-direct-controls-evidence.md),
+[stop preference evidence](direct-stop-preferences-evidence.md). Physical gallery
+metadata remains29/0/8,373,323B; keyguard/capturedenied. Qualified peak
+11140303840B/finaladjacent9338014688B. This does not establish live recording,
+AirPods, iQOO/NPU/OfficeKit or event acceptance.
 
 Evidence: [status](status.md), [capture](capture-evidence.md),
 [local AI](local-ai-evidence.md), [export](export-evidence.md),

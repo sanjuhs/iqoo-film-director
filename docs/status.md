@@ -1823,3 +1823,38 @@ limits remain, no new downloads/private upload/capture/playback/aircraft action.
 Delivery notes now disclose creator-owned Closing and retained native topic
 failures; prepared deck files stay unchanged/unsubmitted with adjacent qualifier.
 Goal active until midnight; attended/iQOO/NPU/OfficeKit/event acceptance gates open.
+
+### 22:59 IST — reachable Direct controls and persistent stop choices
+
+Direct now uses its existing fixed action row for Start/Record or eligible
+Finish & continue plus Stop. Saving is disabled; exactly two actions remain
+visible while scrolling. Actual centered PreviewView9:16 unchanged. Stop bypasses
+unrelated busy/reference-reader gates while preserving attached/current/resumed
+ownership; stale controls cannot cancel a newer countdown/request. Old current
+owner finalization can refresh idle foreground availability only, without old
+status/timer/framing/take/speech/sequence changes. Replaced owners abstain.
+[Evidence](fixed-direct-controls-evidence.md).
+
+Independent continuity review found planned/quiet-stop preferences unsaved;
+reopening reset free talking to timed stop. Real switch edits now persist manual
+choices with legacy true/false defaults. Guided forced display retains manual
+false, including recreation/guide-off. Current-take stop snapshots and timing
+policy remain unchanged and transient capture facts remain unsaved.
+[Evidence](direct-stop-preferences-evidence.md).
+
+Initial fixed-controls offline build1s/UI36/59.683s passed. Final persistence
+build1s/normal installs and UI39/63.629s passed: new prefs3+fixed4+earlyFinish4+
+guide3+pose11+workflow10+newReel4. No runtime failures. Idle/synthetic requests
+only, no fabricated Recording or source validation; ordinary fixed top/scrolled
+layout visually reviewed before persistence-only changes. Independent final
+Stop/persistence reviews found no blocker. Positive live filming/Finish/next
+camera, speech fit and AirPods remain attended-only.
+
+Final built/saved/independently read installedAPK52838059B SHA256
+f416d78b500ad0d241b08ab37deac3bd1ed6b53a5004fb1eba3a6e2547e27819; source-identical notices/separate weights excluded,
+bundledMLKit remains/noInternet. Adjacent physical gallery1/0.862s unchanged
+29/0/8,373,323B. NormalMain launch requested behind secure keyguard/capturedenied.
+Only own AVD/reg removed after parent terminal; other untouched. Qualified peak
+11140303840B/finaladjacent9338014688B; existing reserve/inventory/runtime limits
+retained. No downloads, private upload/capture/audio or aircraft action. Goal
+active until midnight; attended/iQOO/NPU/OfficeKit/event acceptance gates open.

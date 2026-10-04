@@ -149,3 +149,11 @@ Guided takes now offer **Finish & continue** to end early and wait for saved
 media before the next direction. Planned timing stays active; longer speech needs
 a longer shot or free talking. [Transition evidence](docs/finish-continue-evidence.md)
 separates synthetic authorization checks from still-unverified live recording.
+
+Direct keeps Start/Record, Finish and Stop in the fixed action row while you
+scroll; Stop stays available during unrelated local processing.
+[Control evidence](docs/fixed-direct-controls-evidence.md) distinguishes actual view checks from attended filming.
+
+Planned-stop and quiet-pause choices now survive reopening. Guided mode retains
+the manual choice while showing its required planned stop.
+[Preference evidence](docs/direct-stop-preferences-evidence.md) records this continuity fix.
