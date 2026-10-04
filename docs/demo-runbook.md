@@ -9,7 +9,7 @@ Nothing Phone (3a) results do not replace final iQOO validation.
 
 | Phone test | Result that can be stated | Practical limit |
 | --- | --- | --- |
-| Local shot planner | Qwen3.5 0.8B on CPU; latest Fashion drafts **23.770–42.055 s**, two Talking callbacks **27.692/39.353 s** | Narrow fixtures, including hybrid creator retention. Fashion Detail/Talking Cutaway choice constraints are separately labelled; all wording still needs review. |
+| Local shot planner | Qwen3.5 0.8B CPU; latest disclosed speech hybrid **30.381s** once; earlier Fashion23.770–42.055s/ Talking27.692–39.353s remain dated results. | Native topic failures remain; four native directions plus separately labelled creator-authored Closing. Detail/Movement/Cutaway constraints disclosed; all wording reviewed. |
 | Local pose model | **33 landmarks / 388 ms** on the attributed public documentation image; black image returned none | This does not prove live framing advice or creator benefit. |
 | Offline cue synthesis | Synthetic English cue to audio bytes in **511 ms** | No audible output, AirPods route or microphone playback test is established. |
 | Local clip subtitles | Whisper tiny.en CPU: **three segments / 3.458 s** on one synthetic English speech fixture | This includes decoding/load/transcription. General accents, noise and timestamp accuracy are untested. |
@@ -34,6 +34,11 @@ components. If using a saved generated plan instead, announce that it was
 **generated earlier on this phone** and give its recorded time. Do not imply a
 saved plan was generated live, or an editable template came from the LLM.
 
+If showing a talking-fashion plan with a retained request, state that Closing
+instruction and its `My own words` caption are creator-authored, while its duration
+and other four directions came from the actual local draft. The small model did
+not reliably name the requested speech topic; do not call literal retention
+learned understanding. [Latest hybrid evidence](creator-speech-retention-evidence.md).
 Keep captions editable and review the generated wording before export. Use the
 synthetic speech clip for the subtitle demonstration and the three numbered
 synthetic scenes for editing. Have a previously exported example ready, clearly
@@ -116,7 +121,7 @@ manual override, plus venue permission where applicable.
 
 ## Submission handoff
 
-Build the reviewed deck from [the Phase 1 copy](submission-draft.md); its prepared, visually checked PDF is retained separately under `output/pdf/`. The Markdown is not the required
+Build the reviewed deck from [the Phase 1 copy](submission-draft.md); its prepared, visually checked PDF is retained separately under `output/deck/`. The Markdown is not the required
 portal attachment. Keep the pre-event prototype disclosure and plan fresh
 competition source inside the allowed window. The creator supplies their own
 self-reports and original-work attestation. Inspect the final fields/attachment,

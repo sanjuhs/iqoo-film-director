@@ -85,7 +85,12 @@ creator-reviewed; an editable template is available when planning fails. Fashion
 Detail and Talking Cutaway use visibly disclosed creator-choice decoding
 constraints rather than inventing an unspecified garment part or available prop.
 Named reviewed fashion directions are retained as creator-authored edits; this
-does not establish learned reference grounding.
+does not establish learned reference grounding. Explicit short first-person
+speaking requests now retain a separately labelled creator-authored Closing
+instruction/caption after actual native five-shot generation; its duration remains
+native. Earlier stationary/talking outputs missed the speech topic, including
+the Closing-first diagnostic. [Hybrid evidence](creator-speech-retention-evidence.md)
+preserves those failures; this is literal request retention, not native topic learning.
 
 Selected reference clips receive sparse local inspection: at most 24 sampled
 frames, approximate color-change candidates and at most six single-person pose
@@ -139,7 +144,7 @@ attributed public documentation image; no private shoot was captured. See
 
 | Component | Verified preparation result | Remaining limit |
 | --- | --- | --- |
-| Shot planning | Latest focused Fashion/Talking checks: **17 methods across three runners**, with actual Fashion drafts **23.770–42.055 s** and two Talking callbacks **27.692/39.353 s** | Includes deterministic methods and hybrid creator retention, not17 native plans; generic choice constraints are disclosed, wording/creative quality still requires review |
+| Shot planning | Latest disclosed creator-speech hybrid: **30.381s native**, one attempt;7 actual methods passed, two invocation class-load errors retained, then11 correct companion methods passed. Earlier focused Fashion/Talking17methods and23.770–42.055s drafts retain their dated evidence. | Four native directions plus creator-owned Closing wording/caption; narrow deterministic/native checks are not general native topic fidelity, creator benefit or spoken-fit evidence. |
 | Pose inference | **33 landmarks in 388 ms** on Google's annotated public pose image; synthetic black input returned zero landmarks | This is image-model execution, not useful live-camera coaching or held-out evaluation |
 | Cue synthesis | Offline-voice synthetic cue produced audio bytes in **511 ms** | Synthesis only: no audible playback, AirPods route or Bluetooth microphone result |
 | English subtitles | CPU tiny.en produced **three draft segments in 3.458 s** from one labelled synthetic spoken clip | End-to-end decoding/load/transcription time; expected words checked, not general ASR accuracy |

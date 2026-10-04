@@ -1793,3 +1793,33 @@ terminal, other untouched. Qualified peak11137596624B,
 final adjacent9332161744B; historic reserve/runtime
 qualifications persist. No new downloads. Goal active until midnight; attended
 filming/AirPods/iQOO/NPU/event eligibility and accepted submission remain open.
+
+### 22:43 IST — finish a guided take early
+
+Direct adds **Finish & continue** for genuinely started current guided recordings.
+It requests stop once, waits for validated saved Take acknowledgement, then uses
+normal next-shot direction; Stop ends the sequence. Planned/quiet/hard-limit
+behavior is unchanged, so longer speech still needs edited duration/free talking.
+All terminal callbacks now protect current ownership/generation/foreground from
+stale/duplicate/invalid/background success or error. Background/new camera clears
+stale End-review intent. [Evidence](finish-continue-evidence.md).
+
+First build failed lambda/Switch variable shadowing; parent renamed the lambda
+parameter only. Repaired offline build1s/normal installs. Physical18/0.148s passed
+(new latch3, actual finalized-container2, quiet policy13); fresh UI32/59.648s
+passed (newFinish4+guide3+pose11+workflow10+newReel4). New callback URIs/controllers
+are explicitly synthetic/idle; no fake Recording or camera/mic grant. Actual
+early Finish/next-camera/earbud/recorded-speech flow remains attended-only.
+Ordinary final idle control/explanation visually reviewed. Disabled-control opacity
+was added after the32-method run with the exact same predicate; final build733ms.
+
+Built/saved/independently read installedAPK52838059B SHA256
+71c36ef10bc91a4578e58fb9d26285dfc05af7be63f11968881c67efd19e196e; source-identical notices, separate weights excluded,
+noInternet. Gallery1/0.885s unchanged29/0/8,373,323B; normalMain launch behind
+secure keyguard/capturedenied. Only own AVD/reg removed after parent terminal;
+other untouched. Qualified peak10987724112B, final
+adjacent9336683856B; historic reserve/runtime inventory
+limits remain, no new downloads/private upload/capture/playback/aircraft action.
+Delivery notes now disclose creator-owned Closing and retained native topic
+failures; prepared deck files stay unchanged/unsubmitted with adjacent qualifier.
+Goal active until midnight; attended/iQOO/NPU/OfficeKit/event acceptance gates open.

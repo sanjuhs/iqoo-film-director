@@ -369,3 +369,9 @@ Guided shooting requires planned stopping, so its stop switch stays checked and
 disabled. For free talking, turn guidance off and planned stop off; end the take
 yourself. The existing60-second hard limit still applies. Changes affect the next
 take. [Setting evidence](guided-stop-settings-evidence.md).
+
+While a guided take is genuinely recording, **Finish & continue** can end it
+early. Wait for it to save before the next direction; Stop ends the sequence.
+It does not extend planned duration. Verify this actual filming/earbud flow in
+an attended shoot; [current checks](finish-continue-evidence.md) cover synthetic
+request/terminal ownership and actual finalized-container validation separately.

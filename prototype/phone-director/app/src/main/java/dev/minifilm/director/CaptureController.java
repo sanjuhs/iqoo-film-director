@@ -371,6 +371,12 @@ public final class CaptureController implements AutoCloseable {
         }
     }
 
+    /** Main-thread observation for an explicit early-finish action; excludes start/finalize waits. */
+    public boolean canFinishRecording() {
+        requireMainThread();
+        return !closed && recording != null && recordingStarted && !stopRequested;
+    }
+
     /** Includes the interval while CameraX is flushing the previous take. */
     public boolean isRecording() { return recording != null; }
 

@@ -144,3 +144,8 @@ failures and corrected results. Short explicit talking-fashion requests are
 preserved as labelled creator wording after real CPU planning;
 [hybrid evidence](docs/creator-speech-retention-evidence.md) separates this from
 the native model's retained topic failures.
+
+Guided takes now offer **Finish & continue** to end early and wait for saved
+media before the next direction. Planned timing stays active; longer speech needs
+a longer shot or free talking. [Transition evidence](docs/finish-continue-evidence.md)
+separates synthetic authorization checks from still-unverified live recording.

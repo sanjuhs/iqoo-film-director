@@ -70,6 +70,12 @@ hybrid run retained the creator's explicit short speech request with separate
 Closing provenance; [hybrid evidence](creator-speech-retention-evidence.md) does
 not establish native topic understanding or attended spoken fit.
 
+Guided takes now have explicit early **Finish & continue**, with current-session
+validated saved acknowledgement before any next direction. Physical18/0.148s
+and UI32/59.648s passed. A final disabled-opacity presentation adjustment was
+visually checked separately. [Transition evidence](finish-continue-evidence.md)
+does not establish real CameraX/audio/middle-shot continuation.
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |
