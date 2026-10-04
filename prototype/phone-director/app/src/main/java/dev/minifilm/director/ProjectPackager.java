@@ -266,6 +266,7 @@ public final class ProjectPackager implements AutoCloseable {
                     copy.subtitles.add(new SubtitleCue(cue.startMs, cue.endMs, text(cue.text, 1000, "Subtitle")));
                 }
             }
+            SubtitleTimeline.requireNonOverlapping(copy.subtitles);
             result.add(copy); duration += copy.outMs - copy.inMs;
             if (result.size() > 12 || duration > 180_000)
                 throw new IllegalArgumentException("Choose up to 12 cuts and a timeline of at most 3 minutes.");

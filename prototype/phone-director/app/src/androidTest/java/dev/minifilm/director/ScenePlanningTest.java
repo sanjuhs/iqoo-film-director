@@ -34,6 +34,57 @@ public final class ScenePlanningTest {
             "Show|Hold|Point|Bring", "Share|Tell|Say", "Welcome|Wave|Smile|Say"};
     private static final String[] PRODUCT_VERBS = {"Hold|Show|Pose", "Turn|Lift|Bring|Show|Tilt|Move",
             "Show|Hold|Point|Bring", "Show|Hold|Lift|Tilt", "Say|Tell|Share|Give"};
+    private static final String[] FASHION_VERBS = {"Stand|Pose|Face|Look|Smile", "Take|Turn|Walk|Move",
+            "Show|Hold|Point|Bring", "Turn|Stand|Pose|Face", "Look|Smile|Pose|Stand|Wave"};
+
+    @Test(timeout = 180_000) public void heldOutOvershirtAndJeansRetainsSuppliedOutfitWithCreatorChosenDetail() throws Exception {
+        assertCaptureDeniedAndNoNetworkPermission();
+        LocalPlanner planner = new LocalPlanner(context());
+        try {
+            AtomicReference<String> modelLabel = new AtomicReference<>();
+            List<Shot> shots = generate(planner,
+                    "Create a solo fashion reel while I wear my cream cotton overshirt with dark jeans. "
+                            + "The overshirt has two chest pockets. No other colors, fabrics, fasteners, logos or patterns are supplied. "
+                            + "Show the outfit with small body turns or one or two steps. "
+                            + "The phone is already mounted; direct my performance without handling the filming device.",
+                    "Fashion", modelLabel);
+            assertBoundedRoles(shots, FASHION_VERBS, "Hero pose", "Movement", "Detail", "Side pose", "Closing");
+            String text = signature(shots);
+            assertTrue("The draft must retain the supplied overshirt", hasWord(text, "overshirt"));
+            assertTrue("The draft must retain the supplied jeans, rather than discard half the outfit", hasWord(text, "jeans"));
+            // Ordinary brief facts do not bypass the existing closed creator-choice Detail policy.
+            // This is not learned selection of chest pockets; an explicit reviewed Detail is tested elsewhere.
+            assertTrue("Generic feature selection must be disclosed", modelLabel.get().contains("creator-choice detail constraint"));
+            assertFalse("An ordinary brief must not be labelled as retained manual reference cues",
+                    modelLabel.get().contains("creator-authored reviewed cues retained"));
+            String detail = shots.get(2).instruction;
+            assertTrue("The creator chooses a visible garment detail",
+                    hasWord(detail, "visible") && hasWord(detail, "garment") && hasWord(detail, "choose"));
+            assertNoWords("No extra garment parts, fasteners, logos, patterns, fabric or named color are supplied", text,
+                    "zipper", "zippers", "zip", "zipped", "button", "buttons", "buckle", "buckles",
+                    "lapel", "lapels", "collar", "collars", "hem", "hems", "sleeve", "sleeves",
+                    "logo", "logos", "pattern", "patterned", "stripe", "stripes", "striped", "floral",
+                    "silk", "wool", "linen", "denim", "leather", "polyester", "nylon", "velvet", "satin",
+                    "white", "black", "red", "green", "blue", "yellow", "pink", "purple", "orange",
+                    "brown", "grey", "gray", "navy", "beige", "maroon", "teal", "silver", "gold");
+            assertFalse("Whole-garment descriptors do not establish an individual pocket's color or fabric",
+                    Pattern.compile("\\b(?:cream|cotton)\\s+(?:(?:cream|cotton|chest)\\s+){0,2}pockets?\\b|"
+                            + "\\bpockets?\\s+(?:is|are|looks?|made\\s+of)\\s+(?:cream|cotton)\\b",
+                            Pattern.CASE_INSENSITIVE).matcher(text).find());
+            assertNoWords("Prompt examples and earlier fixtures must not leak into this outfit", text,
+                    "raincoat", "jacket", "mug", "coffee", "pencil", "eraser", "cardboard", "Rae", "Mina");
+            assertFalse("A worn-outfit performance must not become tabletop preparation",
+                    text.toLowerCase(Locale.ROOT).contains("tabletop") || text.toLowerCase(Locale.ROOT).contains("flat surface"));
+            for (Shot shot : shots) {
+                assertNoMountedDeviceOperation(shot.instruction);
+                assertNoWords("Captions describe the outfit or pose, not filming equipment", shot.caption,
+                        "camera", "phone", "screen", "tripod", "gimbal", "drone");
+            }
+            Log.i("MiniFilmScenePlanningTest", "held_out_overshirt_jeans pass=true synthetic_input=true roles=5"
+                    + " supplied_two_garments_retained=true creator_choice_detail_disclosed=true"
+                    + " learned_pocket_selection_claim=false targeted_unsupplied_facts_absent=true general_accuracy_claim=false");
+        } finally { planner.close(); assertCaptureDeniedAndNoNetworkPermission(); }
+    }
 
     @Test(timeout = 180_000) public void talkingStoryRetainsSuppliedEventsAndFiveStoryRoles() throws Exception {
         LocalPlanner planner = new LocalPlanner(context());
@@ -208,6 +259,11 @@ public final class ScenePlanningTest {
     }
 
     private static List<Shot> generate(LocalPlanner planner, String brief, String style) throws Exception {
+        return generate(planner, brief, style, null);
+    }
+
+    private static List<Shot> generate(LocalPlanner planner, String brief, String style,
+            AtomicReference<String> returnedLabel) throws Exception {
         assertTrue("Install the existing local director-model.gguf before running this test", planner.isModelAvailable());
         CountDownLatch finished = new CountDownLatch(1);
         AtomicReference<List<Shot>> result = new AtomicReference<>();
@@ -224,6 +280,7 @@ public final class ScenePlanningTest {
         assertNull("A template fallback does not satisfy this model-execution test: " + error.get(), error.get());
         assertNotNull(result.get());
         assertNotNull(label.get());
+        if (returnedLabel != null) returnedLabel.set(label.get());
         JSONArray full = new JSONArray();
         for (Shot shot : result.get()) full.put(new JSONObject().put("id", shot.id).put("title", shot.title)
                 .put("instruction", shot.instruction).put("caption", shot.caption).put("durationMs", shot.targetDurationMs));

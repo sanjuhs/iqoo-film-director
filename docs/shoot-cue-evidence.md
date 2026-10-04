@@ -76,3 +76,43 @@ disconnect behavior still need an attended test. This run does not prove pose
 accuracy, useful creative advice, speech completion detection, iQOO/NPU execution,
 Office Kit integration or creator benefit. Source remains pre-event preparation;
 these passing tests do not establish event-code eligibility.
+
+## Follow-up verified 4 October, 18:24 IST
+
+A preview failure previously left `previewRequested=true` and `ready=false`,
+so the lens selector continued treating a failed request as a pending binding.
+`CaptureController.previewFailed()` now uses the existing stop-preview cleanup
+before reporting its fixed error: pending/ready/analysis flags are cleared,
+binding generation advances, and failed use cases are detached. A duplicate
+failure or callback after controller closure is suppressed.
+
+The Main camera-error path also now invalidates the shoot-pose generation,
+ends the session, cancels countdown/sequence work, stops speech and disables the
+pose coach. A queued old pose result cannot replace the camera error or restart
+automatic pose speech. Retry remains an explicit creator action.
+
+The parent executed the expanded **seven `ShootPoseCueUiTest` methods** together
+with **three `AssemblyEditUiTest` methods**: **10 passed, 14.428 seconds**, on a
+fresh, unlocked Android 36 ARM64 project emulator. Camera/microphone permissions
+remained denied and host camera/audio were off; no framework speech playback was
+used. The earlier 12-test and three-test results above remain separate history.
+
+The two added camera-error methods provide these bounded checks:
+
+- `failedPreviewClearsPendingAndPartialUseCasesBeforeErrorThenAllowsLensChoice`
+  injects pending fields and an unbound partial `ImageAnalysis`, with the provider
+  null. It calls the terminal failure helper and verifies cleanup is visible
+  inside the single error callback, repeat/closed failures are silent, and the
+  actual switch button accepts a saved opposite lens without opening preview.
+  This does not induce a real CameraX binding failure.
+- `deniedCameraStartEndsPoseSessionAndQueuedFailedAttemptCannotReplaceError`
+  calls the actual `MainActivity.startCamera` path with camera permission denied.
+  It constructs the bundled pose client, but returns before requesting a camera
+  provider or receiving any frame. It verifies the actual error path ends the
+  session and disables posing, then rejects an injected queued result from the
+  failed attempt while preserving error/framing text and idle speech. There is
+  no pose inference, microphone recording, model generation or audible output.
+
+Ignored local evidence filename: `private/evidence/subtitle-camera-ui-tests.log`.
+Real binding, live capture, full-sequence timing and AirPods routing remain
+unproved; this follow-up adds no physical hardware or creator-benefit claim.

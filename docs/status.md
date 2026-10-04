@@ -1253,3 +1253,68 @@ incomplete cache/oat/provider inventory qualifications persist in storage.json.
 No new models/SDK/JDK/images downloaded this probe. Goal remains active: real
 creator/AirPods, iQOO/NPU/Office Kit, eligible event provenance and accepted
 submission remain unfinished.
+
+### Camera-error retry and subtitle visibility — 4 October, 18:27 IST
+
+Supported source defects repaired: failed provider/bind left previewRequested
+true and blocked lens choice; failure now calls normal stopPreview cleanup before
+error delivery. Main camera error invalidates pose generation, ends session,
+cancels countdown/stops speech and disables pose advice, preserving the error
+against delayed frame results. Seven shoot-state plus three assembly-review UI
+methods passed **10/14.428s** on a fresh unlocked API36 ARM64 emulator with
+camera/mic denied and host camera/audio disabled. New tests exercise reflected
+partial unbound analysis failure and actual denied Main camera start, without
+frames/inference/playback/recording. Earlier passing history remains in
+[shoot-cue evidence](shoot-cue-evidence.md). Full live sequence remains unproved.
+
+Subtitle review/export/package previously accepted overlapping text; the renderer
+uses the first matching cue, so a nested cue could never appear although JSON
+marked it visible. Shared preflight now rejects overlap with correction advice
+and preserves every word/time/list position. Only temporary interval copies
+are sorted; adjacent endpoints and unsorted nonoverlap remain allowed. Actual
+review rejected nested/partial/same-start edits without changing saved state or
+removing dialog words; adjacent edits saved/restored. Three headless phone
+checks passed **3/4.192s**, including six no-output/no-source-open rejections
+and a real two-cut **4064ms**,720×1280 export. Short/long adjacent caption
+appearances/gaps, per-cut source/timeline offsets and portable ZIP/original
+hash passed; appearance measurements are not OCR/exact-word recognition or
+audio review. Kept labelled completed MP4/JSON; removed only returned test ZIP
+and callback-verified own COMPLETE journal so later Main launch cannot adopt it.
+No original/pref modified by headless check.
+[Subtitle visibility evidence](subtitle-overlap-evidence.md).
+
+Fresh ordinary cream-cotton-overshirt/dark-jeans Fashion CPU fixture passed
+**1/40.082s**, native callback **39.998s**, on its first run, with no Fashion
+prompt/model/grammar/response change. It retained both garments and supplied
+descriptors, small steps/side turn and held closing pose, with no targeted
+unsupplied facts. Supplied chest pockets were NOT selected: ordinary Detail is
+a disclosed creator-choice constraint. Other roles are native but mostly generic.
+This is one targeted observation, not broad creative quality, learned pocket
+selection or real-time coaching. [Full fresh draft](held-out-fashion-evidence.md).
+
+Shot-edit form now scrolls. Normal own-emulator UI showed all four starter-shot
+fields and Cancel/Save above the open keyboard at default Pixel9 density; scoped
+XML/screens remain under private/evidence/shot-edit-*. No edited characters were
+entered/saved in that manual check. This is one layout, not all-screen or physical
+UI acceptance. Fresh AVD reused existing image/tools, boot-complete observed
+17.637s after polling began (not total boot duration), airplane mode enabled;
+no model/SDK/image/JDK download. Removed only own fresh AVD/registration after
+tests/manual review; other AVD/archive/credentials untouched.
+
+Build1s/app+test installs passed. Built/saved/independently read physical installed
+APK matches **52,838,059B**, SHA256
+**2245a6774e810b7a75496e1258a9089270718922efaee3e494a568f2f3777f03**.
+Notices remain source-identical31,635B/SHA
+02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68.
+No Internet permission; separate Qwen/Whisper weights absent from Git/APK,
+bundledMLKit assets remain. Gallery metadata-only inventory passed **1/0.138s**:
+20owned/0pending/5,892,830B. Camera/mic denied/keyguard showing; normal launch
+requested behind lock. No attended capture/audio, permission bypass, private
+upload, aircraft action or submission.
+
+Qualified own-emulator snapshot peak **10,441,104,459B**, above10GB aim/below15GB
+cap. After cleanup adjacent accounted footprint **9,293,118,539B (9.293GB)**,
+including all3 installed project APKs/phone+test allocation/owned gallery. Same
+historical missing-archive/cache/oat/provider qualifications persist. Goal active;
+creator/AirPods, iQOO/NPU/Office Kit, permitted event-code provenance and accepted
+submission still required.

@@ -186,6 +186,41 @@ public final class AssemblyEditUiTest {
         }
     }
 
+    @Test(timeout = 45_000) public void overlappingReviewKeepsAllWordsAndOriginalTimesThenAcceptsTouchingCues() throws Exception {
+        final String first="Reviewed opening words",second="Reviewed later words";
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity->{
+                assemble(activity);Take take=takes(activity).get(0);
+                take.subtitles=Arrays.asList(new SubtitleCue(500,2000,first),new SubtitleCue(3000,4500,second));
+                invoke(activity,"save",new Class<?>[0]);
+                invoke(activity,"reviewSubtitles",new Class<?>[]{int.class},0);
+            });
+            dialog("Review your subtitle draft");
+            String saved=preferences.getString("state","");
+            String[][] rejected={{"1.000","1.500"},{"1.500","2.500"},{"0.500","2.000"}};
+            for(String[] range:rejected) {
+                setTextAt("Start seconds",1,range[0]);setTextAt("End seconds",1,range[1]);
+                clickDialog("Save reviewed subtitles");dialog("Review your subtitle draft");
+                assertEquals(first,textAt("Subtitle words",0));assertEquals(second,textAt("Subtitle words",1));
+                assertEquals(range[0],textAt("Start seconds",1));assertEquals(range[1],textAt("End seconds",1));
+                assertEquals("Rejected overlap must not mutate saved edits",saved,preferences.getString("state",""));
+                scenario.onActivity(activity->{
+                    List<SubtitleCue> cues=takes(activity).get(0).subtitles;
+                    assertEquals(2,cues.size());assertEquals(500,cues.get(0).startMs);assertEquals(2000,cues.get(0).endMs);
+                    assertEquals(3000,cues.get(1).startMs);assertEquals(4500,cues.get(1).endMs);
+                    assertEquals(first,cues.get(0).text);assertEquals(second,cues.get(1).text);assertQuiescent(activity);
+                });
+            }
+            setTextAt("Start seconds",1,"2.000");setTextAt("End seconds",1,"3.500");clickDialog("Save reviewed subtitles");
+            scenario.recreate();scenario.onActivity(activity->{
+                assertAssemblyRestored(activity);List<SubtitleCue> cues=takes(activity).get(0).subtitles;
+                assertEquals(2,cues.size());assertEquals(500,cues.get(0).startMs);assertEquals(2000,cues.get(0).endMs);
+                assertEquals(2000,cues.get(1).startMs);assertEquals(3500,cues.get(1).endMs);
+                assertEquals(first,cues.get(0).text);assertEquals(second,cues.get(1).text);assertQuiescent(activity);
+            });assertSourceUnchanged();
+        }
+    }
+
     private JSONObject takeJson(String id, String title, boolean selected) throws Exception {
         return new JSONObject().put("uri", Uri.fromFile(source).toString()).put("id", id).put("title", title)
                 .put("caption", "Original synthetic caption").put("duration", DURATION).put("in", 0).put("out", DURATION)
@@ -243,6 +278,32 @@ public final class AssemblyEditUiTest {
         do { actual = editText(hint); if (text.equals(actual)) return; SystemClock.sleep(25); }
         while (SystemClock.elapsedRealtime() < deadline);
         assertEquals(text, actual);
+    }
+    private static String textAt(String hint,int index) {
+        CharSequence value=nodeAt(hint,index).getText();return value==null?"":value.toString();
+    }
+    private static void setTextAt(String hint,int index,String value) {
+        Bundle arguments=new Bundle();arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,value);
+        assertTrue(nodeAt(hint,index).performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,arguments));
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        long deadline=SystemClock.elapsedRealtime()+5000;
+        do {if(value.equals(textAt(hint,index)))return;SystemClock.sleep(25);}while(SystemClock.elapsedRealtime()<deadline);
+        assertEquals(value,textAt(hint,index));
+    }
+    private static AccessibilityNodeInfo nodeAt(String hint,int index) {
+        long deadline=SystemClock.elapsedRealtime()+5000;
+        do {
+            AccessibilityNodeInfo root=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&context().getPackageName().contentEquals(root.getPackageName()==null?"":root.getPackageName())) {
+                java.util.ArrayList<AccessibilityNodeInfo> matches=new java.util.ArrayList<>();collectHint(root,hint,matches);
+                if(matches.size()>index)return matches.get(index);
+            }SystemClock.sleep(25);
+        }while(SystemClock.elapsedRealtime()<deadline);
+        throw new AssertionError("Missing own-app subtitle field "+hint+" at "+index);
+    }
+    private static void collectHint(AccessibilityNodeInfo node,String hint,List<AccessibilityNodeInfo> matches) {
+        if(node.getHintText()!=null&&hint.contentEquals(node.getHintText()))matches.add(node);
+        for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo child=node.getChild(i);if(child!=null)collectHint(child,hint,matches);}
     }
     private static void clickDialog(String label) {
         AccessibilityNodeInfo button = node(label, false); assertTrue("Expected dialog button", button.isClickable());

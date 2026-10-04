@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidx.camera.view.PreviewView;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.*;
 
 /** Synthetic session delivery only: no preview, ML inference, microphone or TTS playback. */
@@ -161,6 +163,66 @@ public final class ShootPoseCueUiTest {
                 assertSame(capture,field(a,"capture"));assertEquals(false,field(a,"live"));assertEquals(false,field(a,"session"));
                 assertEquals(generation,field(a,"shootPoseGeneration"));assertIdleCapture(a);
                 capture.close();assertFalse(capture.isPreviewPending());
+            });
+        }
+    }
+
+    @Test(timeout=30_000) public void failedPreviewClearsPendingAndPartialUseCasesBeforeErrorThenAllowsLensChoice(){
+        AtomicInteger errors=new AtomicInteger();AtomicReference<CaptureController> owned=new AtomicReference<>();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{
+                CaptureController controller=new CaptureController(a,(PreviewView)field(a,"preview"),new CaptureController.Listener(){
+                    public void onReady(){fail("No preview may start in this synthetic test");}
+                    public void onRecordingStarted(){fail("No recording may start in this synthetic test");}
+                    public void onRecordingFinished(Uri uri,long duration){fail("No media may be created in this synthetic test");}
+                    public void onError(String message){
+                        CaptureController failed=owned.get();assertNotNull(failed);
+                        assertFalse("Error callback must observe terminal, not pending, preview",failed.isPreviewPending());
+                        assertEquals(false,field(failed,"ready"));assertEquals(false,field(failed,"analysisAvailable"));
+                        assertNull(field(failed,"analysis"));assertNull(field(failed,"videoCapture"));assertNull(field(failed,"provider"));
+                        assertFalse(failed.isRecording());assertEquals("Camera could not open. Close other camera apps and try again.",message);errors.incrementAndGet();
+                    }
+                });
+                owned.set(controller);set(a,"capture",controller);set(a,"live",false);set(a,"session",true);
+                // Construct an unbound partial analysis use case; never request a provider,
+                // attach frames, call startPreview, or grant a capture permission.
+                set(controller,"analysis",new ImageAnalysis.Builder().build());set(controller,"analysisAvailable",true);
+                set(controller,"previewRequested",true);set(controller,"ready",false);
+                int binding=(Integer)field(controller,"bindingGeneration"),desired=(Integer)field(a,"desiredLens");
+                assertTrue(controller.isPreviewPending());invoke(controller,"previewFailed",new Class<?>[0]);
+                assertEquals(1,errors.get());assertEquals(binding+1,field(controller,"bindingGeneration"));
+                invoke(controller,"previewFailed",new Class<?>[0]);assertEquals("Duplicate terminal failure must be silent",1,errors.get());
+                Button toggle=button((View)field(a,"root"),"Switch front / back");assertNotNull(toggle);toggle.performClick();
+                int opposite=desired==CameraSelector.LENS_FACING_FRONT?CameraSelector.LENS_FACING_BACK:CameraSelector.LENS_FACING_FRONT;
+                assertEquals(opposite,field(a,"desiredLens"));assertSame(controller,field(a,"capture"));assertEquals(false,field(a,"live"));assertIdleCapture(a);
+                controller.close();invoke(controller,"previewFailed",new Class<?>[0]);assertEquals("Closed controller cannot deliver a late error",1,errors.get());
+            });
+        }
+    }
+
+    @Test(timeout=30_000) public void deniedCameraStartEndsPoseSessionAndQueuedFailedAttemptCannotReplaceError(){
+        AtomicReference<String> error=new AtomicReference<>(),frame=new AtomicReference<>();
+        AtomicInteger attempt=new AtomicInteger();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{
+                assertDenied(a);assertEquals(false,field(a,"voice"));
+                // The actual start path constructs its bundled pose client, but denied
+                // camera permission returns before requesting a provider or any frame.
+                attempt.set((Integer)field(a,"shootPoseGeneration")+1);
+                new Handler(Looper.getMainLooper()).post(()->apply(a,attempt.get(),"Synthetic queued failed-attempt pose",8,20));
+                invoke(a,"startCamera",new Class<?>[0]);
+                assertTrue("Terminal error must invalidate the attempted pose generation",(Integer)field(a,"shootPoseGeneration")>attempt.get());
+                assertEquals(false,field(a,"session"));assertEquals(false,field(a,"live"));
+                PoseCoach pose=(PoseCoach)field(a,"pose");assertNotNull(pose);assertEquals(false,field(pose,"enabled"));
+                assertEquals("Allow camera access to start your shoot preview.",status(a));
+                error.set(status(a));frame.set(framing(a));assertIdleCapture(a);
+                assertFalse(((SpeechCoach)field(a,"speech")).hasSpeechWork());
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            scenario.onActivity(a->{
+                assertEquals(error.get(),status(a));assertEquals(frame.get(),framing(a));
+                assertEquals(false,field(a,"session"));assertEquals(false,field((PoseCoach)field(a,"pose"),"enabled"));
+                assertFalse(((SpeechCoach)field(a,"speech")).hasSpeechWork());assertIdleCapture(a);
             });
         }
     }

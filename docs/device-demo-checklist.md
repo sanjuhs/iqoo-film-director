@@ -214,3 +214,16 @@ after a shot change/background return, advice should belong to the current
 shot. Source and synthetic callback checks passed in
 [shoot-cue evidence](shoot-cue-evidence.md); actual capture, audible output and
 Bluetooth buffering still require this attended check.
+
+### Check visible subtitle words and camera retry
+
+If camera startup fails, choose the other lens and explicitly Start camera
+again. The pending state and old advice should end before the error is shown;
+live hardware retry remains an attended check.
+
+When reviewing subtitles, one cue must end no later than the next begins.
+Overlap correction preserves the draft fields and current saved edits; adjust
+the times yourself, then Save. Touching endpoints are accepted. Export and
+laptop packaging also stop before creating output when overlaps remain.
+See [subtitle evidence](subtitle-overlap-evidence.md) for the synthetic cases;
+verify real spoken words/timing and sound before sharing your reel.

@@ -186,3 +186,19 @@ externally recorded interruption while actual completed/copied media is READY
 and pending. Its main-queue window is deliberately test-controlled; it never
 constitutes an ordinary whole-class green suite. See
 [publication recovery](../../docs/export-publication-death-evidence.md).
+
+### Subtitle visibility and camera-error checks
+
+Review Save, MP4 export and portable packaging reject overlapping nonempty
+subtitle intervals with a correction message; words/times/list order remain
+intact. Adjacent endpoints and unsorted nonoverlap are accepted. Three headless
+`SubtitleOverlapTest` methods passed with actual adjacent-caption encoding and
+portable source/timeline integrity; [evidence](../../docs/subtitle-overlap-evidence.md)
+distinguishes pixel appearance from exact-word recognition or sound review.
+The latest seven `ShootPoseCueUiTest` and three `AssemblyEditUiTest` methods
+passed on a fresh unlocked synthetic emulator. Failed preview state clears
+before error delivery, and Main stops old pose/speech/countdown advice on error.
+Physical camera/error/AirPods behavior still requires an attended check.
+A [fresh ordinary Fashion CPU draft](../../docs/held-out-fashion-evidence.md)
+retained two garments; supplied chest pockets were not selected under the
+disclosed creator-choice Detail constraint.

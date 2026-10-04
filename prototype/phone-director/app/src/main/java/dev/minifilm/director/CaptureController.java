@@ -155,10 +155,17 @@ public final class CaptureController implements AutoCloseable {
                 provider = future.get();
                 bindCamera();
             } catch (Exception exception) {
-                ready = false;
-                listener.onError("Camera could not open. Close other camera apps and try again.");
+                previewFailed();
             }
         }, mainExecutor);
+    }
+
+    /** A terminal failure is no longer a binding in progress when the UI sees its error. */
+    private void previewFailed() {
+        requireMainThread();
+        if (closed || !previewRequested) return;
+        stopPreview();
+        listener.onError("Camera could not open. Close other camera apps and try again.");
     }
 
     private void bindCamera() throws Exception {

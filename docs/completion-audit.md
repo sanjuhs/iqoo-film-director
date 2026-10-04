@@ -322,3 +322,23 @@ See [shoot checks](shoot-cue-evidence.md) and
 normal launch requested behind keyguard, camera/mic denied; qualified storage
 9.288GB after own temporary AVD cleanup. Full attended/eligibility/submission
 acceptance remains required.
+
+### 18:27 IST: camera-error recovery and subtitle visibility
+
+Camera startup failure now releases pending state before reporting an error;
+Main ends its pose/countdown/speech session so late advice cannot replace the
+error. Latest seven synthetic shoot-state and three editor-review methods
+passed10/14.428s; [shoot evidence](shoot-cue-evidence.md) preserves scope/limits.
+
+Overlapping subtitle drafts now require correction before review Save, export
+or packaging, preserving all words/times/order. Three phone checks passed
+3/4.192s with an actual4064ms adjacent-caption export and matching portable
+timing/original hashes. See [subtitle evidence](subtitle-overlap-evidence.md).
+A first-run ordinary fashion draft retained both garments in39.998s but did not
+select supplied chest pockets under the disclosed generic Detail policy;
+[full fashion output](held-out-fashion-evidence.md) records that limit.
+
+Latest verified APK is installed, normal launch requested behind keyguard,
+camera/mic denied. Own temporary emulator removed; qualified storage9.293GB.
+These repairs improve the existing prototype without establishing attended
+recording/AirPods, general direction quality, event eligibility or accepted submission.

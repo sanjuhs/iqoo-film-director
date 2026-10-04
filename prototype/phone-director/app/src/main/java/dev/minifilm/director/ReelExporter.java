@@ -113,6 +113,7 @@ public final class ReelExporter {
                         copy.subtitles.add(new SubtitleCue(start, end, cue.text));
                     }
                 }
+                SubtitleTimeline.requireNonOverlapping(copy.subtitles);
                 if (copy.subtitles.size() > 500) throw new IllegalArgumentException("Too many subtitle segments in " + take.title + ".");
                 if (copy.subtitles.isEmpty()) captionLayout(copy.caption == null ? "" : copy.caption.trim());
                 if ("Auto balance".equalsIgnoreCase(look)) matchingBalance(copy, measured);
