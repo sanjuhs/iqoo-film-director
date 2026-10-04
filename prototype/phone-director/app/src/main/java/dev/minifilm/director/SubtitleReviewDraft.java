@@ -17,7 +17,9 @@ public final class SubtitleReviewDraft {
     public final long durationMs,inMs,outMs;
     public final boolean selected;
     public final List<String> reviewedShotIds;
+    /** Immutable rows shown in the editor: original words or an unapplied proposal. */
     public final List<Cue> cues;
+    private final List<Cue> baselineCues;
     private final Take sourceIdentity;
 
     public static final class Cue {
@@ -33,7 +35,28 @@ public final class SubtitleReviewDraft {
         reviewedShotIds=Collections.unmodifiableList(new ArrayList<>(source.reviewedShotIds));
         List<Cue> copied=new ArrayList<>(source.subtitles.size());
         for(SubtitleCue cue:source.subtitles)copied.add(new Cue(cue));
-        cues=Collections.unmodifiableList(copied);
+        cues=Collections.unmodifiableList(copied);baselineCues=cues;
+    }
+
+    private SubtitleReviewDraft(SubtitleReviewDraft original,List<Cue> proposed){
+        sourceIdentity=original.sourceIdentity;uri=original.uri;shotId=original.shotId;title=original.title;
+        caption=original.caption;captionOrigin=original.captionOrigin;durationMs=original.durationMs;
+        inMs=original.inMs;outMs=original.outMs;selected=original.selected;
+        reviewedShotIds=original.reviewedShotIds;baselineCues=original.baselineCues;cues=proposed;
+    }
+
+    /** Show an unapplied proposal without recapturing any current Take facts. Matching always
+     * checks the original captured words, even after chaining proposal views. Numeric errors,
+     * overlaps and blank words remain visible for correction; only Save validates the result. */
+    public SubtitleReviewDraft withProposedCues(List<SubtitleCue> proposed){
+        if(proposed==null)throw new IllegalArgumentException(UNREADABLE_MESSAGE);
+        if(proposed.size()>500)throw new IllegalArgumentException("Review at most 500 subtitle segments at a time. Existing words and times were kept.");
+        List<Cue> copied=new ArrayList<>(proposed.size());
+        for(SubtitleCue cue:proposed){
+            if(cue==null||cue.text==null)throw new IllegalArgumentException(UNREADABLE_MESSAGE);
+            copied.add(new Cue(cue));
+        }
+        return new SubtitleReviewDraft(this,Collections.unmodifiableList(copied));
     }
 
     public static SubtitleReviewDraft capture(Take source){
@@ -54,9 +77,9 @@ public final class SubtitleReviewDraft {
                 ||!Objects.equals(shotId,source.shotId)||!Objects.equals(title,source.title)
                 ||!Objects.equals(caption,source.caption)||!Objects.equals(captionOrigin,source.captionOrigin)
                 ||!reviewedShotIds.equals(source.reviewedShotIds)||source.subtitles==null
-                ||source.subtitles.size()!=cues.size())return false;
-        for(int i=0;i<cues.size();i++){
-            Cue before=cues.get(i);SubtitleCue now=source.subtitles.get(i);
+                ||source.subtitles.size()!=baselineCues.size())return false;
+        for(int i=0;i<baselineCues.size();i++){
+            Cue before=baselineCues.get(i);SubtitleCue now=source.subtitles.get(i);
             if(now==null||before.startMs!=now.startMs||before.endMs!=now.endMs||!Objects.equals(before.text,now.text))return false;
         }
         return true;

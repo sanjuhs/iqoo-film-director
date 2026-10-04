@@ -1858,3 +1858,43 @@ Only own AVD/reg removed after parent terminal; other untouched. Qualified peak
 11140303840B/finaladjacent9338014688B; existing reserve/inventory/runtime limits
 retained. No downloads, private upload/capture/audio or aircraft action. Goal
 active until midnight; attended/iQOO/NPU/OfficeKit/event acceptance gates open.
+
+### 23:11 IST — fresh subtitle proposals preserve reviewed words
+
+Standalone Generate previously assigned/saved ASR words before review, so Later
+could not keep corrected words and empty results cleared them. It now captures
+original Take facts and shows a deep immutable proposal; only explicit owned
+Save/Remove changes saved subtitles. Later/empty/malformed/cancel/background keep
+originals. Exact Take identity handles reorder and rejects replaced/deep-edited
+facts. Proposal display and original matching baseline stay separate, including
+chained proposals. Numeric malformed rows remain editable. [Evidence](standalone-subtitle-proposal-evidence.md).
+
+Standalone reader/generation owns busy. Cancel/render/background/destroy close
+that exact reader; cancellation waits for resource-only closeWhenIdle. Old
+terminals/hooks cannot clear newer work. ClipTranscriber/native code unchanged;
+normal terminals already follow release. UI asks to keep the app open.
+Independent final proposal/source reviews found no blocker.
+
+Offline build1s/normal installs. Physical15/5.254s passed (proposal3, original
+snapshot4, cancellation/resource8); actual existing padded synthetic tiny.en
+CPU speech returned3segments/4,982ms with known jacket/green/outfit words,
+source unchanged/native registry released. Fresh UI34/65.073s passed (proposal5,
+corrective subtitle4, workflow10, newReel4, fixed4, stopPrefs3, earlyFinish4).
+Synthetic listener callbacks/idle reader cleanup gates are not actual ASR UI
+or native-concurrency proof. No model/microphone/media source on the emulator.
+
+Screenshot-only helper first failed TEST cache createNewFile ENOENT (1/1.698s);
+retained as artifact-location failure. Target writable cache fix, build540ms and
+focused1/1.689s passed. Rendered synthetic proposal visually reviewed: explanation,
+words/times and all Save/Later/Remove actions visible. Only owned PNG read/removed.
+Functional34/physical15 precede this test-only change; app APK unchanged.
+
+Built/saved/independently read installedAPK52838059B SHA256
+3dd0f7dff38dff36c1666d292feef800e5da3cc3b7da1168a2634718e3887455;
+source-identical notices, separate weights excluded/bundledMLKit/noInternet.
+Gallery1/0.829s unchanged29/0/8,373,323B. NormalMain launch behind secure
+keyguard/capturedenied requested. Only own AVD/reg removed after parent terminal;
+other untouched. Qualified peak10536879296B/finaladjacent9338096076B; existing
+reserve/inventory/runtime limits retained. No downloads/private upload/capture/
+playback/aircraft action. Goal active until midnight; full attended/AirPods,
+iQOO/NPU/OfficeKit, semantic benefit and eligible accepted entry remain open.

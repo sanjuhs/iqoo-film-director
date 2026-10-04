@@ -10,6 +10,17 @@ prospective native tests retained speech-topic failures. One default hybrid
 retained the creator-authored Closing explicitly. Creative accuracy across
 unseen briefs and the attended workflow remain unverified.
 
+Latest23:11 standalone subtitle repair keeps generated words as a proposal
+until explicit current Save/Remove. Later/empty/background/cancel preserve saved
+words. Physical15/5.254s and fresh UI34/65.073s passed; separate actual synthetic
+CPU tiny.en3segments/4,982ms preserved source/native cleanup. Screenshot-helper
+artifact failure retained, focused1/1.689s after target-cache repair passed and
+rendered synthetic proposal visually checked. Built/saved/independently read
+installedAPK SHA2563dd0f7dff38dff36c1666d292feef800e5da3cc3b7da1168a2634718e3887455.
+[Proposal evidence](standalone-subtitle-proposal-evidence.md). Qualified peak
+10536879296B/finaladjacent9338096076B; current attended/device/event gates remain
+open. Earlier standalone background behavior is superseded by this dated repair.
+
 Latest22:59 control/persistence increment passed39 fresh-emulator methods in
 63.629s. Main Direct controls stay fixed while scrolling; current Stop works
 during unrelated processing. Manual planned/quiet-stop choices survive reopening

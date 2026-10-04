@@ -315,3 +315,7 @@ scroll; Stop stays available during unrelated local processing.
 Planned-stop and quiet-pause choices now survive reopening. Guided mode retains
 the manual choice while showing its required planned stop.
 [Preference evidence](../../docs/direct-stop-preferences-evidence.md) records this continuity fix.
+
+Generating fresh subtitles now proposes words for review before replacing saved
+subtitles. Later, empty results and background cancellation preserve your words.
+[Proposal evidence](../../docs/standalone-subtitle-proposal-evidence.md) separates actual ASR and synthetic editor checks.

@@ -386,3 +386,13 @@ Manual planned-stop and experimental quiet-pause choices survive reopening.
 Guided mode still requires planned stopping, but turning it off restores your
 manual choice. Changing settings affects the next take.
 [Persistence evidence](direct-stop-preferences-evidence.md).
+
+## Generate another subtitle draft without losing reviewed words
+
+Keep Assemble open while **Generate offline subtitles** reads the chosen source.
+The review shows a proposal; **Save reviewed subtitles** replaces saved words
+only after you confirm/correct them. **Later** keeps existing subtitles. Empty
+results keep existing words too. Backgrounding/canceling stops this single-take
+request; request a fresh draft after returning. Explicit **Remove subtitles**
+clears the current take. Batch missing-subtitle generation keeps its earlier
+keep-existing behavior. [Evidence](standalone-subtitle-proposal-evidence.md).
