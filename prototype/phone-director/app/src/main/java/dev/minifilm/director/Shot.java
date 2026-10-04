@@ -7,12 +7,20 @@ public final class Shot {
     public String instruction;
     public String caption;
     public long targetDurationMs;
+    /** Creator-selected framing policy; this is not a learned model prediction. */
+    public String framingTarget;
 
     public Shot(String id, String title, String instruction, String caption, long targetDurationMs) {
+        this(id, title, instruction, caption, targetDurationMs, FramingTarget.SCENE_DEFAULT);
+    }
+
+    public Shot(String id, String title, String instruction, String caption, long targetDurationMs,
+                String framingTarget) {
         this.id = id;
         this.title = title;
         this.instruction = instruction;
         this.caption = caption;
         this.targetDurationMs = Math.max(2000L, Math.min(60000L, targetDurationMs));
+        this.framingTarget = FramingTarget.normalize(framingTarget);
     }
 }

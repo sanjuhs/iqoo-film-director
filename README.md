@@ -115,3 +115,8 @@ restore or download old model bundles by default.
 
 A six-slide [Phase1 idea deck and PDF](docs/phase1-deck.md) are ready for creator
 review. They remain unsubmitted and disclose pre-event research provenance.
+
+Each shot now has an explicit creator-selected framing target. Face framing
+omits outfit shoe advice, and saved-cut hints use a qualified current target or
+manual review. Choices persist into editable exports. [Target evidence](docs/shot-framing-target-evidence.md)
+records actual editor and original-byte ZIP checks; live usefulness remains open.

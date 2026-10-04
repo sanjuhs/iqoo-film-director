@@ -18,7 +18,7 @@ public final class ShotPlanSnapshot {
 
     public static final class Entry {
         public final int shotIndex;
-        public final String id, title, instruction, caption;
+        public final String id, title, instruction, caption, framingTarget;
         public final long targetDurationMs;
 
         private Entry(int index, Shot shot) {
@@ -27,6 +27,7 @@ public final class ShotPlanSnapshot {
             title = shot.title;
             instruction = shot.instruction;
             caption = shot.caption;
+            framingTarget = shot.framingTarget;
             targetDurationMs = shot.targetDurationMs;
         }
     }
@@ -56,6 +57,8 @@ public final class ShotPlanSnapshot {
             checkText(shot.title, 140, "Plan shot title");
             checkText(shot.instruction, 2000, "Plan direction");
             checkText(shot.caption, 1000, "Plan caption");
+            if (!FramingTarget.isValid(shot.framingTarget))
+                throw new IllegalArgumentException("Choose a valid framing target for each plan shot before exporting.");
             if (shot.targetDurationMs < 2000 || shot.targetDurationMs > 60000)
                 throw new IllegalArgumentException("Plan shot durations must be between 2 and 60 seconds.");
             entries.add(new Entry(i, shot));
@@ -78,14 +81,16 @@ public final class ShotPlanSnapshot {
         return null;
     }
 
-    /** Every call returns independently mutable JSON with no caller-owned objects. */
+    /** Every call returns independently mutable JSON with no caller-owned objects.
+     * framingTarget is additive v1 metadata; it does not change shot IDs or timeline semantics. */
     public JSONObject toJson() throws JSONException {
         JSONObject result = new JSONObject().put("schema", "minifilm.shot-plan.v1")
                 .put("sourceLabel", sourceLabel);
         JSONArray shots = new JSONArray();
         for (Entry entry : entries) shots.put(new JSONObject().put("order", entry.shotIndex + 1)
                 .put("id", entry.id).put("title", entry.title).put("instruction", entry.instruction)
-                .put("caption", entry.caption).put("targetDurationMs", entry.targetDurationMs));
+                .put("caption", entry.caption).put("targetDurationMs", entry.targetDurationMs)
+                .put("framingTarget", entry.framingTarget));
         return result.put("shots", shots);
     }
 
@@ -98,6 +103,10 @@ public final class ShotPlanSnapshot {
             notes.append('\n').append(entry.shotIndex + 1).append(". ").append(entry.title)
                     .append(" (target ").append(seconds(entry.targetDurationMs)).append("s)\n")
                     .append("Direction: ").append(entry.instruction).append('\n')
+                    .append("Framing target: ").append(FramingTarget.label(entry.framingTarget))
+                    .append("scene_default".equals(entry.framingTarget)
+                            ? " (scene-default suggestion; review the framing)\n"
+                            : " (creator choice; review the framing)\n")
                     .append("Caption: ").append(entry.caption).append('\n');
         }
         notes.append("\nSELECTED CUT ASSIGNMENTS\nTimes below are relative to each original source.\n");

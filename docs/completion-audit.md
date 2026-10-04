@@ -484,3 +484,33 @@ and other AVD untouched. Qualified peak10844277013B, finaladjacent9327196437B;
 existing archive/cache/full-inventory qualifications retained. No new downloads,
 private upload/capture or aircraft action. Goal active; attended/device/event
 acceptance gates remain unchanged.
+
+### 21:11 IST — creator-selected per-shot framing
+
+Shot editing now saves explicit Full outfit/Face & shoulders/Object detail/
+Manual preview choices; legacy/new model plans retain disclosed Scene default.
+Live advice uses that target; face framing omits shoe checks and object/manual
+skip person inference. Immutable config identity rejects stale target/style
+results including A→B→A. Saved review resolves one exact current shot or abstains,
+qualifies samples against current intent and rejects changed association/target
+bindings. New target does not rewrite direction/caption; review consistency.
+[Evidence](shot-framing-target-evidence.md).
+
+Physical19/0.220s passed (six new policy/config, five snapshot, five coverage,
+three actual serializer/ZIP checks), preserving strict existing labelled59313B
+synthetic source and preferences. Fresh emulator35/115.006s passed including
+five new editor/current/stale target checks and30 workflow/regressions. Bundled
+client construction/predicate checks submit no image; no live inference/AirPods
+result follows. Ordinary editor/dropdown/Save and persisted label visually
+reviewed; no takes/capture. Manual fixed-coordinate and below-fold helper
+assumptions failed, then corrected using current bounds/prefs; no app failures.
+Save resets Brief scroll, a concrete next usability improvement.
+
+Built/saved/independently read installedAPK52838059B SHA256
+ a0365b3f1ec4ae23ff2741944c19e557f56fbe3149925e82257efd189a907da1.
+Source-identical notices, separate weights excluded, noInternet. Gallery1/0.694s
+unchanged28/0/8319196B; normalMain launch requested behindkeyguard/capturedenied.
+Only own AVD/reg removed; otheruntouched. Qualified peak10643047341B,
+finaladjacent9327293357B with existing inventory/reserve
+limits. No new downloads, private upload/recording or aircraft action. Goal
+active; attended/device/usefulness/event acceptance gates remain open.

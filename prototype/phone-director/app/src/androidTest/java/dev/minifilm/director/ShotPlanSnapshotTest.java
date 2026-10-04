@@ -62,7 +62,8 @@ public final class ShotPlanSnapshotTest {
         JSONObject json = snapshot.toJson();
         assertEquals(3, json.length()); assertFalse(json.has("brief")); assertFalse(json.has("sourceUri"));
         assertFalse(json.has("reviewed")); assertFalse(json.has("approved"));
-        assertEquals(6, json.getJSONArray("shots").getJSONObject(0).length());
+        assertEquals(7, json.getJSONArray("shots").getJSONObject(0).length());
+        assertEquals("scene_default", json.getJSONArray("shots").getJSONObject(0).getString("framingTarget"));
     }
 
     @Test public void emptyContextAndUnassignedOrUnselectedCutsRemainHonest() throws Exception {

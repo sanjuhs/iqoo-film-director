@@ -259,3 +259,11 @@ playback uses a clipped centered9:16 framing preview; exported-reel playback sta
 FIT. Text/color effects are absent from source previews. [Verification and
 limitations](../../docs/pose-break-crop-evidence.md) records29 distinct passing
 emulator methods across two runners and three physical range checks.
+
+**Edit shot** adds a persistent creator framing target: scene default, full outfit,
+face/shoulders, object/detail or manual preview. Explicit targets govern live
+person advice and qualified saved-cut hints; ambiguous current shot matches
+require manual review. Immutable export context includes target keys and readable
+notes. [Target evidence](../../docs/shot-framing-target-evidence.md) records19
+physical and35 emulator passes. This is creator policy, not learned shot quality;
+changing target does not rewrite the direction/caption.

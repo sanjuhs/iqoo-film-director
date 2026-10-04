@@ -97,6 +97,11 @@ retrying and inspect Android's microphone indicator.
    are rejected, but the filters are narrow. Body poses toward a mounted camera
    are allowed; bounded device-handling wording is rejected. Other roles can
    still invent facts, and even readable captions can be generic. Review them.
+   In **Edit shot**, set **Framing target** for each planned shot: Full outfit,
+   Face & shoulders, Object / detail or Manual preview only. Scene default is
+   only a suggestion. Save the choice and keep direction/caption consistent;
+   target changes do not rewrite them. Cancel preserves the shot. Save currently
+   returns Brief to the top; scroll back to continue editing the plan.
 4. Tap **Let's direct this reel →**, then **Start camera**. Check the live preview
    and written pose cue. “Review needed” means insufficient landmark evidence;
    use your own framing judgment. Detail/object shots may disable person advice.
@@ -151,6 +156,9 @@ check it with **Preview take**. [Recovery evidence](capture-take-recovery-eviden
 
 1. In **03 Assemble**, select the takes you want; deselect failed takes. Use
    **Select no takes** clears selection for a new reel without deleting takes. Use
+   Saved-cut framing observations now show a qualified **Current plan target**
+   only for one exact current association. Multiple/unmatched/default associations
+   ask for manual review; the target does not prove captured intent or quality.
    **Preview take** opens paused playback directly. **Edit & review take** opens
    that take’s scrollable tools menu: **Move earlier**, **Trim & typography**,
    shot assignment, subtitle tools and framing review. Cancel keeps the edits;

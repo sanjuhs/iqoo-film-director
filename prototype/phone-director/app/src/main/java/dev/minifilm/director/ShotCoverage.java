@@ -77,7 +77,7 @@ public final class ShotCoverage {
             Shot source = plan.get(i);
             if (source == null) throw new IllegalArgumentException("Plan contains a missing shot");
             Shot copy = new Shot(namespace + (i + 1), source.title, source.instruction,
-                    source.caption, source.targetDurationMs);
+                    source.caption, source.targetDurationMs, source.framingTarget);
             // Preserve reviewed metadata exactly, including a duration edited after construction.
             copy.targetDurationMs = source.targetDurationMs;
             copies.add(copy);

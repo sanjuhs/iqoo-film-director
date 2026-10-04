@@ -52,7 +52,7 @@ public class MainActivity extends ComponentActivity {
     private TextView coverageSummary;
     private LinearLayout coverageRows;
     private Button nextMissingShotButton;
-    private AlertDialog shotAssignmentDialog;
+    private AlertDialog shotAssignmentDialog,shotEditDialog;
     private TakeFramingReview takeFramingReview, activeTakeFramingReview;
     private int takeFramingGeneration;
     private boolean takeFramingOwnsBusy;
@@ -68,7 +68,7 @@ public class MainActivity extends ComponentActivity {
     private Button button(String s,boolean primary,Runnable action){Button b=new Button(this);b.setText(s);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(primary?BG:FG);b.setBackground(bg(primary?LIME:0xff303338));b.setMinHeight(dp(50));b.setPadding(dp(12),dp(8),dp(12),dp(8));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(52));p.topMargin=dp(8);p.bottomMargin=dp(4);b.setLayoutParams(p);b.setOnClickListener(v->{if(referenceSpeechReader!=null&&!busy){toast("Reference speech is still stopping. Try again in a moment.");return;}if(busy){toast("Local processing is running. You can cancel it above.");return;}action.run();});return b;}
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
-        clearAssemblyFooter();clearPoseBreak();
+        clearAssemblyFooter();clearPoseBreak();dismissShotEdit();
         ++shootPoseGeneration;
         cancelTakeFraming(false);dismissTakeTools();
         dismissShotAssignments();coverageSummary=null;coverageRows=null;nextMissingShotButton=null;
@@ -105,7 +105,7 @@ public class MainActivity extends ComponentActivity {
         c.addView(button("Build my shot plan",true,()->generatePlan()));c.addView(button("Choose a reference reel",false,()->pickReference()));if(referenceVideoUri!=null){c.addView(button("Read reference speech locally",false,this::readReferenceSpeech));c.addView(text("English draft from this selected video. No microphone opens; review and shorten the context before planning.",12,MUTED));c.addView(button("Review three reference moments",false,()->chooseReferenceMoments()));c.addView(button("Describe a reference frame locally",false,()->chooseReferenceFrame()));}if(pendingReferenceBoard!=null)c.addView(button("Review reference moments draft",false,()->reviewReferenceBoard(pendingReferenceBoard)));else if(reviewedReferenceBoard!=null)c.addView(button("Edit reviewed reference moments",false,()->reviewReferenceBoard(reviewedReferenceBoard)));if(!pendingReferenceNotes.isEmpty())c.addView(button("Review reference frame notes",false,()->reviewReferenceNotes()));if(!referenceSummary.isEmpty()){c.addView(text("Reference notes: "+referenceSummary,12,MUTED));c.addView(button("Clear visual reference notes",false,()->{referenceSummary="";clearReferenceBoards();save();render();}));}if(referenceSpeechContext!=null&&referenceSpeechContext.matchesSource(referenceVideoUri)){c.addView(text("Reviewed reference speech: "+referenceSpeechContext.text,12,MUTED));c.addView(button("Edit reviewed speech context",false,this::editReferenceSpeechContext));c.addView(button("Clear reference speech context",false,()->{cancelReferenceSpeech();referenceSpeechContext=null;save();render();}));}content.addView(c);
         content.addView(text(planSource+" · "+shots.size()+" shots",12,LIME));
         content.addView(text("Review directions and captions before filming. AI can invent details or suggest an action that does not make sense. Edit each shot to make it yours.",13,MUTED));
-        for(int i=0;i<shots.size();i++){final int index=i;Shot shot=shots.get(i);LinearLayout s=card();s.addView(text(String.format(Locale.US,"%02d  /  %s",i+1,shot.title),20,FG));s.addView(text(shot.instruction,14,MUTED));s.addView(text((shot.targetDurationMs/1000)+" sec · Phone camera",12,LIME));s.addView(button("Edit shot",false,()->editShot(index)));if(i>0)s.addView(button("Move earlier",false,()->{Collections.swap(shots,index,index-1);save();render();}));content.addView(s);}
+        for(int i=0;i<shots.size();i++){final int index=i;Shot shot=shots.get(i);LinearLayout s=card();s.addView(text(String.format(Locale.US,"%02d  /  %s",i+1,shot.title),20,FG));s.addView(text(shot.instruction,14,MUTED));s.addView(text((shot.targetDurationMs/1000)+" sec · Phone camera · "+FramingTarget.label(shot.framingTarget),12,LIME));s.addView(button("Edit shot",false,()->editShot(shot)));if(i>0)s.addView(button("Move earlier",false,()->{Collections.swap(shots,index,index-1);save();render();}));content.addView(s);}
         content.addView(button("Let's direct this reel →",true,()->{brief=briefField.getText().toString();switchTab(1);}));
         content.addView(button("Try a synthetic demo",false,()->loadDemo()));
     }
@@ -250,14 +250,40 @@ public class MainActivity extends ComponentActivity {
         });
         updateVoiceInputControls();
     }
-    private void editShot(int i){Shot s=shots.get(i);LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));EditText name=input(s.title,"Title"),cue=input(s.instruction,"Direction"),caption=input(s.caption,"Manual caption"),duration=input(""+(s.targetDurationMs/1000),"Seconds");duration.setInputType(2);form.addView(name);form.addView(cue);form.addView(caption);form.addView(duration);ScrollView scroll=new ScrollView(this);scroll.addView(form);new AlertDialog.Builder(this).setTitle("Your shot").setView(scroll).setPositiveButton("Save",(d,w)->{long seconds=6;try{seconds=Long.parseLong(duration.getText().toString());}catch(Exception ignored){}shots.set(i,new Shot(s.id,name.getText().toString(),cue.getText().toString(),caption.getText().toString(),Math.max(2,Math.min(60,seconds))*1000));save();render();}).setNegativeButton("Cancel",null).show();}
+    private void editShot(int i){if(i>=0&&i<shots.size())editShot(shots.get(i));}
+    private void editShot(Shot shot){
+        if(busy||destroying||tab!=0||!shots.contains(shot)
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        dismissShotEdit();LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));
+        EditText name=input(shot.title,"Title"),cue=input(shot.instruction,"Direction"),caption=input(shot.caption,"Manual caption"),duration=input(""+(shot.targetDurationMs/1000),"Seconds");
+        duration.setInputType(2);form.addView(name);form.addView(cue);form.addView(caption);form.addView(duration);
+        String[] targets={FramingTarget.SCENE_DEFAULT,FramingTarget.FULL_OUTFIT,FramingTarget.FACE_SHOULDERS,FramingTarget.OBJECT_DETAIL,FramingTarget.MANUAL};
+        String[] labels={"Scene default (suggested)","Full outfit","Face & shoulders","Object / detail","Manual preview only"};
+        int selected=Arrays.asList(targets).indexOf(FramingTarget.normalize(shot.framingTarget));
+        form.addView(text("Framing target · your choice",13,LIME));
+        Spinner framing=spinner(labels,labels[Math.max(0,selected)],value->{});framing.setContentDescription("Framing target");form.addView(framing);
+        form.addView(text("Choose the framing you want. This is a creator setting, not a learned framing decision or a check of shot quality.",12,MUTED));
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Your shot").setView(scroll).setPositiveButton("Save",null).setNegativeButton("Cancel",null).create();
+        shotEditDialog=dialog;dialog.setOnDismissListener(d->{if(shotEditDialog==dialog)shotEditDialog=null;});
+        dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
+            if(shotEditDialog!=dialog||!dialog.isShowing()||busy||destroying||tab!=0||!shots.contains(shot)
+                    ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+            long seconds=6;try{seconds=Long.parseLong(duration.getText().toString());}catch(Exception ignored){}
+            int index=shots.indexOf(shot);String target=targets[framing.getSelectedItemPosition()];
+            shots.set(index,new Shot(shot.id,name.getText().toString(),cue.getText().toString(),caption.getText().toString(),Math.max(2,Math.min(60,seconds))*1000,target));
+            save();dialog.dismiss();render();
+        }));dialog.show();
+    }
+    private void dismissShotEdit(){if(shotEditDialog!=null){AlertDialog dialog=shotEditDialog;shotEditDialog=null;dialog.dismiss();}}
     private void directPage(){
         shotIndex=Math.min(shotIndex,Math.max(0,shots.size()-1));Shot shot=shots.get(shotIndex);
         headline("Your next good shot.",String.format(Locale.US,"SHOT %02d OF %02d  ·  %s",shotIndex+1,shots.size(),shot.title));
+        content.addView(text("Framing target · "+FramingTarget.label(shot.framingTarget)+" · creator setting",12,LIME));
         FrameLayout frame=new FrameLayout(this);frame.setBackground(bg(CARD));preview=new PreviewView(this);preview.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);preview.setScaleType(PreviewView.ScaleType.FILL_CENTER);int viewfinderHeight=Math.min(dp(390),(int)(getResources().getDisplayMetrics().heightPixels*.42f));FrameLayout.LayoutParams viewfinderBounds=new FrameLayout.LayoutParams((int)(viewfinderHeight*9f/16f),viewfinderHeight,Gravity.CENTER);frame.addView(preview,viewfinderBounds);
         TextView placeholder=text("Mount your phone vertically.\nLeave it steady for the shoot.\nTap Start camera to begin.",16,MUTED);cameraPlaceholder=placeholder;placeholder.setGravity(Gravity.CENTER);frame.addView(placeholder,new FrameLayout.LayoutParams(-1,-1));
         content.addView(frame,new LinearLayout.LayoutParams(-1,viewfinderHeight));
-        LinearLayout c=card();c.setPadding(dp(18),dp(16),dp(18),dp(16));cueView=text(shot.instruction,21,FG);c.addView(cueView);framingView=text(isPoseShot()?"Framing coach waits for your shoot to start":"Person-framing advice is off for this object shot. Follow your scene cue.",13,MUTED);c.addView(framingView);timerView=text("Ready when you are · "+shot.targetDurationMs/1000+" second take",13,LIME);c.addView(timerView);
+        LinearLayout c=card();c.setPadding(dp(18),dp(16),dp(18),dp(16));cueView=text(shot.instruction,21,FG);c.addView(cueView);framingView=text(poseWaitingMessage(),13,MUTED);c.addView(framingView);timerView=text("Ready when you are · "+shot.targetDurationMs/1000+" second take",13,LIME);c.addView(timerView);
         Switch v=new Switch(this);v.setText("Spoken direction / earbuds");v.setTextColor(FG);v.setChecked(voice);v.setOnCheckedChangeListener((b,on)->{voice=on;if(!on){if(countdown)stopTake();else speech.stop();}save();});c.addView(v);
         Switch sequence=new Switch(this);sequence.setText("Guide the full shot sequence");sequence.setTextColor(FG);sequence.setChecked(guideSequence);sequence.setOnCheckedChangeListener((b,on)->{guideSequence=on;if(!on){boolean preparing=countdown&&(capture==null||!capture.isRecording());sequenceActive=false;cancelCountdown();speech.stop();if(pose!=null)pose.setEnabled(session&&isPoseShot());if(preparing)showPreparationCanceled();}save();});c.addView(sequence);c.addView(text("When enabled, Record speaks each direction fully, gives you an 8-second pose break, then counts down before recording. Stop ends the sequence.",12,MUTED));
         Switch a=new Switch(this);a.setText("Stop at planned shot length");a.setTextColor(FG);a.setChecked(autoStop);a.setOnCheckedChangeListener((b,on)->autoStop=on);c.addView(a);
@@ -270,7 +296,7 @@ public class MainActivity extends ComponentActivity {
         content.addView(text("Pose model observes only while this shoot is open. Camera and microphone stop when you leave the app. Drone clips can be imported; aircraft control is not connected.",12,MUTED));
     }
     private void startShoot(){if(!ensureVoiceRecorderReleased())return;if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED||checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO},41);return;}cameraPlaceholder.setVisibility(View.GONE);startCamera();}
-    private void startCamera(){if(live)return;if(capture!=null&&capture.isRecording()){toast("The previous take is still saving. Try again in a moment.");return;}if(!ensureVoiceRecorderReleased())return;releasePlannerForMedia();final int poseGeneration=++shootPoseGeneration;if(capture!=null){capture.close();capture=null;}if(pose!=null){pose.close();pose=null;}session=true;speech.stopListening();pose=new PoseCoach((cue,count,latency)->runOnUiThread(()->applyPoseCue(poseGeneration,cue,count,latency)));pose.setMode(style);pose.setEnabled(isPoseShot());capture=new CaptureController(this,preview,new CaptureController.Listener(){public void onReady(){live=true;desiredLens=capture.getLensFacing();save();if(captureAction!=null)captureAction.setText("Record · 3 sec");status.setText("Shoot active · "+speech.describeAudioRoute());if(!capture.isAnalysisAvailable())framingView.setText("Live pose analysis unavailable on this camera. Follow your shot cue and check the preview.");else if(!isPoseShot())framingView.setText("Person-framing advice is off for this object shot. Follow your scene cue.");if(sequenceActive)prepareSequenceShot();}public void onRecordingStarted(){countdown=false;speech.stop();recordStart=SystemClock.elapsedRealtime();quietStopPolicy=recordingQuietStop?new QuietTailStopPolicy(capture.getGeneration(),capture.getRecordingId(),recordingShot.targetDurationMs,recordStart):null;timerView.setText("● Recording — cues quiet");handler.post(tick);}public void onAudioStatus(CaptureController.AudioStatus audio){if(quietStopPolicy!=null)quietStopPolicy.observe(audio.generation,audio.recordingId,audio.recordedMs,audio.receivedElapsedMs,audio.amplitude,audio.eligible);}
+    private void startCamera(){if(live)return;if(capture!=null&&capture.isRecording()){toast("The previous take is still saving. Try again in a moment.");return;}if(!ensureVoiceRecorderReleased())return;releasePlannerForMedia();final int poseGeneration=++shootPoseGeneration;if(capture!=null){capture.close();capture=null;}if(pose!=null){pose.close();pose=null;}session=true;speech.stopListening();pose=new PoseCoach((cue,count,latency)->runOnUiThread(()->applyPoseCue(poseGeneration,cue,count,latency)));pose.setMode(style);pose.setFramingTarget(shots.get(shotIndex).framingTarget);pose.setEnabled(isPoseShot());capture=new CaptureController(this,preview,new CaptureController.Listener(){public void onReady(){live=true;desiredLens=capture.getLensFacing();save();if(captureAction!=null)captureAction.setText("Record · 3 sec");status.setText("Shoot active · "+speech.describeAudioRoute());if(!isPoseShot())framingView.setText(poseWaitingMessage());else if(!capture.isAnalysisAvailable())framingView.setText("Live pose analysis unavailable on this camera. Follow your shot cue and check the preview.");if(sequenceActive)prepareSequenceShot();}public void onRecordingStarted(){countdown=false;speech.stop();recordStart=SystemClock.elapsedRealtime();quietStopPolicy=recordingQuietStop?new QuietTailStopPolicy(capture.getGeneration(),capture.getRecordingId(),recordingShot.targetDurationMs,recordStart):null;timerView.setText("● Recording — cues quiet");handler.post(tick);}public void onAudioStatus(CaptureController.AudioStatus audio){if(quietStopPolicy!=null)quietStopPolicy.observe(audio.generation,audio.recordingId,audio.recordedMs,audio.receivedElapsedMs,audio.amplitude,audio.eligible);}
         public void onRecordingFinished(Uri uri,long duration){clearQuietStopPolicy();handler.removeCallbacks(tick);if(pose!=null)pose.setEnabled(session&&isPoseShot());if(duration>300){Shot s=recordingShot!=null?recordingShot:shots.get(shotIndex);takes.add(new Take(uri,s.id,s.title,s.caption,duration));save();}timerView.setText("Take saved · "+String.format(Locale.US,"%.1f",duration/1000.0)+" sec");status.setText("Review your take in Assemble");if(reviewAfterSave){reviewAfterSave=false;switchTab(2);}else if(sequenceActive){if(shotIndex+1<shots.size()){shotIndex++;save();render();cameraPlaceholder.setVisibility(View.GONE);startCamera();}else{sequenceActive=false;session=false;switchTab(2);status.setText("Your shot sequence is ready to review.");}}}public void onError(String e){++shootPoseGeneration;session=false;clearQuietStopPolicy();sequenceActive=false;cancelCountdown();speech.stop();handler.removeCallbacks(tick);live=false;if(captureAction!=null)captureAction.setText("Start camera");toast(e);status.setText(e);if(pose!=null)pose.setEnabled(false);if(reviewAfterSave){reviewAfterSave=false;switchTab(2);}}});capture.setLensFacing(desiredLens);capture.setAnalyzer(pose);capture.startPreview();}
     private void applyPoseCue(int generation,String cue,int count,long latency){
         // A worker result can already be queued when its previous pose coach is closed.
@@ -304,7 +330,12 @@ public class MainActivity extends ComponentActivity {
         }else if(recordingTimedStop&&elapsed>=recordingShot.targetDurationMs){capture.stopRecording();return;}
         handler.postDelayed(this,100);
     }};
-    private boolean isPoseShot(){if(style.toLowerCase(Locale.ROOT).contains("product"))return false;String title=shots.get(shotIndex).title.toLowerCase(Locale.ROOT);return !title.contains("cutaway")&&!title.contains("world")&&!title.contains("detail")&&!title.contains("fabric")&&!title.contains("product")&&!title.contains("texture")&&!title.contains("sleeve");}
+    private boolean isPoseShot(){Shot shot=shots.get(shotIndex);return FramingTarget.requiresPerson(shot.framingTarget,style,shot.title);}
+    private String poseWaitingMessage(){
+        if(isPoseShot())return "Framing coach waits for your shoot to start";
+        if(FramingTarget.MANUAL.equals(FramingTarget.normalize(shots.get(shotIndex).framingTarget)))return "Person-framing advice is off for this target. Follow your cue and check preview.";
+        return "Person-framing advice is off for this object shot. Follow your scene cue.";
+    }
     private void startCountdown(){if(busy){toast("Wait for local processing to finish.");return;}if(!live||capture==null){toast("Start the shoot camera first.");return;}if(countdown||capture.isRecording())return;spokenPreparationPaused=false;if(guideSequence&&!sequenceActive){sequenceActive=true;prepareSequenceShot();return;}speech.stop();speech.stopListening();pose.setEnabled(false);countdown=true;int generation=++countdownGeneration;recordingShot=shots.get(shotIndex);cueView.setText(recordingShot.instruction);count(3,generation);}
     private void prepareSequenceShot(){
         clearPoseBreak();speech.stopListening();pose.setEnabled(false);countdown=true;
@@ -569,10 +600,33 @@ public class MainActivity extends ComponentActivity {
         batch.cancel();
         if(alreadyIdle&&finishSubtitleBatch(batch,generation)){render();status.setText("Subtitle reading canceled. Existing words and completed drafts are kept.");}
     }
+    private static final class TakeFramingTarget{
+        final String target,disclosure,binding;
+        TakeFramingTarget(String target,String disclosure,String binding){this.target=target;this.disclosure=disclosure;this.binding=binding;}
+    }
+    private TakeFramingTarget resolveTakeFramingTarget(Take take){
+        LinkedHashMap<String,Shot> current=new LinkedHashMap<>();for(Shot shot:shots)current.put(shot.id,shot);
+        LinkedHashSet<String> matches=new LinkedHashSet<>();
+        if(current.containsKey(take.shotId))matches.add(take.shotId);
+        if(take.reviewedShotIds!=null)for(String id:take.reviewedShotIds)if(current.containsKey(id))matches.add(id);
+        ArrayList<String> matched=new ArrayList<>(matches);Collections.sort(matched);
+        String binding;
+        try{
+            JSONArray resolved=new JSONArray();for(String id:matched)resolved.put(new JSONObject().put("id",id).put("target",FramingTarget.normalize(current.get(id).framingTarget)));
+            binding=new JSONObject().put("captureShotId",take.shotId).put("reviewedShotIds",new JSONArray(take.reviewedShotIds==null?Collections.emptyList():take.reviewedShotIds)).put("resolved",resolved).toString();
+        }catch(JSONException invalid){throw new IllegalArgumentException("This cut's framing associations could not be read.");}
+        if(matched.size()!=1)return new TakeFramingTarget(FramingTarget.MANUAL,
+                matched.isEmpty()?"Manual review · no exact current shot match. A framing target was not inferred.":"Manual review · shot assignments have different targets or match multiple shots. Choose one shot association to use a target.",binding);
+        String id=matched.get(0),target=FramingTarget.normalize(current.get(id).framingTarget);
+        if(FramingTarget.SCENE_DEFAULT.equals(target))return new TakeFramingTarget(FramingTarget.MANUAL,
+                "Manual review · scene default is unspecified for saved footage. A captured framing intention was not inferred.",binding);
+        return new TakeFramingTarget(target,"Current plan target · "+FramingTarget.label(target)+" · "+(id.equals(take.shotId)?"exact capture-ID match":"creator-reviewed assignment"),binding);
+    }
     private void reviewTakeFraming(Take take){
         if(busy||destroying||tab!=2||!takes.contains(take)
                 ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
         if(hasVoiceBriefWork()||referenceSpeechReader!=null){toast("Wait for voice reading to stop before reviewing this cut.");return;}
+        final TakeFramingTarget framingTarget=resolveTakeFramingTarget(take);
         final TakeFramingReview.Selection selection;
         try{selection=TakeFramingReview.Selection.capture(take);}catch(IllegalArgumentException invalid){toast(invalid.getMessage());return;}
         if(takeFramingReview==null)takeFramingReview=new TakeFramingReview(this);
@@ -585,12 +639,12 @@ public class MainActivity extends ComponentActivity {
         reviewer.inspect(selection,new TakeFramingReview.Listener(){
             public void onResult(TakeFramingReview.Result result,long elapsedMs){
                 if(!finishTakeFraming(reviewer,generation)){result.close();return;}
-                if(tab!=2||!takes.contains(take)||!selection.matches(take)
+                if(tab!=2||!takes.contains(take)||!selection.matches(take)||!framingTarget.binding.equals(resolveTakeFramingTarget(take).binding)
                         ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){
                     result.close();if(status!=null)status.setText("Framing review was not applied. Review the current cut when ready.");return;
                 }
                 status.setText("Sampled framing observations · "+String.format(Locale.US,"%.1fs",elapsedMs/1000d)+" · review the actual reel too");
-                showTakeFraming(result);
+                showTakeFraming(result,framingTarget);
             }
             public void onError(String message){
                 if(!finishTakeFraming(reviewer,generation))return;
@@ -614,9 +668,10 @@ public class MainActivity extends ComponentActivity {
     private void dismissTakeFraming(){
         if(takeFramingDialog!=null){AlertDialog dialog=takeFramingDialog;takeFramingDialog=null;dialog.dismiss();}
     }
-    private void showTakeFraming(TakeFramingReview.Result result){
+    private void showTakeFraming(TakeFramingReview.Result result,TakeFramingTarget target){
         dismissTakeFraming();LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));
         form.addView(text("Three nearby frames with an approximate vertical crop. Check the actual reel too; this does not judge motion or shot quality.",14,MUTED));
+        form.addView(text(target.disclosure,13,LIME));
         ArrayList<ImageView> images=new ArrayList<>();
         for(TakeFramingReview.Moment moment:result.moments){
             form.addView(text("Requested source time · "+SubtitleTime.format(moment.requestedTimeMs)+"s",13,LIME));
@@ -625,6 +680,7 @@ public class MainActivity extends ComponentActivity {
             image.setImageBitmap(moment.thumbnail);form.addView(image,new LinearLayout.LayoutParams(-1,dp(240)));images.add(image);
             form.addView(text("Local pose check · sample only",12,LIME));
             form.addView(text(takeFramingDescription(moment.label),16,FG));
+            form.addView(text(FramingTarget.describeSample(target.target,moment.label),13,MUTED));
             form.addView(text(takeFramingUncertainty(moment.label,moment.reason),12,MUTED));
         }
         ScrollView scroll=new ScrollView(this);scroll.addView(form);
@@ -978,10 +1034,10 @@ public class MainActivity extends ComponentActivity {
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
-    @Override protected void onStop(){++shootPoseGeneration;clearAssemblyFooter();super.onStop();cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
-    @Override protected void onDestroy(){++shootPoseGeneration;destroying=true;clearAssemblyFooter();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
+    @Override protected void onStop(){++shootPoseGeneration;clearAssemblyFooter();dismissShotEdit();super.onStop();cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
+    @Override protected void onDestroy(){++shootPoseGeneration;destroying=true;clearAssemblyFooter();dismissShotEdit();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
     private void planExportError(IllegalArgumentException invalid){setBusy(false);String message=invalid.getMessage();if(message==null||message.isEmpty())message="Review your shot plan fields and lengths before exporting.";status.setText(message);toast(message);}
-    private JSONArray serializeShots() throws JSONException{JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs));return ss;}
+    private JSONArray serializeShots() throws JSONException{JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs).put("framingTarget",FramingTarget.normalize(s.framingTarget)));return ss;}
     private JSONArray serializeTakes() throws JSONException{JSONArray tt=new JSONArray();for(Take t:takes){JSONArray subs=new JSONArray();for(SubtitleCue cue:t.subtitles)subs.put(new JSONObject().put("start",cue.startMs).put("end",cue.endMs).put("text",cue.text));tt.put(new JSONObject() .put("subtitles",subs).put("reviewedShotIds",new JSONArray(t.reviewedShotIds==null?Collections.emptyList():t.reviewedShotIds)).put("captionOrigin",t.captionOrigin).put("uri",t.uri.toString()).put("id",t.shotId).put("title",t.title).put("caption",t.caption).put("duration",t.durationMs).put("in",t.inMs).put("out",t.outMs).put("selected",t.selected));}return tt;}
     private String packSnapshot(JSONArray serialized) throws JSONException{return new JSONObject().put("reelTitle",reelTitle).put("look",look).put("source",planSource).put("shots",serializeShots()).put("takes",serialized).toString();}
     private String packSnapshot(){try{return packSnapshot(serializeTakes());}catch(JSONException impossible){return "";}}
@@ -997,5 +1053,5 @@ public class MainActivity extends ComponentActivity {
             status.setText(message);
         }
     }
-    private void restore(){try{JSONObject o=new JSONObject(getSharedPreferences("shoot",0).getString("state","{}"));int savedTab=o.optInt("tab",0);tab=savedTab>=0&&savedTab<=2?savedTab:0;pendingPack=restorePendingPack(o.optString("pendingPack",""));pendingPackSnapshot=o.optString("pendingPackSnapshot","");desiredLens=o.optInt("lens",CameraSelector.LENS_FACING_FRONT);if(desiredLens!=CameraSelector.LENS_FACING_BACK)desiredLens=CameraSelector.LENS_FACING_FRONT;guideSequence=o.optBoolean("guideSequence",false);reelTitle=o.optString("reelTitle","");referenceSummary=o.optString("referenceSummary","");String referenceUri=o.optString("referenceVideoUri","");if(!referenceUri.isEmpty()){Uri candidate=Uri.parse(referenceUri);if("file".equals(candidate.getScheme())||"content".equals(candidate.getScheme()))referenceVideoUri=candidate;}try{referenceSpeechContext=ReferenceSpeechContext.Reviewed.fromJson(o.optString("referenceSpeech",""),referenceVideoUri);}catch(Exception invalidSpeech){referenceSpeechContext=null;}referenceDurationMs=Math.max(0,Math.min(180000,o.optLong("referenceDurationMs",0)));try{String boardJson=o.optString("referenceBoard","");if(!boardJson.isEmpty()&&referenceVideoUri!=null){ReferenceBoard restored=ReferenceBoard.fromJson(boardJson);if(restored.sourceUri.equals(referenceVideoUri)){reviewedReferenceBoard=restored;referenceSummary=restored.planningSummary();}else restored.close();}}catch(Exception invalidBoard){reviewedReferenceBoard=null;}brief=o.optString("brief",brief);style=o.optString("style",style);look=o.optString("look",look);planSource=o.optString("source",planSource);shotIndex=o.optInt("shot",0);voice=o.optBoolean("voice",true);JSONArray ss=o.optJSONArray("shots");if(ss!=null)for(int i=0;i<ss.length();i++){JSONObject s=ss.getJSONObject(i);shots.add(new Shot(s.getString("id"),s.getString("title"),s.getString("cue"),s.getString("caption"),s.getLong("duration")));}JSONArray tt=o.optJSONArray("takes");if(tt!=null)for(int i=0;i<tt.length();i++){JSONObject t=tt.getJSONObject(i);Take a=new Take(Uri.parse(t.getString("uri")),t.getString("id"),t.getString("title"),t.getString("caption"),t.getLong("duration"));a.inMs=t.getLong("in");a.outMs=t.getLong("out");a.selected=t.getBoolean("selected");a.captionOrigin=t.optString("captionOrigin","manual");a.reviewedShotIds=restoredShotAssignments(t.optJSONArray("reviewedShotIds"));JSONArray cues=t.optJSONArray("subtitles");if(cues!=null)for(int j=0;j<cues.length();j++){JSONObject cue=cues.getJSONObject(j);a.subtitles.add(new SubtitleCue(cue.getLong("start"),cue.getLong("end"),cue.getString("text")));}takes.add(a);}if(o.has("lastVideo"))lastVideo=Uri.parse(o.getString("lastVideo"));if(o.has("lastEdit"))lastEdit=Uri.parse(o.getString("lastEdit"));}catch(Exception ignored){}}
+    private void restore(){try{JSONObject o=new JSONObject(getSharedPreferences("shoot",0).getString("state","{}"));int savedTab=o.optInt("tab",0);tab=savedTab>=0&&savedTab<=2?savedTab:0;pendingPack=restorePendingPack(o.optString("pendingPack",""));pendingPackSnapshot=o.optString("pendingPackSnapshot","");desiredLens=o.optInt("lens",CameraSelector.LENS_FACING_FRONT);if(desiredLens!=CameraSelector.LENS_FACING_BACK)desiredLens=CameraSelector.LENS_FACING_FRONT;guideSequence=o.optBoolean("guideSequence",false);reelTitle=o.optString("reelTitle","");referenceSummary=o.optString("referenceSummary","");String referenceUri=o.optString("referenceVideoUri","");if(!referenceUri.isEmpty()){Uri candidate=Uri.parse(referenceUri);if("file".equals(candidate.getScheme())||"content".equals(candidate.getScheme()))referenceVideoUri=candidate;}try{referenceSpeechContext=ReferenceSpeechContext.Reviewed.fromJson(o.optString("referenceSpeech",""),referenceVideoUri);}catch(Exception invalidSpeech){referenceSpeechContext=null;}referenceDurationMs=Math.max(0,Math.min(180000,o.optLong("referenceDurationMs",0)));try{String boardJson=o.optString("referenceBoard","");if(!boardJson.isEmpty()&&referenceVideoUri!=null){ReferenceBoard restored=ReferenceBoard.fromJson(boardJson);if(restored.sourceUri.equals(referenceVideoUri)){reviewedReferenceBoard=restored;referenceSummary=restored.planningSummary();}else restored.close();}}catch(Exception invalidBoard){reviewedReferenceBoard=null;}brief=o.optString("brief",brief);style=o.optString("style",style);look=o.optString("look",look);planSource=o.optString("source",planSource);shotIndex=o.optInt("shot",0);voice=o.optBoolean("voice",true);JSONArray ss=o.optJSONArray("shots");if(ss!=null)for(int i=0;i<ss.length();i++){JSONObject s=ss.getJSONObject(i);shots.add(new Shot(s.getString("id"),s.getString("title"),s.getString("cue"),s.getString("caption"),s.getLong("duration"),s.optString("framingTarget",FramingTarget.SCENE_DEFAULT)));}JSONArray tt=o.optJSONArray("takes");if(tt!=null)for(int i=0;i<tt.length();i++){JSONObject t=tt.getJSONObject(i);Take a=new Take(Uri.parse(t.getString("uri")),t.getString("id"),t.getString("title"),t.getString("caption"),t.getLong("duration"));a.inMs=t.getLong("in");a.outMs=t.getLong("out");a.selected=t.getBoolean("selected");a.captionOrigin=t.optString("captionOrigin","manual");a.reviewedShotIds=restoredShotAssignments(t.optJSONArray("reviewedShotIds"));JSONArray cues=t.optJSONArray("subtitles");if(cues!=null)for(int j=0;j<cues.length();j++){JSONObject cue=cues.getJSONObject(j);a.subtitles.add(new SubtitleCue(cue.getLong("start"),cue.getLong("end"),cue.getString("text")));}takes.add(a);}if(o.has("lastVideo"))lastVideo=Uri.parse(o.getString("lastVideo"));if(o.has("lastEdit"))lastEdit=Uri.parse(o.getString("lastEdit"));}catch(Exception ignored){}}
 }
