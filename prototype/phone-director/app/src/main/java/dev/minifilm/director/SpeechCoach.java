@@ -33,6 +33,7 @@ public final class SpeechCoach {
         int request(AudioFocusRequest request, AudioManager.OnAudioFocusChangeListener listener);
         void abandon(AudioFocusRequest request);
     }
+    interface RecognitionCleanup { void cancel(); void destroy(); }
     private static final AudioAttributes SPEECH_AUDIO = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build();
@@ -42,6 +43,7 @@ public final class SpeechCoach {
     private AudioFocusRequest activeFocus;
     private boolean noisyReceiverRegistered;
     private SpeechRecognizer recognizer;
+    private RecognitionCleanup recognitionCleanup;
     private boolean ready;
     private boolean closed;
     private boolean listening;
@@ -228,6 +230,7 @@ public final class SpeechCoach {
     public boolean isOfflineRecognitionAvailable() {
         return !closed && Build.VERSION.SDK_INT >= 31 && SpeechRecognizer.isOnDeviceRecognitionAvailable(context);
     }
+    public boolean isListening() { return listening && !closed; }
 
     public void listen(Listener listener) {
         if (!isOfflineRecognitionAvailable()) { listener.onError("On-device speech recognition isn't available. Type your brief instead."); return; }
@@ -238,29 +241,14 @@ public final class SpeechCoach {
         stop();
         try {
             recognizer = SpeechRecognizer.createOnDeviceSpeechRecognizer(context);
+            SpeechRecognizer owned = recognizer;
+            recognitionCleanup = new RecognitionCleanup() {
+                @Override public void cancel() { owned.cancel(); }
+                @Override public void destroy() { owned.destroy(); }
+            };
             listening = true;
             final int session = recognitionSession;
-            recognizer.setRecognitionListener(new RecognitionListener() {
-                @Override public void onReadyForSpeech(Bundle params) { }
-                @Override public void onBeginningOfSpeech() { }
-                @Override public void onRmsChanged(float value) { }
-                @Override public void onBufferReceived(byte[] buffer) { }
-                @Override public void onEndOfSpeech() { }
-                @Override public void onPartialResults(Bundle results) { }
-                @Override public void onEvent(int type, Bundle params) { }
-                @Override public void onError(int error) {
-                    if (closed || session != recognitionSession) return;
-                    listening = false;
-                    listener.onError("On-device recognition stopped (" + error + "). Type your brief or try again.");
-                }
-                @Override public void onResults(Bundle results) {
-                    if (closed || session != recognitionSession) return;
-                    listening = false;
-                    ArrayList<String> words = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                    if (words != null && !words.isEmpty()) listener.onText(words.get(0));
-                    else listener.onError("No speech was recognized. Try again or type your brief.");
-                }
-            });
+            recognizer.setRecognitionListener(createRecognitionListener(listener, session));
             Intent request = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                     .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                     .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
@@ -273,10 +261,42 @@ public final class SpeechCoach {
         }
     }
 
+    private RecognitionListener createRecognitionListener(Listener listener, int session) {
+        return new RecognitionListener() {
+            @Override public void onReadyForSpeech(Bundle params) { }
+            @Override public void onBeginningOfSpeech() { }
+            @Override public void onRmsChanged(float value) { }
+            @Override public void onBufferReceived(byte[] buffer) { }
+            @Override public void onEndOfSpeech() { }
+            @Override public void onPartialResults(Bundle results) { }
+            @Override public void onEvent(int type, Bundle params) { }
+            @Override public void onError(int error) {
+                if (closed || !listening || session != recognitionSession) return;
+                stopListening();
+                listener.onError("On-device recognition stopped (" + error + "). Type your brief or try again.");
+            }
+            @Override public void onResults(Bundle results) {
+                if (closed || !listening || session != recognitionSession) return;
+                ArrayList<String> words = results == null ? null : results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                String text = words == null || words.isEmpty() ? null : words.get(0);
+                stopListening();
+                if (text != null && !text.trim().isEmpty()) listener.onText(text);
+                else listener.onError("No speech was recognized. Try again or type your brief.");
+            }
+        };
+    }
+
     public void stopListening() {
+        // Detach before service calls; cancel/destroy can trigger stale terminal callbacks.
         recognitionSession++;
         listening = false;
-        if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
+        RecognitionCleanup cleanup = recognitionCleanup;
+        recognitionCleanup = null;
+        recognizer = null;
+        if (cleanup != null) {
+            try { cleanup.cancel(); } catch (RuntimeException ignored) { }
+            try { cleanup.destroy(); } catch (RuntimeException ignored) { }
+        }
     }
 
     public String describeAudioRoute() {

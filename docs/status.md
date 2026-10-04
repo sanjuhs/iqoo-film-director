@@ -917,3 +917,30 @@ sleeping screen; camera/microphone remain denied. Qualified storage **9.280GB**
 retains the missing-archive/inventory limits. No private filming/playback/upload,
 aircraft action, permission bypass or outgoing submission. Attended Files,
 AirPods, full creator reel and event gates remain open; goal remains active.
+
+### Voice readiness and request cancellation — 4 October, 16:33 IST
+
+The combined runner passed **24 methods / 10.313s**, including six new request
+lifetime checks, six synthetic recognition lifecycle checks, seven interruption,
+two silent TTS callbacks, two readiness queries and unchanged trim cancellation.
+Actual padded synthetic clip transcription returned three bounded cues in
+5,185ms with expected words and unchanged source. Per-request native cancellation
+cannot be reset by another entry; queued/rejected Java work releases its handles.
+No active abort-time guarantee follows. Details: [transcription evidence](transcription-evidence.md).
+
+Android's dedicated service is present, but exact en-US metadata reports
+installed=false, pending=false, supported=true. The English model requires a
+download; none ran. No earbud outputs were available. Permission stayed denied
+and no microphone/audio playback occurred. Main now has explicit Stop voice
+input and stops stale speech when editing/planning; visible acceptance is only
+compiled behind current keyguard. [Voice readiness](voice-input-readiness.md)
+records the distinction. A separate opt-in Whisper brief path is now being
+prepared using the existing verified model; it is not yet a tested feature.
+
+Both APKs built and installed. Saved/installed app hashes match:
+52,838,059 bytes, SHA256
+**13bc15086c4c12b8d59427ecbc68f71d440493bd089ffe9099f1c8959f46ad75**.
+Notices remain identical; separate weights are absent; no network permission.
+Normal launch requested successfully. Last qualified storage was9.280GB before
+these small source/test changes; no SDK/JDK/model download was added. Real capture,
+AirPods, eligible event code and accepted submission remain open; goal stays active.

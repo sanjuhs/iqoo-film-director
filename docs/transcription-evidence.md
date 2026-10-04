@@ -1,5 +1,31 @@
 # Offline clip transcription — pre-event prototype
 
+## Request cancellation repair — 4 October, 16:33 IST
+
+Global cancellation could be reset by another native entry. Requests now have
+unique IDs and shared native ownership, terminal cancellation and checks before
+and after the serialized inference wait. Java close cancels only its active
+request; queued work drains its cleanup and rejected submission frees immediately.
+Raw provider/runtime exception text is replaced by fixed categories. Decoder,
+resampler, verified model and inference settings remain unchanged.
+
+Six focused methods passed in the **24-method / 10.313-second** combined runner:
+pre-cancel remains canceled across another entry; 24 concurrent cancel/free/
+isolation cases and stale IDs; two queued Java instances close independently and
+release registry entries; rejected submission releases resources and reports a
+safe main-thread error; old queued errors are suppressed while an explicit new
+call after close retains its fixed API error; actual padded synthetic English
+speech still yields **three cues / 5,185 ms**, expected jacket/green/outfit words,
+bounded timestamps and unchanged source hash. Seven interruption, two silent
+voice callback, six recognition lifecycle, two readiness and one unchanged trim
+cancellation method also passed. No microphone or audible playback ran.
+
+The post-mutex cancellation check is source-reviewed; tests do not deterministically
+hold that mutex across cancellation or establish active inference abort timing.
+Model loading cannot be aborted mid-call. Blocking file-provider setup may still
+delay shutdown. This is not a general speech accuracy or immediate cancellation
+guarantee. Runner/metrics remain ignored in private/evidence/voice-cancellation-*.
+
 Prepared 4 October 2026 (IST). These sources are research preparation under
 `prototype/phone-director/`, not event-written competition code.
 

@@ -141,17 +141,61 @@ public final class UiWorkflowTest {
                 android.widget.EditText brief = find(activity.getWindow().getDecorView(), android.widget.EditText.class, null);
                 android.widget.Spinner style = find(activity.getWindow().getDecorView(), android.widget.Spinner.class, null);
                 assertNotNull(brief); assertNotNull(style); assertTrue(brief.isEnabled()); assertTrue(style.isEnabled());
+                SpeechCoach speech = (SpeechCoach) field(activity, "speech");
+                setField(speech, "listening", true); // Synthetic pending input: no recognizer/microphone.
                 try { Method method = activity.getClass().getDeclaredMethod("setBusy", boolean.class);
                     method.setAccessible(true); method.invoke(activity, true);
                 } catch (Exception failure) { throw new AssertionError(failure); }
                 assertFalse("A late typed brief must not replace the snapshot being planned", brief.isEnabled());
                 assertFalse("Scene style must remain fixed for a pending plan", style.isEnabled());
+                assertFalse("Local processing must cancel pending spoken input", speech.isListening());
                 click(activity, "Cancel local processing");
                 assertTrue(find(activity.getWindow().getDecorView(), android.widget.EditText.class, null).isEnabled());
                 assertTrue(find(activity.getWindow().getDecorView(), android.widget.Spinner.class, null).isEnabled());
                 assertNoCapture(activity);
             });
         }
+    }
+
+    @Test(timeout = 30_000) public void typingAndExplicitVoiceStopPreserveTheBriefAgainstSyntheticLateResults() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                SpeechCoach speech = (SpeechCoach) field(activity, "speech");
+                android.widget.EditText brief = (android.widget.EditText) field(activity, "briefField");
+                Button stop = find(activity.getWindow().getDecorView(), Button.class, "Stop voice input");
+                assertNotNull("A dedicated cancellation control must exist", stop); assertFalse(stop.isEnabled());
+                java.util.concurrent.atomic.AtomicInteger lateCalls = new java.util.concurrent.atomic.AtomicInteger();
+                android.speech.RecognitionListener typedStale = syntheticRecognition(speech, lateCalls);
+                invoke(activity, "updateVoiceInputControls"); assertTrue(stop.isEnabled());
+                brief.setText("My manually reviewed synthetic jacket brief");
+                assertFalse(speech.isListening()); assertFalse(stop.isEnabled());
+                android.os.Bundle stale = new android.os.Bundle();
+                stale.putStringArrayList(android.speech.SpeechRecognizer.RESULTS_RECOGNITION,
+                        new java.util.ArrayList<>(java.util.Arrays.asList("Unwanted late synthetic speech")));
+                typedStale.onResults(stale); assertEquals(0, lateCalls.get());
+                assertEquals("My manually reviewed synthetic jacket brief", brief.getText().toString());
+                android.speech.RecognitionListener stoppedStale = syntheticRecognition(speech, lateCalls);
+                invoke(activity, "updateVoiceInputControls"); assertTrue(stop.isEnabled());
+                stop.performClick(); stoppedStale.onResults(stale); stoppedStale.onError(7);
+                assertEquals(0, lateCalls.get()); assertFalse(speech.isListening()); assertFalse(stop.isEnabled());
+                assertEquals("My manually reviewed synthetic jacket brief", field(activity, "brief"));
+                assertNoCapture(activity);
+            });
+        }
+    }
+
+    private static android.speech.RecognitionListener syntheticRecognition(SpeechCoach speech,
+            java.util.concurrent.atomic.AtomicInteger callbacks) {
+        setField(speech, "listening", true);
+        SpeechCoach.Listener creator = new SpeechCoach.Listener() {
+            public void onText(String text) { callbacks.incrementAndGet(); }
+            public void onError(String error) { callbacks.incrementAndGet(); }
+        };
+        try {
+            Method factory = SpeechCoach.class.getDeclaredMethod("createRecognitionListener", SpeechCoach.Listener.class, int.class);
+            factory.setAccessible(true);
+            return (android.speech.RecognitionListener) factory.invoke(speech, creator, (Integer) field(speech, "recognitionSession"));
+        } catch (Exception failure) { throw new AssertionError("Unable to install synthetic pending input", failure); }
     }
 
     @Test(timeout = 30_000) public void objectShotsKeepPersonFramingAdviceOffWithoutOpeningCapture() {

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,6 +54,8 @@ public final class ClipTranscriber {
     private final Handler main = new Handler(Looper.getMainLooper());
     private final AtomicBoolean busy = new AtomicBoolean(false);
     private final AtomicInteger callbackGeneration = new AtomicInteger();
+    private final Object lifecycle = new Object();
+    private long activeRequest;
     private volatile boolean closed;
 
     public ClipTranscriber(Context context) {
@@ -72,6 +75,7 @@ public final class ClipTranscriber {
 
     /** Separate review-only request. It does not return or overwrite the creator's caption list. */
     public void analyzeForTrim(Uri uri, long currentInMs, long currentOutMs, TrimListener listener) {
+        if (closed) { postClosedApiError(() -> listener.onError("Transcriber is closed.")); return; }
         if (currentInMs < 0 || currentOutMs <= currentInMs) {
             postPreflightError(() -> listener.onError("Choose a valid reviewed clip range before suggesting a trim.")); return;
         }
@@ -88,58 +92,98 @@ public final class ClipTranscriber {
     }
 
     private void run(Uri uri, long trimInMs, long trimOutMs, Completion completion) {
-        if (closed) { postPreflightError(() -> completion.error("Transcriber is closed.")); return; }
-        if (!isModelAvailable()) { postPreflightError(() -> completion.error("Install the verified local tiny.en speech model first.")); return; }
-        if (!busy.compareAndSet(false, true)) { postPreflightError(() -> completion.error("Another clip is being transcribed.")); return; }
-        worker.execute(() -> {
-            long started = SystemClock.elapsedRealtime();
-            try {
-                DecodedAudio audio = decode(uri);
-                if (closed) return;
-                if (trimInMs >= 0 && trimOutMs > audio.containerDurationMs)
-                    throw new IllegalArgumentException("The reviewed range exceeds this clip's actual duration.");
-                String result = nativeTranscribe(model.getAbsolutePath(), audio.samples);
-                if (closed) return;
-                JSONObject json = new JSONObject(result);
-                if (json.has("error")) throw new IllegalStateException(json.getString("error"));
-                JSONArray segments = json.getJSONArray("segments");
-                List<SubtitleCue> cues = new ArrayList<>();
-                long duration = audio.samples.length * 1000L / 16_000;
-                for (int i = 0; i < segments.length(); i++) {
-                    JSONObject segment = segments.getJSONObject(i);
-                    long start = Math.max(0, Math.min(duration, segment.getLong("startMs")));
-                    long end = Math.max(start, Math.min(duration, segment.getLong("endMs")));
-                    String text = segment.getString("text").trim();
-                    // Codec padding can exceed the container; apply source offset before
-                    // capping so every default draft is valid in the clip's review/export UI.
-                    long sourceStart = Math.min(audio.containerDurationMs, start + audio.offsetMs);
-                    long sourceEnd = Math.min(audio.containerDurationMs, end + audio.offsetMs);
-                    if (!text.isEmpty() && sourceEnd > sourceStart)
-                        cues.add(new SubtitleCue(sourceStart, sourceEnd, text));
-                }
-                long elapsed = SystemClock.elapsedRealtime() - started;
-                Log.i("MiniFilmASR", "ASR_OK backend=CPU model=tiny.en samples=" + audio.samples.length
-                        + " segments=" + cues.size() + " elapsedMs=" + elapsed);
-                completion.complete(audio, cues, elapsed);
-            } catch (Exception e) {
-                Log.e("MiniFilmASR", "Clip transcription failed", e);
-                main.post(() -> { if (!closed) completion.error("Transcription failed: "
-                        + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage())); });
-            } finally { busy.set(false); }
-        });
+        synchronized (lifecycle) {
+            if (closed) { postClosedApiError(() -> completion.error("Transcriber is closed.")); return; }
+            if (!isModelAvailable()) { postPreflightError(() -> completion.error("Install the verified local tiny.en speech model first.")); return; }
+            if (!busy.compareAndSet(false, true)) { postPreflightError(() -> completion.error("Another clip is being transcribed.")); return; }
+            final long request;
+            try { request = nativeCreateRequest(); }
+            catch (RuntimeException | LinkageError failure) {
+                busy.set(false);
+                postPreflightError(() -> completion.error("The local speech runtime could not start. Use manual text."));
+                return;
+            }
+            if (request == 0) {
+                busy.set(false);
+                postPreflightError(() -> completion.error("The local speech runtime could not start. Use manual text."));
+                return;
+            }
+            activeRequest = request;
+            try { worker.execute(() -> runRequest(request, uri, trimInMs, trimOutMs, completion)); }
+            catch (RejectedExecutionException failure) {
+                nativeFreeRequest(request);
+                activeRequest = 0;
+                busy.set(false);
+                postPreflightError(() -> completion.error("The local speech worker could not start. Use manual text."));
+            }
+        }
+    }
+
+    private void runRequest(long request, Uri uri, long trimInMs, long trimOutMs, Completion completion) {
+        long started = SystemClock.elapsedRealtime();
+        try {
+            if (closed) return;
+            DecodedAudio audio = decode(uri);
+            if (closed) return;
+            if (trimInMs >= 0 && trimOutMs > audio.containerDurationMs)
+                throw new IllegalArgumentException("The reviewed range exceeds this clip's actual duration.");
+            String result = nativeTranscribe(request, model.getAbsolutePath(), audio.samples);
+            if (closed) return;
+            JSONObject json = new JSONObject(result);
+            if (json.has("error")) throw new IllegalStateException(json.getString("error"));
+            JSONArray segments = json.getJSONArray("segments");
+            List<SubtitleCue> cues = new ArrayList<>();
+            long duration = audio.samples.length * 1000L / 16_000;
+            for (int i = 0; i < segments.length(); i++) {
+                JSONObject segment = segments.getJSONObject(i);
+                long start = Math.max(0, Math.min(duration, segment.getLong("startMs")));
+                long end = Math.max(start, Math.min(duration, segment.getLong("endMs")));
+                String text = segment.getString("text").trim();
+                // Codec padding can exceed the container; apply source offset before
+                // capping so every default draft is valid in the clip's review/export UI.
+                long sourceStart = Math.min(audio.containerDurationMs, start + audio.offsetMs);
+                long sourceEnd = Math.min(audio.containerDurationMs, end + audio.offsetMs);
+                if (!text.isEmpty() && sourceEnd > sourceStart)
+                    cues.add(new SubtitleCue(sourceStart, sourceEnd, text));
+            }
+            long elapsed = SystemClock.elapsedRealtime() - started;
+            Log.i("MiniFilmASR", "ASR_OK backend=CPU model=tiny.en samples=" + audio.samples.length
+                    + " segments=" + cues.size() + " elapsedMs=" + elapsed);
+            completion.complete(audio, cues, elapsed);
+        } catch (Exception e) {
+            // Decoder/provider exceptions can contain private source URIs. Only a fixed
+            // category is logged/displayed; no raw exception or recognized text is emitted.
+            Log.w("MiniFilmASR", "transcription_failed category=local_audio");
+            main.post(() -> { if (!closed) completion.error("Could not transcribe this local clip. Check file access and use encoded audio up to three minutes, or add manual text."); });
+        } finally {
+            synchronized (lifecycle) {
+                nativeFreeRequest(request);
+                if (activeRequest == request) activeRequest = 0;
+                busy.set(false);
+            }
+        }
     }
 
     public void close() {
-        closed = true;
-        callbackGeneration.incrementAndGet();
-        if (NATIVE_AVAILABLE) nativeCancel();
-        worker.shutdownNow();
+        synchronized (lifecycle) {
+            if (closed) return;
+            closed = true;
+            callbackGeneration.incrementAndGet();
+            if (activeRequest != 0) nativeCancelRequest(activeRequest);
+            // Drain queued work so its finally releases the registered request; shutdownNow
+            // would discard that cleanup. Closed work checks its flag before decoding/inference.
+            worker.shutdown();
+        }
     }
 
     private void postPreflightError(Runnable error) {
         int generation = callbackGeneration.get();
-        main.post(() -> { if (generation == callbackGeneration.get()) error.run(); });
+        main.post(() -> { if (!closed && generation == callbackGeneration.get()) error.run(); });
     }
+
+    // An explicit NEW call on an already closed object retains the public API's fixed misuse
+    // error. It is distinct from callbacks queued by an operation that existed before close.
+    private void postClosedApiError(Runnable error) { main.post(error); }
 
     private DecodedAudio decode(Uri uri) throws Exception {
         long containerDurationMs = containerDuration(uri);
@@ -257,6 +301,9 @@ public final class ClipTranscriber {
             previous = sample; inputIndex++;
         }
     }
-    private static native String nativeTranscribe(String modelPath, float[] samples);
-    private static native void nativeCancel();
+    private static native long nativeCreateRequest();
+    private static native String nativeTranscribe(long request, String modelPath, float[] samples);
+    private static native void nativeCancelRequest(long request);
+    private static native void nativeFreeRequest(long request);
+    private static native int nativeRequestCountForDiagnostics();
 }
