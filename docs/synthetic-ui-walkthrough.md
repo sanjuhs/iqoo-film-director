@@ -40,7 +40,7 @@ correct invocation passed. These are artifact/navigation-helper failures, not
 app/test failures. Own AVD/reg removed after emulator parent completion; other
 AVD untouched. No new downloads, private upload or aircraft action.
 
-Latest installed app independently matches52838059B/SHA256
+At the recording checkpoint, the app independently matched52838059B/SHA256
 45b96786e2871a4b65af8b4c3a56094fc92bda345d4acb684dbb34d91e09d76f.
 [Current audit](completion-audit.md) retains attended filming, AirPods, iQOO/NPU,
 OfficeKit, semantic usefulness, event-source eligibility and accepted-entry gates.

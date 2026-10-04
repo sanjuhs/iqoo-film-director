@@ -10,6 +10,19 @@ prospective native tests retained speech-topic failures. One default hybrid
 retained the creator-authored Closing explicitly. Creative accuracy across
 unseen briefs and the attended workflow remain unverified.
 
+Latest23:44 planning-prompt repair passed18 fresh UI methods/33.135s. Keep
+synchronously relinquishes current prompt ownership; stale Replace/Starter
+actions cannot replace reviewed directions after dismissal, changed inputs or
+background. Current labelled template choices still preserve take edits. Native
+planner/model/media behavior unchanged; earlier physical6 checks retain their
+23:39 scope. [Planning evidence](planning-dialog-ownership-evidence.md).
+Current built/saved/independently read installedAPK SHA256
+28491e11e129b92aa0095bb1ac039e9a5616dfdb7c82b03104dbb00c4c4edac2; fresh gallery31/0/8,563,448B.
+Qualified peak10950785909B/finaladjacent9366604661B, own AVD cleaned, secure
+keyguard/capturedenied. These checks do not establish live camera/speech/AirPods
+or iQOO/NPU/OfficeKit/event acceptance. The UI video retains its recorded prior
+build and explicit synthetic/template labels.
+
 Latest23:39 daily-reel/export repair passed14 fresh UI methods/26.286s and6
 focused physical checks/2.885s. Confirmed new reel starts at first retained shot;
 Cancel keeps the old position. Exact prettyUTF8 cut-list bytes are bounded
@@ -136,7 +149,7 @@ does not establish real CameraX/audio/middle-shot continuation.
 | Requirement | Established now | Remaining gate |
 | --- | --- | --- |
 | Activate the app through ADB | Fresh Mini Film APK built, installed and launched on Nothing Phone (3a), Android 16. Synthetic takes/reel and editable plans have been saved. | Required iQOO hardware validation and attended visible launch. Latest source checkpoint is installed. |
-| Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Latest fresh-emulator run passed 25 interface methods; screen/edits restore without capture, and trim form scrolls. | An unlocked attended shoot and first-time usability check; the older locked-phone failures below retain their dated context. |
+| Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Latest planning-dialog/new-reel/workflow increment passed18 interface methods; earlier scoped editor/recovery checks retain their dated evidence. Screen/edits restore without capture, and trim form scrolls. | An unlocked attended shoot and first-time usability check; the older locked-phone failures below retain their dated context. |
 | Substantial local AI | Actual local CPU Qwen generation, bundled ML Kit pose inference, offline English TTS and whisper tiny.en clip transcription. App has no network permission. | Useful grounding across unseen briefs, sustained camera/inference concurrency and iQOO execution. No NPU/GPU, Kev adaptation or trained-director result. |
 | Pose and direct each take | Live analysis integration, shared vertical crop, persisted lens and optional speech-completion-gated sequence in source. Public pose fixture yielded 33 confident landmarks; empty-frame inference yielded none. | Live framing usefulness, front/rear recording, full sequence, interruption and quiet captured speech. Synthetic geometry is not live capture. |
 | Review saved take framing | Three source-bound sampled frames, approximate vertical crop, plain pose-landmark hints and cancellation/stale-result ownership checks passed on public/synthetic fixtures. | Nearest decoded frames are not exact PTS and may fall outside the cut; no motion, shot-quality, garment or semantic coverage judgment. Real-footage usefulness remains unverified. One shared single-image helper slot now has task-completion ownership evidence; separate live detectors and hard native abort remain outside the bound. |
@@ -148,7 +161,7 @@ does not establish real CameraX/audio/middle-shot continuation.
 | Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths, hashes, immutable current-plan context and readable plan notes. Exact IDs resolve creator mappings; stale packages are invalidated. | Real creator reel, attended sound review, physical Files/provider saving, desktop-editor compatibility and actual Office Kit transfer. Actual emulator DocumentsUI ZIP/source validation passed. |
 | Recovery | Five staged tests, genuine ENCODING interruption and real READY/pending interruption under a test-controlled main-queue barrier passed fresh-process recovery on synthetic media; originals and prior completed pair stayed unchanged.  Late-saved private take recovery now preserves surviving shot facts and existing edits, adds takes unselected and passed a staged synthetic fresh-process check. [Take recovery](capture-take-recovery-evidence.md). | Natural publication timing, kill after publication before COMPLETE, revoked/missing real inputs and live recording. Ready-package UI lifecycle passed under valid fresh-emulator visible conditions. |
 | Drone demo | Imported clips can join the edit; no aircraft action or connection occurred. | Separate supported Mini 4 Pro propellers-off read-only probe, then documented pilot-approved capture/control gates. Neo 2/Fly and Action 4 remain research. |
-| Hackathon completion | Signed-in idea deadline date is 5 October; countdown implies about 23:59 IST. Idea/pitch assets prepared. | Human attestation/self-report and accepted receipt. Finale is 9–11 October; competition code must be event-written unless organizers approve reuse. |
+| Hackathon completion | Official public configuration confirms5October2026 at23:59:59IST for Phase1 idea submission. [Exact public evidence](phase1-deadline-evidence.json). Idea/pitch assets prepared. | Human attestation/self-report and accepted receipt. Finale is 9–11 October; competition code must be event-written unless organizers approve reuse. |
 
 ## Current source repairs
 

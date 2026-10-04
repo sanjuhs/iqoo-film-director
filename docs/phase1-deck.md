@@ -44,5 +44,6 @@ cover external allocation1,576,960B and workspacecopy are counted separately in
 
 Creator review, truthful personal declarations/original-work attestation and
 action-level final outgoing approval remain required. The portal deadline date
-is5October; approximately23:59IST is inferred from the observed countdown. Finale
+is **5 October 2026 at 23:59:59 IST**, confirmed in the
+[official public configuration](phase1-deadline-evidence.json). Finale
 code must be created in its allowed window unless organizers approve reuse.

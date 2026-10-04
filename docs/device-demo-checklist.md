@@ -419,3 +419,9 @@ are retained for editing. No words are silently shortened. This matches the
 existing Files/recovery limit. [Budget evidence](edit-document-budget-evidence.md).
 See [When you return](return-to-phone.md) and the
 [synthetic walkthrough evidence](synthetic-ui-walkthrough.md).
+
+If you keep an existing shot plan or decline a starter after a planning error,
+your current directions stay intact. Leaving the app dismisses the old prompt;
+request a fresh replacement from Brief when wanted. An explicitly running model
+request may still finish/save in the background; it starts no capture or speech.
+[Planning choice evidence](planning-dialog-ownership-evidence.md).

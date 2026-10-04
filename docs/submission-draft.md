@@ -3,10 +3,10 @@
 Prepared 4 October 2026 (IST). Ready for creator review; this document has not
 been submitted. Use the portal's actual field limits, keeping the evidence and
 preparation disclosure intact. Team context: solo; proposed track: Productivity.
-The signed-in dashboard was reviewed by the parent agent and shows a Phase 1
-date of 5 October 2026. Its observed countdown supports approximately 23:59 IST on 5 October; the visible
-date label does not separately state timezone. No submission receipt
-exists in this draft.
+The official public configuration and dashboard consumer confirm the Phase 1
+idea deadline as **5 October 2026 at 23:59:59 IST**.
+[Public evidence](phase1-deadline-evidence.json) supersedes the earlier
+countdown-only timezone inference. No submission receipt exists in this draft.
 
 ## Title
 
@@ -218,7 +218,8 @@ They retain pre-event preparation disclosure and pending hardware/creator checks
 
 ## Submission checklist
 
-- Confirm the signed-in Phase 1 cutoff and timezone and leave time for upload.
+- Recheck the portal for changes to the confirmed 5 October, 23:59:59 IST cutoff
+  and leave time for upload.
 - Review title, description and track against the actual portal field limits.
 - Attach a reviewed PDF/PPT deck under the portal's 25 MB limit, or a working
   deck link, as required by the signed-in form. The reviewed local deck/PDF are ready; this Markdown is not that upload.

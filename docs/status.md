@@ -26,9 +26,10 @@ recording or control has occurred. The separate Mini 4 Pro probe remains
 propellers-off/read-only. User-reported Neo 2 and RC-N3 do not establish a custom
 SDK route; official documentation lists Neo 2 as SDK-unsupported.
 
-This 4 October source remains explicitly **pre-event research**. The signed-in
-Phase 1 dashboard shows **5 October 2026**; its countdown implies about
-**23:59 IST**, without an explicit timezone label. Finale is 9–11 October and
+This 4 October source remains explicitly **pre-event research**. Public official
+configuration now confirms the Phase 1 idea deadline as **5 October 2026 at
+23:59:59 IST**; the dashboard labels and formats that field in Asia/Kolkata.
+See [exact public evidence](phase1-deadline-evidence.json). Finale is 9–11 October and
 competition code must be created in the allowed event window unless organizers
 approve reuse. No form attestation, external message or submission was made.
 The hourly continuation remains active through this evening.
@@ -1981,3 +1982,49 @@ vendored documentation/code links; scoped tracked-project360links passed with no
 check passed.
 Goal active until midnight; attended/AirPods/iQOO/NPU/OfficeKit/semantic utility/
 event eligibility and accepted receipt remain open.
+
+### 23:44 IST — explicit current planning choices preserve manual edits
+
+Default untracked Replace/failure starter dialogs could retain a positive action
+after Keep’s async dismissal and replace edits in the same event. One current
+attached planning dialog now owns both; Keep synchronously clears, positive
+requires resumed Brief/idle/unchanged composing inputs+plan. Render/background/
+destroy dismiss old prompt. Current explicit model-absent/failure template paths
+still preserve takes and retain distinct labels. Native/background-plan completion
+contract unchanged. [Evidence](planning-dialog-ownership-evidence.md).
+
+Offline build1s/normal app+test installs; fresh own UI18/33.135s passed (new4,
+newReel4, workflow10). No runtime failures. Synthetic error text invokes real
+fallback presentation only, not a native-failure/model test; model-absent actual
+Build→Replace uses template. Native/media unchanged, prior physical6 checks
+retain23:39 scope and were not repeated. Fresh metadata-only gallery1/1.017s
+unchanged31owned/0pending/8,563,448B. Independent frozen source review found no
+blocker. Prior video retains its actual earlier recorded build/synthetic scope.
+
+Built/saved/independently read installedAPK52838059B SHA256
+28491e11e129b92aa0095bb1ac039e9a5616dfdb7c82b03104dbb00c4c4edac2; source-identical notices,
+separate weights excluded/bundledMLKit/noInternet. Normal Main launch23:43
+requested behind securekeyguard/capturedenied. Own AVD/reg removed after parent
+terminal; other untouched. Qualified peak10950785909B/finaladjacent9366604661B
+with retained walkthrough/raw assets, external cover once, historic missing-
+archive/cache reserves and inventory/runtime exclusions. No downloads/private
+capture/upload/playback/aircraft action. Goal active until midnight; attended
+filming/AirPods/iQOO/NPU/OfficeKit/usefulness/event acceptance remain open.
+
+### 23:48 IST — exact public Phase 1 deadline confirmed
+
+The official public Grand Finale configuration gives
+`2026-10-05T23:59:59+05:30`: **5 October 2026, 11:59:59 PM IST**. Its dashboard
+consumer labels that field Phase1 idea submission, formats Asia/Kolkata and
+compares against it for closure. This supersedes prior countdown-only timezone
+inference. [Sanitized evidence](phase1-deadline-evidence.json) and
+[competition context](../hackathon.md) retain exact URLs, hashes, excerpts and
+the first public403 failure followed by successful unauthenticated public reads.
+Static configuration is not a server-enforcement test or accepted receipt.
+No cookies/credentials/forms/uploads/messages/declarations or account changes.
+
+Retained public assets/private proof681,226B plus public proof copy4,229B within
+workspace. Adjacent qualified storage9,367,321,461B at23:48 remains below10GBaim/
+15GBcap with historic missing-archive/cache reserves and runtime/inventory
+exclusions. Prior own-emulator peak/cleanup and31owned/0pending gallery remain
+unchanged; no new dependency/model/SDK/JDK download or app mutation.

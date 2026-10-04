@@ -327,7 +327,12 @@ returns to the same list position. [Review evidence](../../docs/speech-trim-revi
 Confirmed **Start a new reel** now begins at the first retained plan shot,
 while Cancel keeps its previous position. Cut-list export checks the exact
 pretty UTF-8 document against the shared1MiB recovery/Files bound before
-encoding; it never silently shortens subtitle words. Latest focused UI14 and
+encoding; it never silently shortens subtitle words. 23:39 focused UI14 and
 physical6 passed. [Reset](../../docs/new-reel-first-shot-evidence.md),
 [budget](../../docs/edit-document-budget-evidence.md) and
 [actual synthetic UI video](../../docs/synthetic-ui-walkthrough.md) retain scope.
+
+Planning prompts now require a current attached foreground choice and unchanged
+inputs; Keep immediately relinquishes ownership. Latest23:44 UI18 passed.
+[Planning evidence](../../docs/planning-dialog-ownership-evidence.md) preserves
+the unchanged native/background-plan contract and test scope.

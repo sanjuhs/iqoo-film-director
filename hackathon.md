@@ -7,9 +7,9 @@ Updated 4 October 2026 (IST). Official references:
 [terms](https://iqoo.reskilll.com/terms).
 
 The official guide confirms Bengaluru Grand Finale **9–11 October 2026** and
-the signed-in Phase 1 dashboard confirms **5 October** for idea submission. The
-4 October countdown supports approximately **23:59 IST on 5 October**, with
-timezone inferred rather than separately labelled; see the verification below.
+the public official app configuration confirms the Phase 1 idea cutoff as
+**5 October 2026 at 23:59:59 IST** (`2026-10-05T23:59:59+05:30`). The dashboard
+labels this field as the idea-submission deadline; see the verification below.
 The new Mini Film Director draft/PDF is prepared locally, with no accepted
 submission or admission claimed.
 
@@ -74,3 +74,19 @@ allowed with attribution; a completed preparation app cannot be relabelled as
 event-written. The current form requires a PDF/PPT (maximum 25 MB) or document
 link, a title/description, self-reported proficiency and an original-work
 attestation. No idea was submitted during this read-only verification.
+
+## Exact public cutoff verification — 4 October, 23:47 IST
+
+Unauthenticated public asset inspection found the Grand Finale configuration’s
+`submissionDeadline` set to `2026-10-05T23:59:59+05:30`, or **5 October at
+11:59:59 PM IST**. The [official configuration](https://iqoo.reskilll.com/assets/index-C_hxNPZz.js)
+and [dashboard consumer](https://iqoo.reskilll.com/assets/BattleDashboard-CfXtAY5v.js)
+connect that timestamp to the Phase 1 idea-submission label and closure predicate.
+The dashboard’s date/time formatters use Asia/Kolkata. This supersedes the
+earlier countdown-only timezone inference; it is distinct from the on-site
+9–11 October finale. [Sanitized public evidence](docs/phase1-deadline-evidence.json)
+retains exact source URLs, hashes, excerpts and the initial public403 response.
+
+Static public configuration confirms the advertised cutoff. It does not test
+server enforcement or establish an accepted entry. No authentication, cookies,
+forms, uploads, messages or declarations were used for this verification.

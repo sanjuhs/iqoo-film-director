@@ -44,8 +44,9 @@ deselects older takes, clears the title and returns to the first plan shot.
 
 Local shot planning, pose inference, English clip transcription, reviewed speech
 cuts and playable vertical exports have run on the development phone. The latest
-installed repair passed14 interface checks and6 focused phone checks; earlier
-speech-cut checks also preserved the original video and subtitle timing.
+planning-prompt repair passed18 interface checks; the preceding export repair
+passed6 focused phone checks. Earlier speech-cut checks also preserved the
+original video and subtitle timing.
 
 Your attended preview/record/playback and earbud check are the next practical
 acceptance steps. Generated directions and subtitle words still need your
@@ -53,7 +54,6 @@ review. The [full checklist](device-demo-checklist.md) and
 [current audit](completion-audit.md) retain detailed evidence and limits.
 
 The required iQOO/NPU/Office Kit and optional drone tests remain open. The prepared
-[Phase1 deck](phase1-deck.md) is unsubmitted. The signed-in dashboard showed5October
-2026; its countdown supported approximately23:59IST on5October, with timezone
-inferred. This is pre-event research; competition-source eligibility and your
+[Phase1 deck](phase1-deck.md) is unsubmitted. The official public configuration
+confirms **October 5, 2026 at 11:59:59 PM IST** for Phase 1 idea submission. This is pre-event research; competition-source eligibility and your
 personal declarations need review before any submission. [Deadline evidence](../hackathon.md).

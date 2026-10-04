@@ -1,0 +1,63 @@
+{
+  "schema": "minifilm.public-deadline-configuration-proof.v1",
+  "observedAtUtc": "2026-10-04T18:17:04.926307+00:00",
+  "authenticated": false,
+  "cookiesSent": false,
+  "formsSubmitted": false,
+  "scope": "Public static JavaScript configuration and display/closure consumer; not submission receipt or server enforcement test.",
+  "cutoff": "2026-10-05T23:59:59+05:30",
+  "cutoffUtc": "2026-10-05T18:29:59Z",
+  "type": "Phase 1 idea submission deadline for Grand Finale",
+  "configUrl": "https://iqoo.reskilll.com/assets/index-C_hxNPZz.js",
+  "consumerUrl": "https://iqoo.reskilll.com/assets/BattleDashboard-CfXtAY5v.js",
+  "configExcerpt": "{slug:\"iqoo-finale\",city:\"finale\",name:\"Grand Finale\",no:\"F\",kind:\"finale\",state:\"Bengaluru\",dates:\"Fri 9 – Sun 11 October\",dateStart:\"2026-10-09\",hours:48,submissionDeadline:\"2026-10-05T23:59:59+05:30\",venue:\"TBA, Bengaluru\",accentVar:\"var(--color-ink)\"}",
+  "phase1LabelAndFieldExcerpt": ":[e.jsx(\"p\",{className:\"font-label text-[11px] font-bold uppercase tracking-[0.14em] text-white/50\",children:\"Phase 1 · Idea submission deadline\"}),e.jsx(\"p\",{className:\"mt-1 font-display text-2xl leading-tight text-iqoo\",children:ps(s.submissionDeadline)})]}),e.jsxs(\"div\",{children:[e.jsx(\"p\",{className:\"font-label text-[11px] ",
+  "consumerTimezone": "Asia/Kolkata",
+  "closureExpression": "Date.parse(s.submissionDeadline)-Date.now(); shared predicate t>=Date.parse(e.submissionDeadline)",
+  "onSiteFinaleStart": "2026-10-09",
+  "onSiteFinaleDateLabel": "Fri 9 – Sun 11 October",
+  "initialRequestFailure": "Unauthenticated curl root without browser user-agent returned403/146B; browser user-agent guide and identified public assets returned200. No auth workaround used.",
+  "retainedAssets": [
+    {
+      "file": "iqoo-public-deadline-root.html",
+      "bytes": 146,
+      "sha256": "32f2fa940d4b4fe19aca1e53a24e5aac29c57b7c5ee78588325b87f1b649c864",
+      "url": "https://iqoo.reskilll.com/",
+      "httpStatus": 403
+    },
+    {
+      "file": "iqoo-public-deadline-guide.html",
+      "bytes": 7674,
+      "sha256": "009af3975305daf80d1774b69327e56a6024c63ad37093e8ad94c73cb608210d",
+      "url": "https://iqoo.reskilll.com/guide",
+      "httpStatus": 200
+    },
+    {
+      "file": "iqoo-public-deadline-index-C_hxNPZz.js",
+      "bytes": 595962,
+      "sha256": "d1df6495b71dce474dc20e9a9a9e0c0dda7ce0945bca89027c7075b8724902b7",
+      "url": "https://iqoo.reskilll.com/assets/index-C_hxNPZz.js",
+      "httpStatus": 200
+    },
+    {
+      "file": "iqoo-public-deadline-BattleDashboard-CfXtAY5v.js",
+      "bytes": 55579,
+      "sha256": "27a325d55782f5d76f24928ae6d9150549796958243c06e5473d4db654836612",
+      "url": "https://iqoo.reskilll.com/assets/BattleDashboard-CfXtAY5v.js",
+      "httpStatus": 200
+    },
+    {
+      "file": "iqoo-public-deadline-Guide-DnnSgl8Q.js",
+      "bytes": 17636,
+      "sha256": "934c2de1ff4675ea41bccbd89c392e39db070e7fb8936f0192179608a5716fc5",
+      "url": "https://iqoo.reskilll.com/assets/Guide-DnnSgl8Q.js",
+      "httpStatus": 200
+    }
+  ],
+  "totalRetainedBytes": 676997,
+  "phase1DateFormatterExcerpt": "ps=s=>{const t=new Date(s);return Number.isNaN(t.getTime())?\"TBD\":new Intl.DateTimeFormat(\"en-IN\",{day:\"numeric\",month:\"short\",year:\"numeric\",timeZone:\"Asia/Kolkata\"}).format(t)}",
+  "submissionTimeFormatterExcerpt": "const Xe=s=>{const t=new Date(s);return Number.isNaN(t.getTime())?\"the deadline\":new Intl.DateTimeFormat(\"en-IN\",{day:\"numeric\",month:\"short\",hour:\"numeric\",minute:\"2-digit\",hour12:!0,timeZone:\"Asia/Kolkata\"}).format(t)+\" IST\"};",
+  "sharedClosurePredicateExcerpt": "mf=(e,t=Date.now())=>{const i=Date.parse(e.submissionDeadline);return Number.isNaN(i)?!1:t>=i}",
+  "dashboardClosureConsumerExcerpt": "Effect(()=>{if(!s){a(!1);return}let n;const r=()=>{const i=pe(s);if(a(i),i)return;const d=Date.parse(s.submissionDeadline)-Date.now();Number.isNaN(d)||(n=setTimeout(r,Math.min(d+hs,xs)))};return r(),()=>clearTimeout(n)},[s]),t},Ne=s=>{const t=Math.max(0,s-Date.now()),a=",
+  "retrievalMethod": "curl unauthenticated public HTTPS requests; no cookie jar, Cookie header, Authorization header, auth API request, browser account or form actions."
+}
