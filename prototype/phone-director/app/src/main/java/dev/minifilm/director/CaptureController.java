@@ -74,6 +74,7 @@ public final class CaptureController implements AutoCloseable {
     private final PreviewView previewView;
     private final Listener listener;
     private final Executor mainExecutor;
+    private final CaptureTakeStore takeStore;
     private final ExecutorService analysisExecutor = Executors.newSingleThreadExecutor();
     private ProcessCameraProvider provider;
     private VideoCapture<Recorder> videoCapture;
@@ -96,6 +97,7 @@ public final class CaptureController implements AutoCloseable {
         this.previewView = preview;
         this.listener = listener;
         this.mainExecutor = ContextCompat.getMainExecutor(activity);
+        this.takeStore = new CaptureTakeStore(activity);
         previewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
     }
@@ -243,6 +245,11 @@ public final class CaptureController implements AutoCloseable {
     }
 
     public void startRecording() {
+        startRecording(null);
+    }
+
+    /** Snapshot the reviewed shot facts into private durable metadata before capture. */
+    public void startRecording(Shot shot) {
         requireMainThread();
         if (closed || isRecording()) return;
         if (!ready || !previewRequested || videoCapture == null) {
@@ -265,6 +272,12 @@ public final class CaptureController implements AutoCloseable {
             return;
         }
         File outputFile = new File(directory, "take-" + UUID.randomUUID() + ".mp4");
+        try {
+            takeStore.prepare(outputFile, shot);
+        } catch (java.io.IOException failure) {
+            listener.onError("This take's edit notes could not be saved. Check free phone storage and try again.");
+            return;
+        }
         FileOutputOptions options = new FileOutputOptions.Builder(outputFile)
                 .setFileSizeLimit(100L * 1024L * 1024L)
                 .setDurationLimitMillis(60_000L).build();
@@ -277,6 +290,7 @@ public final class CaptureController implements AutoCloseable {
         } catch (RuntimeException failure) {
             recording = null;
             recordingId = 0; recordingStarted = false;
+            takeStore.abort(outputFile);
             if (outputFile.exists()) outputFile.delete();
             listener.onError("Recording could not start. Check camera and microphone access.");
         }
@@ -315,11 +329,12 @@ public final class CaptureController implements AutoCloseable {
             // Synchronous on Finalize's UI callback: validate before the listener can
             // advance/rebind. Container duration is authoritative for editor/ASR bounds;
             // CameraX RecordingStats can differ at codec/container edges.
-            long durationMs = usableResult ? finalizedVideoDuration(file) : 0;
+            long durationMs = usableResult ? takeStore.complete(file) : 0;
             if (usableResult && durationMs > 0 && file.length() > 0) {
                 if (!closed) listener.onRecordingFinished(Uri.fromFile(file), durationMs);
             } else {
                 // Only this controller's failed new file is removed; originals remain intact.
+                takeStore.abort(file);
                 if (file.exists()) file.delete();
                 if (!closed) listener.onError("This take could not be saved (camera error "
                         + result.getError() + "). Please try again.");

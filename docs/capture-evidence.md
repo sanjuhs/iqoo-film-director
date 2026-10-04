@@ -19,11 +19,13 @@ The public integration contract is:
 - `onReady()` means camera use cases bound; check `isAnalysisAvailable()` before
   displaying live pose guidance. Hardware that rejects simultaneous video,
   preview and analysis uses real preview/recording without analysis.
-- `startRecording()` and `stopRecording()` are explicit UI actions. CameraX
+- `startRecording(Shot)` snapshots reviewed shot facts into private durable
+  metadata before capture; the no-argument overload remains available.
+  `stopRecording()` is an explicit UI action. CameraX
   `onRecordingStarted()` confirms actual start; `isRecording()` remains true
   while a take is finalizing. A switch cannot interrupt an active take.
-- `onRecordingFinished(Uri,long)` returns a private local file URI and recorded
-  duration in milliseconds. Share through the activity's FileProvider, never a
+- `onRecordingFinished(Uri,long)` returns a private local file URI and actual
+  validated container duration in milliseconds. Share through the activity's FileProvider, never a
   raw file URI across apps. Preserve original takes when editing.
 - Call `stopPreview()` in `onStop()` before ending speech/pose session state.
   Call `close()` once in `onDestroy()`. Returning does not resume capture.
@@ -34,9 +36,16 @@ take is capped at 60 seconds/100 MiB and recording requires at least 256 MiB
 available phone storage. Files live in the app-private `files/takes` directory.
 Known size/duration/source-inactive finalization results can retain valid media;
 invalid recordings are discarded. Background interruption still needs a real
-playback test. A take finalized after activity destruction remains private on
-disk but the closed controller suppresses UI callbacks; persistence/recovery is
-an activity responsibility.
+playback test. A usable take finalized after activity destruction now commits
+private ready metadata before the closed controller suppresses UI callbacks.
+Main recovers missing readable sources on startup, idle resume and entry to
+Assemble; **Find saved phone takes** handles output arriving after those checks.
+Recovered takes start unselected and existing edits/selection remain intact.
+Active pending files are skipped; unreadable media/notes are preserved and
+reported. Synthetic store, denied-camera UI and genuinely fresh-process pending
+file recovery checks passed; see
+[take recovery evidence](capture-take-recovery-evidence.md). They did not perform
+CameraX recording or interrupt a live recording.
 
 ## Official references checked
 
@@ -48,6 +57,8 @@ an activity responsibility.
   normal camera/microphone permission UI and handling denial.
 - [Finalize API](https://developer.android.com/reference/androidx/camera/video/VideoRecordEvent.Finalize):
   distinguish terminal errors from saved output at limits or lifecycle stop.
+- [AtomicFile](https://developer.android.com/reference/android/util/AtomicFile):
+  private metadata finish/sync/commit and caller-provided threading protection.
 
 ## Checks and limits
 
@@ -117,3 +128,26 @@ prepared 1500 ms clipped timeline while paused. Suggested speech-trim review and
 normal take preview use these selected bounds. No Activity, camera, microphone
 or audible playback was used in this verification. Evidence is part of the
 18-case `private/evidence/trim-preview-export-test.log` runner (18.560 s).
+
+### Durable late-take recovery verification
+
+The new recovery UI method passed within a **19-test / 28.955s** unlocked empty
+emulator runner. Generated fixture copies exercised actual Assemble entry,
+manual **Find saved phone takes**, resume and recreation; recovered takes stayed
+unselected and existing edits, selection, order, preferences and originals were
+preserved. Camera/microphone were denied, with no capture, model or audio work.
+
+Two new headless store methods passed within the physical-phone **25-test /
+42.327s** runner alongside the two finalized-container tests and 21 ASR/trim/
+batch/voice checks. The actual synthetic container measured **5746ms**; active
+pending output was skipped, durable shot facts and canonical-alias edits were
+preserved, and unreadable media/metadata and unknown files remained intact.
+
+Separate staging (**1 test / 0.077s**) and fresh-process recovery (**1 test /
+0.062s**) verified an actual new process recovering one unselected pending
+synthetic take with its facts and duration. The first runner ended normally and
+was already absent; no external force-stop or live recording kill occurred.
+Hashes/sizes, pending schema, original bytes and a sentinel were checked before
+and after recovery. This verifies private disk recovery, while actual CameraX
+finalization, physical UI, AirPods and attended recording remain unproved.
+Full logs, compile failures and scope are recorded in the linked recovery evidence.

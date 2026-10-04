@@ -37,7 +37,7 @@ public final class ClipTranscriber {
         void onError(String message);
     }
     private interface Completion {
-        void complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs);
+        Runnable complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs);
         void error(String message);
     }
     private static final long MODEL_SIZE = 77_704_715L;
@@ -70,8 +70,8 @@ public final class ClipTranscriber {
 
     public void transcribe(Uri uri, Listener listener) {
         run(uri, -1, -1, new Completion() {
-            @Override public void complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs) {
-                main.post(() -> { if (!closed) listener.onComplete(cues, elapsedMs); });
+            @Override public Runnable complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs) {
+                return () -> listener.onComplete(cues, elapsedMs);
             }
             @Override public void error(String message) { listener.onError(message); }
         });
@@ -84,12 +84,12 @@ public final class ClipTranscriber {
             postPreflightError(() -> listener.onError("Choose a valid reviewed clip range before suggesting a trim.")); return;
         }
         run(uri, currentInMs, currentOutMs, new Completion() {
-            @Override public void complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs) {
+            @Override public Runnable complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs) {
                 long analysisStarted = SystemClock.elapsedRealtime();
                 SpeechTrim suggestion = SpeechTrim.analyze(uri, audio.samples, audio.offsetMs, audio.containerDurationMs,
                         currentInMs, currentOutMs, cues, () -> closed);
                 long totalElapsedMs = elapsedMs + SystemClock.elapsedRealtime() - analysisStarted;
-                main.post(() -> { if (!closed) listener.onComplete(suggestion, totalElapsedMs); });
+                return () -> listener.onComplete(suggestion, totalElapsedMs);
             }
             @Override public void error(String message) { listener.onError(message); }
         });
@@ -125,6 +125,7 @@ public final class ClipTranscriber {
 
     private void runRequest(long request, Uri uri, long trimInMs, long trimOutMs, Completion completion) {
         long started = SystemClock.elapsedRealtime();
+        Runnable terminal = null;
         try {
             if (closed) return;
             DecodedAudio audio = decode(uri);
@@ -153,12 +154,14 @@ public final class ClipTranscriber {
             long elapsed = SystemClock.elapsedRealtime() - started;
             Log.i("MiniFilmASR", "ASR_OK backend=CPU model=tiny.en samples=" + audio.samples.length
                     + " segments=" + cues.size() + " elapsedMs=" + elapsed);
-            completion.complete(audio, cues, elapsed);
+            // Prepare any trim computation on this worker, but do not deliver a terminal
+            // result while this request still occupies the shared reader's busy gate.
+            terminal = completion.complete(audio, cues, elapsed);
         } catch (Exception e) {
             // Decoder/provider exceptions can contain private source URIs. Only a fixed
             // category is logged/displayed; no raw exception or recognized text is emitted.
             Log.w("MiniFilmASR", "transcription_failed category=local_audio");
-            main.post(() -> { if (!closed) completion.error("Could not transcribe this local clip. Check file access and use encoded audio up to three minutes, or add manual text."); });
+            terminal = () -> completion.error("Could not transcribe this local clip. Check file access and use encoded audio up to three minutes, or add manual text.");
         } finally {
             List<Runnable> cleanup;
             synchronized (lifecycle) {
@@ -169,6 +172,11 @@ public final class ClipTranscriber {
             }
             runResourceCleanups(cleanup);
         }
+        // Request/native release and resource cleanup precede both success and failure.
+        // A callback may immediately start another job on this same reader. Close still
+        // suppresses queued results; explicit new calls on a closed API remain separate.
+        Runnable delivered = terminal;
+        if (delivered != null && !closed) main.post(() -> { if (!closed) delivered.run(); });
     }
 
     public void close() {

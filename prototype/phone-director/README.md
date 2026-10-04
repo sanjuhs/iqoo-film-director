@@ -55,6 +55,17 @@ not a second microphone or a speech-completion model. Thresholds are uncalibrate
 a quiet pause can occur mid-sentence. Manual/background Stop remains immediate.
 The policy's synthetic tests do not validate microphone behavior or AirPods.
 
+**Find saved phone takes** in Assemble recovers readable private phone videos
+that finished saving after an interruption. Recovery also checks on idle resume
+and entry to Assemble. New recovered takes are unselected; review them before
+adding them to your reel. Existing titles, trims, subtitles, order and selection
+stay intact. New captures save shot ID/title/caption before recording and retain
+those facts after the old recording screen is destroyed. Unreadable files and
+unknown notes remain preserved; this does not repair an unfinished MP4.
+Synthetic recovery and actual local speech handoff checks passed; live interrupted
+recording remains unverified. See [take recovery](../../docs/capture-take-recovery-evidence.md)
+and [speech handoff](../../docs/transcriber-completion-evidence.md).
+
 ## Build and install
 
 Brief also offers **Record a local voice brief** → **Stop & review words** →

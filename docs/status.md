@@ -1361,3 +1361,65 @@ AVD/registration after tests. Qualified temporary peak **10,425,629,653B** above
 Missing archive/cache/oat/provider qualifications persist in storage.json; no
 new model/SDK/JDK/image download. Goal active; real creator/AirPods, iQOO/NPU,
 Office Kit, eligible event provenance and accepted submission remain unfinished.
+
+### Late saved-take recovery and speech handoff — 4 October, 18:57 IST
+
+A source-backed lifecycle race left a valid late-finalized take absent when the
+replacement Activity scanned before the old recorder finished. Durable private
+shot ID/title/caption metadata now precedes recording, and usable Finalize records
+actual container facts before the closed-controller UI guard. Main recovers on
+idle resume, startup/Assemble and explicit **Find saved phone takes**. New results
+are unselected, preserve prior edits/order/selection, and deduplicate canonical
+file aliases. Live pending sources are skipped. Unreadable media, unknown files
+and malformed notes remain preserved; valid metadata survives a fresh process.
+[Recovery evidence](capture-take-recovery-evidence.md).
+
+Fresh empty, denied-camera/mic API36 ARM64 emulator passed **19/28.955s**: one new
+recovery UI method (entry/manual/resume/recreation), six batch UI, three assembly,
+seven shoot-pose state and two general lifecycle/ready-ZIP checks. New UI media
+were locally generated synthetic DemoAssets copies in an exclusive injected
+store, with full preferences/source preservation and no capture/model/audio.
+Physical headless checks passed **25/42.327s**: two new recovery-store, two actual
+container-finalization validators, two same-reader ASR completion, eight request/
+cleanup cancellation, nine speech-trim, one real subtitle-batch/export and one
+encoded voice-codec method. No native failure. Recovery retained exact5746ms
+container/shot facts; existing alias edits, unreadable/unknown/symlink and bad-note
+preservation passed. Batch regression retained a20,387ms720×1280 reel/JSON against
+20,251ms nominal with two serial reads/three independent drafts and originals intact.
+
+Separate synthetic pending-record stage passed **1/0.077s**. Runner exited
+normally; root verified its old process already absent, pending journal unchanged,
+known fixture/copy/metadata/sentinel size/SHA and denied camera/mic/keyguard.
+No external force-stop occurred. Fresh-process recovery passed **1/0.062s**, with
+changed PID, one unselected5746ms take, original shot facts, sentinel/original
+preservation and idempotency; only its own copies/marker/sandbox were removed.
+This proves persisted staged-file recovery, not killed CameraX finalization.
+
+The single-clip speech callback previously could reach Main before native request
+release/internal busy reset. Success/error delivery now follows native release,
+busy clear and cleanup drain. Actual callback-immediate reentry passed: intentional
+missing-source error→ASR3734ms; ASR3723ms→trim native4006ms/total4065ms. Every
+callback verified released request/registry, main-thread ownership and unchanged
+source SHA/size/mtime. Deliberate missing-source/failing-hook warnings are test
+inputs, not regressions. No Main background-policy change or measured human tap
+failure is claimed. [Speech handoff evidence](transcriber-completion-evidence.md).
+
+Retained two pre-install compile failures: missing recovery validation parenthesis
+and root's duplicate onResume. Corrected syntax/merged existing lifecycle handler;
+no weakened validation. Final app build820ms/test build1s and normal installs passed.
+Built/saved/independently read installed APK **52,838,059B**, SHA256
+**5b43d6797073351921e34a1dcf761651bae336f72d338a538192d5306d7aaad3**.
+Notices source-identical31,635B/SHA02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68;
+separate Qwen/Whisper weights absent from Git/APK, bundledMLKit assets remain.
+No Internet permission. Gallery metadata inventory passed **1/0.152s**:
+22owned/0pending/7,337,122B. Normal Main launch requested behind secure keyguard;
+camera/mic remain denied and staged test marker is absent. No permission grants, private upload, aircraft action,
+attended filming/audio, accepted submission or eligible event-code claim.
+
+Own empty AVD reused existing tools/image; boot-complete observed12.492s after
+polling began, host camera/audio/snapshots off and airplane mode on. Removed only
+own AVD/registration after tests. Qualified temporary peak **10,427,729,419B**,
+above10GB aim/below15GB cap; final adjacent accounting **9,296,520,715B**, below
+both. Missing archive/cache/oat/provider qualifications persist. No new models/
+SDK/JDK/images downloaded. Goal active; real creator/AirPods, iQOO/NPU, Office Kit,
+permitted event provenance and accepted submission remain unfinished.

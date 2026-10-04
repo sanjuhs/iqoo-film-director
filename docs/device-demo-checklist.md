@@ -138,6 +138,13 @@ sequence. Confirm these behaviors on the real phone before a presentation.
 
 ## 3. Assemble: review the cuts and save both outputs
 
+If a take is missing after an interruption, choose **Find saved phone takes**.
+Readable saved phone videos are added unselected with surviving shot details;
+review and select them yourself. The app also checks on idle resume and entry
+here. Incomplete files or unreadable notes stay preserved. A successful synthetic
+recovery check does not establish that a real interrupted recording is playable;
+check it with **Preview take**. [Recovery evidence](capture-take-recovery-evidence.md).
+
 1. In **03 Assemble**, select the takes you want; deselect failed takes. Use
    **Select no takes** clears selection for a new reel without deleting takes. Use
    **Move earlier**, **Trim & typography** and **Preview take** to review order,
