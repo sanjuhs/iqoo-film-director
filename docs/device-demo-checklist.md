@@ -204,3 +204,13 @@ acceleration, Office Kit transfer, DJI/Action 4 control and a general creator
 benefit are not established. Keep the phone demo complete without a drone.
 Competition implementation must be created in the allowed event window unless
 organizers approve reuse; this preparation app must not be relabelled as such.
+
+### Returning-user lens and direction check
+
+While preview is active, switch front/back once and wait for the camera to
+finish opening. A second tap during binding should ask you to wait. Hear the
+full direction and confirm automatic framing advice does not interrupt it;
+after a shot change/background return, advice should belong to the current
+shot. Source and synthetic callback checks passed in
+[shoot-cue evidence](shoot-cue-evidence.md); actual capture, audible output and
+Bluetooth buffering still require this attended check.

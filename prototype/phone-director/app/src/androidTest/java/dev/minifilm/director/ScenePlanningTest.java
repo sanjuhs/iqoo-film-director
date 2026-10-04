@@ -2,7 +2,10 @@ package dev.minifilm.director;
 
 import static org.junit.Assert.*;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.SystemClock;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -19,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Three actual CPU-model drafts from synthetic public inputs, never camera/microphone capture.
+ * Actual CPU-model drafts from synthetic public inputs, never camera/microphone capture.
  * Assertions target these supplied facts and selected known failure modes, not general
  * factual accuracy, creator benefit, training, speech playback or semantic vision.
  */
@@ -29,6 +32,8 @@ public final class ScenePlanningTest {
             "Show|Hold|Point|Bring", "Explain|Tell|Share|Say", "Share|Say|Tell|Give"};
     private static final String[] INTRO_VERBS = {"Say|Tell|Introduce", "Tell|Explain|Show|Share",
             "Show|Hold|Point|Bring", "Share|Tell|Say", "Welcome|Wave|Smile|Say"};
+    private static final String[] PRODUCT_VERBS = {"Hold|Show|Pose", "Turn|Lift|Bring|Show|Tilt|Move",
+            "Show|Hold|Point|Bring", "Show|Hold|Lift|Tilt", "Say|Tell|Share|Give"};
 
     @Test(timeout = 180_000) public void talkingStoryRetainsSuppliedEventsAndFiveStoryRoles() throws Exception {
         LocalPlanner planner = new LocalPlanner(context());
@@ -116,6 +121,69 @@ public final class ScenePlanningTest {
             Log.i("MiniFilmScenePlanningTest", "introduction_fixture pass=true shots=5 exact_roles=true bounded_cues=true"
                     + " supplied_name_work_coffee=true targeted_unsupplied_credentials_absent=true");
         } finally { planner.close(); }
+    }
+
+    @Test(timeout = 180_000) public void heldOutStorageBoxProductRetainsSuppliedUseAndRequestsCreatorOpinionWithoutInventingParts() throws Exception {
+        assertCaptureDeniedAndNoNetworkPermission();
+        LocalPlanner planner = new LocalPlanner(context());
+        try {
+            List<Shot> shots = generate(planner,
+                    "Create a solo product reveal for my cardboard storage box. It has a removable lid. "
+                            + "I use it by putting index cards inside. Color, finish, printing and product benefits are unspecified. "
+                            + "Ask me to choose one visible box detail and state my own honest opinion. "
+                            + "The phone is already mounted; direct my hands with the box, never move or hold the filming device.",
+                    "Product reveal");
+            assertBoundedRoles(shots, PRODUCT_VERBS, "Hero", "Reveal", "Detail", "In use", "Verdict");
+            assertTrue("Hero must direct the creator to present the supplied box", hasWord(shots.get(0).instruction, "box"));
+            String text = signature(shots);
+            assertTrue("The supplied removable lid should remain part of the reveal", hasWord(text, "lid"));
+            String use = shots.get(3).instruction;
+            assertTrue("In use must direct the stated index-card action, not generic product-use filler",
+                    hasWord(use, "index") && (hasWord(use, "card") || hasWord(use, "cards"))
+                            && Pattern.compile("\\b(?:put|puts|putting|place|places|placing|store|stores|storing|inside|into)\\b",
+                                    Pattern.CASE_INSENSITIVE).matcher(use).find());
+            String verdict = shots.get(4).instruction;
+            assertTrue("Verdict must request the creator's view rather than invent a favorable endorsement",
+                    Pattern.compile("\\b(?:your|own|honest)\\b", Pattern.CASE_INSENSITIVE).matcher(verdict).find()
+                            && Pattern.compile("\\b(?:opinion|thoughts?|verdict|think|feel|view|take)\\b",
+                                    Pattern.CASE_INSENSITIVE).matcher(verdict).find());
+            assertNoWords("No color, coating, closure hardware, lining or product benefit is established", text,
+                    "white", "black", "red", "green", "blue", "yellow", "pink", "purple", "orange",
+                    "brown", "grey", "gray", "navy", "beige", "maroon", "teal", "silver", "gold",
+                    "glossy", "matte", "shiny", "leather", "plastic", "metal", "wooden", "hinge", "hinges",
+                    "lock", "locks", "latch", "latches", "lining", "lined", "zipper", "strap", "straps",
+                    "waterproof", "durable", "premium", "luxury", "excellent", "guaranteed");
+            assertNoWords("Product prompt examples must not become this storage-box scene", text,
+                    "cup", "mug", "ceramic", "coffee", "handle", "handles", "bread", "Mina",
+                    "pencil", "pencils", "eraser", "erasers", "draw", "drawing");
+            for (Shot shot : shots) {
+                assertNoMountedDeviceOperation(shot.instruction);
+                assertNoWords("Typography should describe the product, not filming equipment", shot.caption,
+                        "camera", "phone", "tripod", "gimbal", "drone");
+            }
+            Log.i("MiniFilmScenePlanningTest", "held_out_storage_box pass=true synthetic_input=true roles=5"
+                    + " supplied_box_lid_index_card_use=true own_opinion_requested=true"
+                    + " targeted_unsupplied_parts_benefits_absent=true mounted_phone=true general_accuracy_claim=false");
+        } finally { planner.close(); assertCaptureDeniedAndNoNetworkPermission(); }
+    }
+
+    /** Independent bounded English fixtures: camera-facing/eyeline mentions remain legitimate.
+     * This check does not establish complete physical feasibility or useful film direction. */
+    private static void assertNoMountedDeviceOperation(String instruction) {
+        assertFalse("Direct the product performance while the filming device remains mounted: " + instruction,
+                Pattern.compile("\\b(?:hold|holding|move|moving|turn|turning|tilt|tilting|bring|bringing|point|pointing|"
+                        + "take|taking|lift|lifting|adjust|adjusting|focus|focusing|pan|panning)\\s+"
+                        + "(?:(?:a|the|your|my|filming|mounted)\\s+){0,3}(?:camera|phone|tripod|gimbal|drone)\\b",
+                        Pattern.CASE_INSENSITIVE).matcher(instruction).find());
+    }
+
+    private static void assertCaptureDeniedAndNoNetworkPermission() throws Exception {
+        Context context = context();
+        assertEquals(PackageManager.PERMISSION_DENIED, context.checkSelfPermission(Manifest.permission.CAMERA));
+        assertEquals(PackageManager.PERMISSION_DENIED, context.checkSelfPermission(Manifest.permission.RECORD_AUDIO));
+        PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
+        if (info.requestedPermissions != null) for (String permission : info.requestedPermissions)
+            assertNotEquals("Held-out planner must have no app Internet permission", Manifest.permission.INTERNET, permission);
     }
 
     private static void assertBoundedRoles(List<Shot> shots, String[] roleVerbs, String... titles) {

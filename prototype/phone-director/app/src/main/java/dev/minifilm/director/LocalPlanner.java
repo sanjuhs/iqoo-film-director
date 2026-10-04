@@ -455,16 +455,18 @@ public final class LocalPlanner {
 
     private static String sceneBeats(String style, boolean reviewedMoments) {
         String scene = style.toLowerCase(Locale.ROOT);
-        if (scene.contains("product")) return "Reuse the actual product noun from THIS brief in the takes and captions. " +
+        if (scene.contains("product")) return "Reuse THIS brief's product noun, named parts and stated use in takes and captions. " +
                 "Only explicitly stated colors, materials and parts may be named; a whole-product color does not specify a part's color. " +
                 "Never supply texture, finish, quality, benefits, extra objects or a positive opinion not stated in the brief. " +
-                "Detail asks the creator to choose a visible feature; In use asks for their actual use; Verdict asks their opinion rather than inventing it. " +
-                "Example for a different brief, 'white ceramic cup'; replace its facts with THIS brief's facts:\n" +
-                "[{\"title\":\"Hero\",\"instruction\":\"Hold your white ceramic cup and show it clearly.\",\"caption\":\"My ceramic cup\",\"duration_ms\":4000}," +
-                "{\"title\":\"Reveal\",\"instruction\":\"Turn your cup slowly in your hands.\",\"caption\":\"The cup\",\"duration_ms\":4000}," +
-                "{\"title\":\"Detail\",\"instruction\":\"Show one visible cup detail you choose.\",\"caption\":\"Cup detail\",\"duration_ms\":4000}," +
-                "{\"title\":\"In use\",\"instruction\":\"Show one way you actually use your cup.\",\"caption\":\"How I use it\",\"duration_ms\":4000}," +
-                "{\"title\":\"Verdict\",\"instruction\":\"Say your own honest one-line opinion of your cup.\",\"caption\":\"My opinion\",\"duration_ms\":4000}] ";
+                "Reveal shows a supplied part when named, otherwise turns the product. Detail asks for a visible feature the creator chooses. " +
+                "In use names the supplied action and object in its instruction; ask for an actual use only when none is supplied. Do not replace stated use with generic filler. " +
+                "Verdict asks the creator's own honest opinion rather than inventing it. " +
+                "Example for a different brief, 'my pencil has an eraser; I draw lines'; replace EVERY fact with THIS brief's facts:\n" +
+                "[{\"title\":\"Hero\",\"instruction\":\"Hold your pencil and show it clearly.\",\"caption\":\"My pencil\",\"duration_ms\":4000}," +
+                "{\"title\":\"Reveal\",\"instruction\":\"Turn your pencil to show its eraser.\",\"caption\":\"The eraser\",\"duration_ms\":4000}," +
+                "{\"title\":\"Detail\",\"instruction\":\"Show one visible pencil detail you choose.\",\"caption\":\"Pencil detail\",\"duration_ms\":4000}," +
+                "{\"title\":\"In use\",\"instruction\":\"Show how you draw lines with your pencil.\",\"caption\":\"Drawing lines\",\"duration_ms\":4000}," +
+                "{\"title\":\"Verdict\",\"instruction\":\"Say your own honest one-line opinion of your pencil.\",\"caption\":\"My opinion\",\"duration_ms\":4000}] ";
         if (scene.contains("intro")) return "Use THIS brief's actual name in Name, actual work noun in Work and Detail, and actual personal fact in Personal fact. " +
                 "Never output generic placeholders such as 'supplied name' or 'stated work'. Do not invent affiliations, credentials, parts or another personal fact. " +
                 "Example for a different brief, 'Mina bakes bread and likes hiking'; replace these facts with THIS brief's facts:\n" +

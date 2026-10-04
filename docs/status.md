@@ -1188,3 +1188,68 @@ files/cache/test allocation and owned gallery; historic archive/cache and incomp
 inventory qualifications preserved in storage.json. Other AVD, archive/model
 files and local credentials untouched. Goal remains active; attended creator/
 AirPods, iQOO/NPU, Office Kit, event provenance and accepted submission still open.
+
+### Shoot cue ownership, supplied product facts and READY recovery — 4 October, 18:14 IST
+
+Source now invalidates already-queued pose results on render/camera replacement/
+end/background/destruction. Automatic posing speech waits for pending or active
+explicit direction. Lens replacement creates a fresh pose/controller generation;
+a second lens tap waits while actual preview binding is pending, while a stopped
+controller permits selecting the next lens. Five new injected-state UI methods
+plus seven existing interruption methods passed **12/6.974s**, and three selected
+lens/launch/object workflow methods passed **3/4.094s** on a fresh unlocked
+Android36 ARM64 emulator. No preview, microphone, native inference or playback
+was started by those checks. Complete preferences restored; camera/mic stayed
+denied. Live rebinding/pose/audio remains unproved.
+[Exact shoot checks](shoot-cue-evidence.md).
+
+New storage-box Product CPU fixture initially failed **1/27.862s**: actual
+27.812s draft lost the supplied removable lid and index-card use. A Product-only
+prompt repair maps supplied parts to Reveal and supplied actions/objects to
+In use, illustrated by an unrelated pencil example. No fixture-specific response,
+output merge/retry or model/grammar change. Original assertions preserved; added
+example-leakage checks. Rerun passed **1/26.771s**, actual draft26.693s retained
+lid/card action and requested own honest opinion. Existing fashion/mug regression
+passed **1/57.426s** with actual requests24.761/32.630s. Direct output review found
+no targeted fact inventions; repetitive lid coverage/mug captions remain. A
+fixture used to repair prompting is not independent post-repair generalization.
+[Product failure and outputs](product-detail-evidence.md).
+
+Actual Media3 completed twelve3s synthetic cuts; genuine publisher wrote/synced
+JSON, copied/flushed/closed **1,340,552B** to its pending owned gallery row and
+wrote durable READY. A **test-controlled main-queue barrier** held publication.
+Prepared host controller checked full marker/PID, denied camera/mic, showing
+keyguard, exact row/journal ownership, stream/stat/temp lengths, temp/row SHA and
+independent temp/edit hashes. Effective deadline used the earlier queue90s and
+marker+45s bounds. External own-app force-stop at12:42:20.202UTC left process
+absent and same READY/temp; interrupted runner said Process crashed/shell0,
+**not PASS**. Fresh recovery passed **1/0.387s**: exactly1 cleaned/no warning,
+pending row/temp/edit/journal removed, originals/sentinel/earlier complete pair
+unchanged and baseline returned. Initial **1/0.038s** root-alias fixture failure
+preceded new job/marker/sentinel and caused no host stop. Fixed only trusted
+app-root spellings; unknown/private/traversal/child-symlink sources still refuse.
+No production export/recovery repair needed. This is actual READY/pending
+recovery in a controlled queue window, not natural timing or all kill boundaries.
+[Publication evidence](export-publication-death-evidence.md).
+
+Both source builds1s; normal app/test installs succeeded. Built/saved/independently
+read installed APK matches **52,838,059B**, SHA256
+**1d214f10c478ec38aa2da176fdc52e3ce8d75d09cdb07c9236205cb6c3bdc33a**.
+Packaged notices match source31,635B/SHA
+02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68.
+Separate Qwen/Whisper weights absent from APK/Git; bundled MLKit assets remain;
+no network permission. Normal Main launch requested behind secure keyguard;
+camera/mic denied. Gallery metadata inventory passed **1/0.135s**:
+19owned/0pending/5,598,886B. No attended launch/recording/audio, aircraft action,
+private upload or submission occurred.
+
+Reused existing SDK/JDK/emulator/image; fresh own AVD boot27.990s, correct port
+range, host cameras/audio/snapshots off and airplane mode on. Qualified temporary
+peak **10,671,163,551B**, above10GB aim/below15GB cap. Stopped and deleted only
+this new AVD/registration after tests, retaining logs. Final adjacent accounted
+footprint **9,288,493,747B**, below aim/cap, including all three installed project
+APKs, phone/test allocation and owned gallery. Missing-full-archive reserve and
+incomplete cache/oat/provider inventory qualifications persist in storage.json.
+No new models/SDK/JDK/images downloaded this probe. Goal remains active: real
+creator/AirPods, iQOO/NPU/Office Kit, eligible event provenance and accepted
+submission remain unfinished.

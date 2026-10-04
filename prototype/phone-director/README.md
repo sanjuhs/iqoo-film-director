@@ -74,7 +74,7 @@ Install the test APK; prepare only the labelled synthetic/public fixtures specif
 
 ```sh
 adb -d install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-adb -d shell am instrument -w -e class dev.minifilm.director.LocalAiTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
+adb -d shell am instrument -w -e class dev.minifilm.director.LocalAITest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.MediaWorkflowTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.ReferenceAnalyzerTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.ReferenceBoardTest,dev.minifilm.director.QuietTailStopPolicyTest,dev.minifilm.director.CaptureFinalizationTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
@@ -167,3 +167,22 @@ actual synthetic stories passed with their supplied events and explicit future
 plans, alongside two parser methods (4 tests /67.135 s); broader story accuracy
 remains unverified. [Full failures and repaired output](../../docs/planner-model-comparison-feasibility.md)
 remain available.
+
+### Shoot-cue ownership checks
+
+Five new synthetic shoot-state checks and seven existing interruption checks
+passed on a fresh unlocked emulator (12/6.974s); three related workflow checks
+passed separately (3/4.094s). Late pose results now carry a session generation,
+automatic advice waits for pending/active spoken direction, and rapid lens
+selection waits while preview binding is pending. These injected-state tests
+never started preview or played speech; attended live lens/capture/AirPods
+checks remain open. See [shoot-cue evidence](../../docs/shoot-cue-evidence.md).
+
+A new supplied-product fixture retained its removable lid and index-card use
+after a documented Product-prompt repair; the earlier missing facts remain
+recorded. See [product evidence](../../docs/product-detail-evidence.md).
+`ExportPublicationDeathTest` also selects phases separately and requires an
+externally recorded interruption while actual completed/copied media is READY
+and pending. Its main-queue window is deliberately test-controlled; it never
+constitutes an ordinary whole-class green suite. See
+[publication recovery](../../docs/export-publication-death-evidence.md).

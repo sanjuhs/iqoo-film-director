@@ -225,6 +225,8 @@ public final class SpeechCoach {
         clearSpeechCompletion();
         tts.stop();
     }
+    /** Main-thread observation includes a cue waiting for offline voice initialization. */
+    public boolean hasSpeechWork() { return !closed && (pendingSpeech != null || activeUtterance != null); }
     public boolean isOfflineVoiceReady() { return ready && !closed; }
 
     public boolean isOfflineRecognitionAvailable() {

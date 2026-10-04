@@ -108,6 +108,12 @@ public final class CaptureController implements AutoCloseable {
 
     public boolean isAnalysisAvailable() { return analysisAvailable; }
 
+    /** Main-thread observation; a stopped prior controller is not a pending binding. */
+    public boolean isPreviewPending() {
+        requireMainThread();
+        return !closed && previewRequested && !ready;
+    }
+
     public long getGeneration() { return generation; }
     /** Zero when no take is active. Allocate policy after this attempt's Start callback. */
     public long getRecordingId() { return recordingId; }

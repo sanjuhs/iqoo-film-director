@@ -30,7 +30,7 @@ runner reports and direct synthetic-output review.
 | Color correction | Local presets plus heuristic Auto balance have actual analyzer/export evidence below. | Real footage, creative suitability and shot matching. This is not learned AI grading. |
 | Subtitles and typography | Local English timed drafts, creator word/time review, real burned-in captions, and full-text fit-or-reject handling passed. | Attended speech accuracy and longer real text. No karaoke, generated music or semantic caption polishing. |
 | Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths and hashes. | Real creator reel, attended sound review, physical Files/provider saving, desktop-editor compatibility and actual Office Kit transfer. Actual emulator DocumentsUI ZIP/source validation passed. |
-| Recovery | Five staged export-journal tests plus genuine ENCODING process-death/fresh-process recovery passed on synthetic media; originals and the prior completed pair remained unchanged. | Other kill/publication windows and revoked/missing real inputs. Ready-package UI lifecycle passed under valid fresh-emulator visible conditions. |
+| Recovery | Five staged tests, genuine ENCODING interruption and real READY/pending interruption under a test-controlled main-queue barrier passed fresh-process recovery on synthetic media; originals and prior completed pair stayed unchanged. | Natural publication timing, kill after publication before COMPLETE, revoked/missing real inputs and live recording. Ready-package UI lifecycle passed under valid fresh-emulator visible conditions. |
 | Drone demo | Imported clips can join the edit; no aircraft action or connection occurred. | Separate supported Mini 4 Pro propellers-off read-only probe, then documented pilot-approved capture/control gates. Neo 2/Fly and Action 4 remain research. |
 | Hackathon completion | Signed-in idea deadline date is 5 October; countdown implies about 23:59 IST. Idea/pitch assets prepared. | Human attestation/self-report and accepted receipt. Finale is 9–11 October; competition code must be event-written unless organizers approve reuse. |
 
@@ -302,3 +302,23 @@ sizes and physical layout remain unverified. Updated APK is independently
 verified installed. Temporary AVD removed, qualified storage 9.292 GB.
 Attended Pose → Perform → Assemble/AirPods, iQOO/NPU/Office Kit and accepted
 eligible submission remain open. The goal is active.
+
+### 18:14 IST: shoot ownership, product facts and controlled publication recovery
+
+Fifteen selected synthetic shoot/speech/workflow checks passed after queued-pose
+generation, speech-interruption and pending-lens guards. Two native planner
+regressions passed after a retained Product omission failure and a Product-only
+prompt repair; exact outputs and repetitive-caption limits are in
+[product evidence](product-detail-evidence.md). Neither outcome proves an
+attended shoot or general creative accuracy.
+
+A real completed/copy-to-gallery export was externally stopped while READY and
+pending, with a deliberately held test-only main queue. Fresh recovery passed
+1/0.387s and removed exactly the owned interrupted pair while preserving
+originals/baseline. This supplements actual ENCODING interruption; natural
+publication timing and the published-before-COMPLETE kill window remain open.
+See [shoot checks](shoot-cue-evidence.md) and
+[publication checks](export-publication-death-evidence.md). Latest APK is installed,
+normal launch requested behind keyguard, camera/mic denied; qualified storage
+9.288GB after own temporary AVD cleanup. Full attended/eligibility/submission
+acceptance remains required.
