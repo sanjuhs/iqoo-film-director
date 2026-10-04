@@ -324,7 +324,7 @@ Qwen GGUF was locally copied from an existing phone model, hash-verified; no new
 Qwen download or archived app source reuse occurred. One new 77,704,715-byte
 tiny.en model was downloaded and hash-verified. Weights remain separate from
 Git/APK. Storage estimates, historical archive reserve and measured incremental
-cache growth are in [storage evidence](storage.json). The measured conservative accounted estimate is 6.36 GB, including current workspace, new target phone files and historical archive/cache reserves, below the 10 GB aim. Existing SDK/JDK and historical phone models are excluded; this is not a complete machine inventory. The unresolved archive
+cache growth are in [storage evidence](storage.json). The measured conservative accounted estimate is 6.41 GB, including current workspace, new target phone files and historical archive/cache reserves, below the 10 GB aim. Existing SDK/JDK and historical phone models are excluded; this is not a complete machine inventory. The unresolved archive
 location prevents certification of a complete current retained-storage total.
 
 Office Kit primary-source research found a vendor phone/laptop bridge requirement
@@ -340,3 +340,18 @@ Final Android document-save check: explicit app button → local Downloads picke
 match. Only our synthetic edit list was copied. No existing file was overwritten.
 No runtime camera/audio permission was granted; app remains ready for an attended
 shoot. Local fixture exports and cut lists are available for preview in Assemble.
+
+## Preserved delivery checkpoint
+
+Fresh phone source, evidence documents and provenance are preserved in local
+Git commits `3da9e90` and `443c431` on `codex/film-director-research`. No remote
+push or external submission occurred. The standalone research APK is retained
+under ignored `output/apk/MiniFilm-research.apk` (approximately 50 MB); models
+remain separate. Latest accounted storage is approximately 6.41 GB after this
+retained APK. Windows wrapper CRLF normalization and source whitespace checks
+passed across the full new-source diff.
+
+The phone is left on Brief with a saved editable local-AI draft and three clearly
+synthetic takes/finished reel in Assemble. Camera and microphone are inactive.
+Goal/quiet hourly continuation remains active through the requested evening;
+no attended live capture, AirPods or iQOO result is inferred from this checkpoint.
