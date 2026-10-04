@@ -99,6 +99,7 @@ public final class ReelExporter {
                 }
                 Take copy = new Take(take.uri, take.shotId, take.title, take.caption, take.durationMs);
                 copy.inMs = take.inMs; copy.outMs = take.outMs;
+                copy.reviewedShotIds = reviewedShotIdsSnapshot(take);
                 if (heading) headingSize(copy.title, 140, 19, 12, "Take title");
                 checkCaptionLength(copy.caption);
                 copy.captionOrigin = take.captionOrigin == null ? "manual" : take.captionOrigin;
@@ -222,42 +223,7 @@ public final class ReelExporter {
             File directory = new File(context.getFilesDir(), "exports");
             if (!directory.exists() && !directory.mkdirs()) throw new IllegalStateException("Edit folder unavailable.");
             edit = journal.edit();
-            JSONObject project = new JSONObject();
-            project.put("schema", "minifilm.edit.v1"); project.put("preEventResearch", true);
-            project.put("exportId", journal.id);
-            project.put("title", title); project.put("look", look);
-            project.put("width", 720); project.put("height", 1280);
-            project.put("crop", "center_9_16_review_framing");
-            project.put("captions", "manual captions or editable offline English ASR drafts; review text and timing");
-            project.put("audio", "source audio per sequential cut; silent takes padded; no multi-camera sync");
-            JSONArray list = new JSONArray(); long timeline = 0;
-            for (Take cut : cuts) {
-                JSONObject entry = new JSONObject();
-                entry.put("sourceUri", cut.uri.toString()); entry.put("shotId", cut.shotId);
-                entry.put("title", cut.title); entry.put("caption", cut.caption);
-                entry.put("captionOrigin", cut.captionOrigin);
-                entry.put("inMs", cut.inMs); entry.put("outMs", cut.outMs);
-                entry.put("timelineStartMs", timeline);
-                if ("Auto balance".equalsIgnoreCase(look))
-                    entry.put("colorBalance", balanceJson(matchingBalance(cut, measured)));
-                JSONArray subtitles = new JSONArray();
-                for (SubtitleCue cue : cut.subtitles) {
-                    JSONObject subtitle = new JSONObject();
-                    subtitle.put("sourceStartMs", cue.startMs); subtitle.put("sourceEndMs", cue.endMs);
-                    subtitle.put("text", cue.text);
-                    long start = Math.max(cut.inMs, cue.startMs), end = Math.min(cut.outMs, cue.endMs);
-                    subtitle.put("visibleInCut", end > start);
-                    if (end > start) {
-                        subtitle.put("timelineStartMs", timeline + start - cut.inMs);
-                        subtitle.put("timelineEndMs", timeline + end - cut.inMs);
-                    }
-                    subtitles.put(subtitle);
-                }
-                entry.put("subtitles", subtitles);
-                timeline += cut.outMs - cut.inMs;
-                list.put(entry);
-            }
-            project.put("durationMs", timeline); project.put("cuts", list);
+            JSONObject project = editDocument(journal.id, cuts, title, look, measured);
             try (FileOutputStream stream = new FileOutputStream(edit)) {
                 stream.write(project.toString(2).getBytes(StandardCharsets.UTF_8));
                 stream.getFD().sync();
@@ -318,6 +284,60 @@ public final class ReelExporter {
             cleanupInterrupted(journal, video, edit, output);
             main.post(() -> { if (run == generation) fail("Could not save export: " + safeMessage(e)); });
         }
+    }
+
+    /** Pure edit-document serializer; inputs are the export's validated, isolated snapshots. */
+    static JSONObject editDocument(String exportId, List<Take> cuts, String title, String look,
+            List<AutoColorBalance.Balance> measured) throws Exception {
+        JSONObject project = new JSONObject();
+        project.put("schema", "minifilm.edit.v1"); project.put("preEventResearch", true);
+        project.put("exportId", exportId);
+        project.put("title", title); project.put("look", look);
+        project.put("width", 720); project.put("height", 1280);
+        project.put("crop", "center_9_16_review_framing");
+        project.put("captions", "manual captions or editable offline English ASR drafts; review text and timing");
+        project.put("audio", "source audio per sequential cut; silent takes padded; no multi-camera sync");
+        project.put("shotMappingPolicy", "Explicit creator assignments only; stored IDs do not establish quality or a current plan match.");
+        JSONArray list = new JSONArray(); long timeline = 0;
+        for (Take cut : cuts) {
+            JSONObject entry = new JSONObject();
+            entry.put("sourceUri", cut.uri.toString()); entry.put("shotId", cut.shotId);
+            putReviewedShotMapping(entry, cut);
+            entry.put("title", cut.title); entry.put("caption", cut.caption);
+            entry.put("captionOrigin", cut.captionOrigin);
+            entry.put("inMs", cut.inMs); entry.put("outMs", cut.outMs);
+            entry.put("timelineStartMs", timeline);
+            if ("Auto balance".equalsIgnoreCase(look))
+                entry.put("colorBalance", balanceJson(matchingBalance(cut, measured)));
+            JSONArray subtitles = new JSONArray();
+            for (SubtitleCue cue : cut.subtitles) {
+                JSONObject subtitle = new JSONObject();
+                subtitle.put("sourceStartMs", cue.startMs); subtitle.put("sourceEndMs", cue.endMs);
+                subtitle.put("text", cue.text);
+                long start = Math.max(cut.inMs, cue.startMs), end = Math.min(cut.outMs, cue.endMs);
+                subtitle.put("visibleInCut", end > start);
+                if (end > start) {
+                    subtitle.put("timelineStartMs", timeline + start - cut.inMs);
+                    subtitle.put("timelineEndMs", timeline + end - cut.inMs);
+                }
+                subtitles.put(subtitle);
+            }
+            entry.put("subtitles", subtitles);
+            timeline += cut.outMs - cut.inMs;
+            list.put(entry);
+        }
+        project.put("durationMs", timeline); project.put("cuts", list); return project;
+    }
+
+    /** String IDs are immutable; every cut owns a separate mutable list snapshot. */
+    static List<String> reviewedShotIdsSnapshot(Take take) {
+        return take.reviewedShotIds == null ? new ArrayList<>() : new ArrayList<>(take.reviewedShotIds);
+    }
+
+    static void putReviewedShotMapping(JSONObject entry, Take cut) throws Exception {
+        List<String> ids = cut.reviewedShotIds == null ? Collections.emptyList() : cut.reviewedShotIds;
+        entry.put("reviewedShotIds", new JSONArray(ids));
+        entry.put("reviewedShotMappingOrigin", ids.isEmpty() ? "unassigned" : "creator-reviewed");
     }
 
     private void cleanupInterrupted(ExportRecovery.Journal journal, Uri video, File edit, File output) {

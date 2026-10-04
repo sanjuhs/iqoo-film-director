@@ -16,6 +16,13 @@ and [Office Kit research](office-kit-research.md). Older statements in those
 ledgers retain their dated context; the results below include the latest parent
 runner reports and direct synthetic-output review.
 
+Latest shot assignment increment adds explicit creator many-to-many mapping,
+plan-specific identity, selection counts and a missing-shot shortcut that opens
+Direct without capture. Five core/two portable-document methods and four visible
+emulator methods passed after correcting one retained lifecycle fixture failure.
+This is metadata review, not semantic coverage or useful real-footage judgment.
+[Assignment evidence](shot-assignment-evidence.md).
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |

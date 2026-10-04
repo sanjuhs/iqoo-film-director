@@ -257,6 +257,7 @@ public final class ProjectPackager implements AutoCloseable {
             Take copy = new Take(take.uri, "", text(take.title, 140, "Cut title"),
                     text(take.caption, 1000, "Caption"), take.durationMs);
             copy.inMs = take.inMs; copy.outMs = take.outMs;
+            copy.reviewedShotIds = ReelExporter.reviewedShotIdsSnapshot(take);
             copy.captionOrigin = text(take.captionOrigin, 100, "Caption provenance");
             if (take.subtitles != null) {
                 if (take.subtitles.size() > 500) throw new IllegalArgumentException("Use at most 500 subtitle segments per cut.");
@@ -286,6 +287,7 @@ public final class ProjectPackager implements AutoCloseable {
         project.put("width", 720); project.put("height", 1280);
         project.put("audio", "sequential original audio; no multi-camera synchronization");
         project.put("captionPolicy", "manual full-cut caption only when timed subtitle list is empty; ASR is an editable draft");
+        project.put("shotMappingPolicy", "Explicit creator assignments only; stored IDs do not establish quality or a current plan match.");
         JSONArray files = new JSONArray(); for (JSONObject item : media.values()) files.put(item);
         project.put("media", files);
         JSONArray list = new JSONArray(); long timeline = 0;
@@ -296,6 +298,7 @@ public final class ProjectPackager implements AutoCloseable {
             item.put("inMs", cut.inMs); item.put("outMs", cut.outMs);
             item.put("timelineStartMs", timeline); item.put("timelineEndMs", timeline + cut.outMs - cut.inMs);
             item.put("caption", cut.caption); item.put("captionOrigin", cut.captionOrigin);
+            ReelExporter.putReviewedShotMapping(item, cut);
             JSONArray cues = new JSONArray();
             for (SubtitleCue cue : cut.subtitles) {
                 JSONObject entry = new JSONObject();

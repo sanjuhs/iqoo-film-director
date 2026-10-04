@@ -251,3 +251,19 @@ the times yourself, then Save. Touching endpoints are accepted. Export and
 laptop packaging also stop before creating output when overlaps remain.
 See [subtitle evidence](subtitle-overlap-evidence.md) for the synthetic cases;
 verify real spoken words/timing and sound before sharing your reel.
+
+## Review the missing-shot pickup
+
+In Assemble, preview each take, then use **Assign take to plan shots** to confirm
+which current shots it serves. A clip can serve several shots. Leave uncertain
+clips unassigned; unselected clips do not count. The summary tracks your choices,
+not an AI judgment of framing, garment visibility or image quality.
+
+To try the first fashion workflow, deliberately leave the detail shot without an
+assigned selected take. **Direct next missing shot** chooses the next missing
+item in plan order and opens its direction. It leaves the camera stopped until
+you tap **Start camera**. After filming, preview and assign the new take yourself.
+Replacing the plan keeps old takes/assignments but they do not satisfy the new
+plan; review and remap them if wanted. Save/Clear is explicit, Cancel keeps the
+previous assignment, and the portable edit document retains confirmed mappings.
+[Verified research checks and limits](shot-assignment-evidence.md).

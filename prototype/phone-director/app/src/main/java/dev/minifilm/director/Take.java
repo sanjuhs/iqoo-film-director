@@ -8,6 +8,8 @@ public final class Take {
     public String shotId, title, caption;
     public long durationMs, inMs, outMs;
     public boolean selected = true;
+    /** Explicit creator-reviewed current-plan associations; capture shotId is only provenance. */
+    public java.util.List<String> reviewedShotIds = new java.util.ArrayList<>();
     public java.util.List<SubtitleCue> subtitles = new java.util.ArrayList<>();
     public String captionOrigin = "manual";
 

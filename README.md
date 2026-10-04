@@ -25,6 +25,11 @@ No app-to-app control or multicamera hardware result is established.
 
 The phone app is installed and launched through ADB. Its three screens are Brief, Direct and Assemble. See [measured evidence](docs/status.md), the [demo runbook](docs/demo-runbook.md) and [submission draft](docs/submission-draft.md). Local CPU inference is verified; NPU acceleration is not.
 
+Assemble now lets the creator explicitly assign a take to one or more plan shots,
+see selected assignment counts and open the next missing direction. This is a
+[reviewed metadata checklist](docs/shot-assignment-evidence.md); visual coverage
+and shot quality still require creator review and learned evaluation evidence.
+
 For the separate aircraft research path, prove a **propellers-off Mini 4 Pro connection** from an Android phone through a
 supported RC-N2/RC-N3 remote: SDK registration, aircraft identification,
 read-only telemetry and camera preview. No motor start, takeoff, autonomous flight,

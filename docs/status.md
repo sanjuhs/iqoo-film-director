@@ -1423,3 +1423,48 @@ above10GB aim/below15GB cap; final adjacent accounting **9,296,520,715B**, below
 both. Missing archive/cache/oat/provider qualifications persist. No new models/
 SDK/JDK/images downloaded. Goal active; real creator/AirPods, iQOO/NPU, Office Kit,
 permitted event provenance and accepted submission remain unfinished.
+
+## 4 October, 19:14 IST — explicit shot assignment and pickup review
+
+Added creator-reviewed many-to-many take→plan assignments, selected-take counts
+and explicit next-missing-shot direction in Assemble. Fresh plan namespaces
+prevent old shot-N assignments from satisfying a replacement; historical IDs
+persist but do not count. Captured/imported/recovered takes start unassigned.
+Only selected local-source metadata with valid trim bounds and explicit current
+IDs counts; no visual quality or semantic coverage is inferred. Pickup opens
+Direct without camera/session/microphone/countdown/sequence. Save/Clear requires
+current foreground dialog ownership; stale dismissed buttons cannot mutate.
+
+Additive device/portable edit JSON carries mapping IDs with creator provenance;
+empty mappings say unassigned. Both snapshots isolate lists. Portable privacy
+behavior keeps original device URIs/private capture IDs out. Saved mappings
+invalidate a changed ready cache package. [Full assignment evidence](shot-assignment-evidence.md).
+
+Physical headless runner passed **17/5.915s**: five new core, two new serializer/
+actual-ZIP, six package, three overlap/actual-export and one metadata-only media
+inventory checks. ZIP retained two selected cuts, deduplicated original SHA and
+confirmed mapping despite later caller edits. Actual unassigned encoder regression
+retained4064ms/two cuts/both adjacent subtitle shapes/timeline/original hash.
+Fresh emulator initial **31/48.004s**, one new fixture failure: editing prefs
+while old Activity lived was overwritten by legitimate onStop save. Fixture
+now closes old Activity before injecting restore data; production/assertions
+unchanged. Corrected four new UI methods **passed4/9.198s**; initial27 unchanged
+regressions passed. Failure retained. Real default screen visually inspected,
+with readable five-row assignment/pickup panel above settings; this one layout
+is not physical creator usability. Airplane broadcast rejection retained and
+replaced by successful supported connectivity command/setting verification.
+
+App/test build1s, corrected test-only build743ms; normal installs passed. Built/
+saved/independently read installed APK **52,838,059B**, SHA256
+**608b8a58d5ec28ca27269bb95660e8df9e758a09ed84cbe640a268fe2623d071**.
+Notices31,635B/SHA02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68
+unchanged; separate Qwen/Whisper weights remain excluded from Git/APK, MLKit
+assets remain. No Internet permission. Phone camera/mic denied/keyguard showing;
+normal Main launch requested behind lock. No unlock, recording, permission
+grant, private upload, aircraft action, real AirPods sound or submission.
+Gallery23 owned/0 pending/7,631,066B. Own temporary AVD/registration removed;
+other AVD untouched. Qualified temporary peak **10,493,207,187B**, above10GB
+aim/below15GB cap; final adjacent **9,294,561,939B**, below both. No new models,
+SDK/JDK/images/dependencies downloaded. Existing archive/cache qualifications
+persist. Goal active: attended creator capture/AirPods, learned semantic review,
+iQOO/NPU, Office Kit, eligible event source and accepted submission unfinished.
