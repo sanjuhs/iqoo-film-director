@@ -34,6 +34,10 @@ Assemble take cards now keep **Preview take** and **Edit & review take** togethe
 the latter opens the take’s scrollable tools menu for trims, subtitles, shot
 assignments, framing and order. See [take-tools evidence](docs/take-tools-evidence.md).
 
+The selection duration and **Export my reel** now stay above navigation while
+reviewing takes. Returning from a preview preserves the list position; busy
+processing keeps edits locked. See [footer evidence](docs/assembly-footer-evidence.md).
+
 **Review cut framing** adds an opt-in look at three nearby frames from a saved
 take’s current cut. Local pose checks show qualified body-visibility hints on an
 approximate center 9:16 crop. Results are temporary and do not edit cuts, assign

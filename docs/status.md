@@ -1606,3 +1606,32 @@ Draft remains unsubmitted; creator declarations and outgoing approval pending.
 Qualified adjacent storage9320832945B below10GB/15GB, includes external generated
 coveronce; prior reserve/inventory limits persist. No new models/SDK/dependencies.
 Goal active, remaining attended/device/competition gates unchanged.
+
+### 20:39 IST — fixed Assemble footer checkpoint
+
+Selected duration and **Export my reel** stay above navigation while reviewing
+takes. Empty/busy selection disables export; exact current-button and foreground
+guards reject stale controls. Preview return keeps list scroll position, and
+rebuilt editors retain the busy lock while Cancel remains available.
+[Evidence](assembly-footer-evidence.md).
+
+Initial25/40.023s passed before review added the busy-resume correction and fifth
+check. The first final26runner had one45s lifecycle timeout after root launched a
+second screen and UIAutomator during instrumentation; failed receipts retained.
+No assertions weakened. Isolated fresh final26/48.455s passed, including five new
+checks and21 editing/selection/workflow regressions. After runner termination,
+ordinary DemoAssets→actual fixedfooter Export produced H264720×1280/AAC,
+6000ms nominal/6.069660s encoded,1371409B. Cut list retains three500–2500ms cuts,
+current five-shot plan/captions/order; source sizes/hashes preserved. Actual
+footer top/bottom and three decoded frames visually reviewed; synthetic only.
+
+Final builds739ms/853ms, normal installs; built/saved/independently read installed
+APK52838059B SHA256380a2eb9dd0ce0c3a1e66fe8835f59a3eb8a3514df208b75b25fe731ee5e2495.
+Source-identical notices/separate weights excluded/noInternet. Physical gallery
+1/0.470s unchanged28/0/8319196B. Final normalMainlaunch requested behindkeyguard;
+camera/microphone denied, no unlock/grant/private upload/aircraft action.
+Only own AVD/registration removed; other AVD untouched. Qualified peak
+10457645825B above10GB aim/below15GB cap; finaladjacent
+9326506753B belowboth with existing inventory/reserve qualifications.
+No new dependencies/models. Goal active; attended capture/AirPods, useful learned
+direction, iQOO/NPU, OfficeKit, eligibleeventcode and acceptedsubmission remain.

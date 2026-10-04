@@ -246,3 +246,8 @@ The single-image framing helper now retains one shared slot until actual task
 completion and cleanup, including after cancellation/timeout. [Ownership
 evidence](../../docs/framing-task-ownership-evidence.md) scopes this to the helper
 family; separate live detectors and hard native abort deadlines remain unproved.
+
+Assemble keeps one selection summary and **Export my reel** above navigation,
+independent of list scrolling. Empty selections/processing disable export;
+returning from a preview preserves your place. [Footer evidence](../../docs/assembly-footer-evidence.md)
+records lifecycle state and actual synthetic export checks.

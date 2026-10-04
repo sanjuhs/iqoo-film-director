@@ -443,3 +443,16 @@ pending per review; no total bound across repeated reviews is proven. No real
 creator capture, AirPods, iQOO/NPU, Office Kit, drone, general benefit or event
 eligibility gate is closed by these checks. Full evidence and retained failures:
 [take-framing evidence](take-framing-evidence.md).
+
+## Fixed Assemble footer checkpoint — 20:39 IST
+
+The final fresh emulator passed26/48.455s, including five footer geometry,
+selection/empty/busy/stale-button and actual background/resume checks. An earlier
+final runner had one lifecycle timeout after root's premature UI inspection;
+retained failure did not cause weakened assertions. The final ordinary-app fixed
+footer export produced the expected three-cut720×1280 synthetic reel and editable
+current plan; original bytes/hashes stayed intact. [Full evidence](assembly-footer-evidence.md).
+Installed source/build provenance and remaining attended/competition gates persist.
+The older framing pending-task limitation above is superseded for its single-image
+helper family by [completion-held ownership](framing-task-ownership-evidence.md);
+separate live detectors and hard native abort remain outside that bound.

@@ -153,6 +153,9 @@ check it with **Preview take**. [Recovery evidence](capture-take-recovery-eviden
    leaving the screen closes this menu. Use the tools to review order, exact
    in/out times and manual text. Originals remain intact. Keep the result
    within 12 selected cuts / three minutes.
+   Selection duration and **Export my reel** stay above navigation while scrolling.
+   Preview return keeps your list position. Export is disabled for an empty
+   selection and during processing; review your chosen cuts before exporting.
    For a saved take, optionally tap **Review cut framing**. It reads three nearby
    frames at the current cut’s quarter, midpoint and three-quarter source times;
    no camera, microphone or playback starts. Sources must be at most three minutes
