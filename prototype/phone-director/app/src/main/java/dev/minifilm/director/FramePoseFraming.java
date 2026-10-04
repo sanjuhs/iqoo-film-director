@@ -14,6 +14,7 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Local single-frame landmark evidence, not learned framing taste or a calibrated classifier.
  * ML Kit may extrapolate absent joints: only confident coordinates inside these pixels count.
@@ -21,7 +22,48 @@ import java.util.function.BooleanSupplier;
 public final class FramePoseFraming {
     private static final float MIN_LIKELIHOOD = .75f;
     private static final String PROVENANCE = "ML Kit single-image pose-landmark heuristic (CPU preference); likelihood>=0.75 and in-bounds pixels; uncalibrated";
+    private static final Gate PRODUCTION_GATE = new Gate();
+    private static final Factory PRODUCTION_FACTORY = () -> {
+        PoseDetector detector = PoseDetection.getClient(new PoseDetectorOptions.Builder()
+                .setDetectorMode(PoseDetectorOptions.SINGLE_IMAGE_MODE)
+                .setPreferredHardwareConfigs(PoseDetectorOptions.CPU).build());
+        return new Client() {
+            public Task<Pose> process(Bitmap bitmap) { return detector.process(InputImage.fromBitmap(bitmap, 0)); }
+            public void close() { detector.close(); }
+        };
+    };
     private FramePoseFraming() {}
+
+    /** Per-call synthetic seam; production never replaces its backend or shared gate. */
+    interface Client { Task<Pose> process(Bitmap bitmap); void close(); }
+    interface Factory { Client create(); }
+    static final class Gate {
+        private boolean occupied;
+        // Retain task-owned resources even when caller cancellation/timeout has already returned.
+        private Pending owner;
+        synchronized int availablePermits() { return occupied ? 0 : 1; }
+        private synchronized boolean acquire() { if (occupied) return false; occupied = true; return true; }
+        private synchronized void own(Pending pending) { owner = pending; }
+        private synchronized void release(Pending pending) {
+            if (owner == pending) { owner = null; occupied = false; }
+        }
+    }
+    private static final class Pending {
+        final Gate gate;
+        final AtomicBoolean cleanupStarted = new AtomicBoolean();
+        Bitmap bitmap;
+        Client client;
+        Task<Pose> task;
+        Pending(Gate gate) { this.gate = gate; gate.own(this); }
+        void cleanup() {
+            if (!cleanupStarted.compareAndSet(false, true)) return;
+            boolean released = true;
+            try { if (bitmap != null) bitmap.recycle(); } catch (RuntimeException failure) { released = false; }
+            try { if (client != null) client.close(); } catch (RuntimeException | LinkageError failure) { released = false; }
+            // A failed cleanup retains this owner and closes admission; no false reuse claim.
+            if (released) gate.release(this);
+        }
+    }
 
     public static final class Result {
         public final String label, provenance;
@@ -41,46 +83,66 @@ public final class FramePoseFraming {
      * Cancel/timeout returns review needed promptly while pending task owns its image until completion.
      */
     public static Result inspect(byte[] rgb, int width, int height, BooleanSupplier cancelled) {
+        return inspectWith(rgb, width, height, cancelled, PRODUCTION_FACTORY, PRODUCTION_GATE, 5000);
+    }
+
+    /** Worker-only bounded seam. The budget includes admission, preparation and task waiting. */
+    static Result inspectWith(byte[] rgb, int width, int height, BooleanSupplier cancelled,
+            Factory factory, Gate gate, long waitBudgetMs) {
         if (Looper.myLooper() == Looper.getMainLooper())
             throw new IllegalStateException("Inspect reference framing on a worker thread.");
         if (width < 1 || height < 1 || width > 512 || height > 512 || rgb == null || rgb.length != width * height * 3)
             throw new IllegalArgumentException("Use a bounded upright RGB frame.");
+        if (factory == null || gate == null || waitBudgetMs < 1 || waitBudgetMs > 5000)
+            throw new IllegalArgumentException("Use a bounded local pose wait.");
         if (cancelled != null && cancelled.getAsBoolean()) return unavailable("cancelled before inference");
-        int[] pixels = new int[width * height];
-        for (int i = 0; i < pixels.length; i++) pixels[i] = 0xff000000 | (rgb[i * 3] & 255) << 16
-                | (rgb[i * 3 + 1] & 255) << 8 | (rgb[i * 3 + 2] & 255);
-        Bitmap bitmap = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
-        PoseDetector detector = null;
-        Task<Pose> task;
+        long deadline = SystemClock.elapsedRealtime() + waitBudgetMs;
         try {
-            detector = PoseDetection.getClient(new PoseDetectorOptions.Builder()
-                    .setDetectorMode(PoseDetectorOptions.SINGLE_IMAGE_MODE)
-                    .setPreferredHardwareConfigs(PoseDetectorOptions.CPU).build());
-            task = detector.process(InputImage.fromBitmap(bitmap, 0));
-        } catch (RuntimeException failure) {
-            bitmap.recycle(); if (detector != null) detector.close();
-            return unavailable("pose unavailable");
+            while (!gate.acquire()) {
+                if (cancelled != null && cancelled.getAsBoolean()) return unavailable("cancelled while waiting for earlier pose check");
+                long remaining = deadline - SystemClock.elapsedRealtime();
+                if (remaining <= 0) return unavailable("earlier pose check still finishing; wait timed out");
+                Thread.sleep(Math.min(100, remaining));
+            }
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt(); return unavailable("interrupted while waiting for earlier pose check");
         }
-        final PoseDetector activeDetector = detector;
-        // Attaching before waiting also covers a task that finishes during cancellation/timeout.
-        // The Pose result itself contains coordinates, so classification needs no bitmap after completion.
-        task.addOnCompleteListener(Runnable::run, finished -> {
-            bitmap.recycle(); activeDetector.close();
-        });
-        long deadline = SystemClock.elapsedRealtime() + 5000;
+        Pending pending = new Pending(gate);
         try {
+            if (cancelled != null && cancelled.getAsBoolean()) return unavailable("cancelled before inference");
+            if (SystemClock.elapsedRealtime() >= deadline) return unavailable("pose wait timed out");
+            int[] pixels = new int[width * height];
+            for (int i = 0; i < pixels.length; i++) pixels[i] = 0xff000000 | (rgb[i * 3] & 255) << 16
+                    | (rgb[i * 3 + 1] & 255) << 8 | (rgb[i * 3 + 2] & 255);
+            pending.bitmap = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
+            pending.client = factory.create();
+            if (pending.client == null) throw new IllegalStateException("Pose client unavailable");
+            if (cancelled != null && cancelled.getAsBoolean()) return unavailable("cancelled before inference");
+            if (SystemClock.elapsedRealtime() >= deadline) return unavailable("pose wait timed out");
+            pending.task = pending.client.process(pending.bitmap);
+            if (pending.task == null) throw new IllegalStateException("Pose task unavailable");
+            // Non-Activity completion survives background/recreation. An already-complete Task
+            // also schedules this listener. Only completion owns cleanup after submission.
+            pending.task.addOnCompleteListener(Runnable::run, finished -> pending.cleanup());
             while (true) {
                 if (cancelled != null && cancelled.getAsBoolean()) return unavailable("cancelled");
                 long remaining = deadline - SystemClock.elapsedRealtime();
                 if (remaining <= 0) return unavailable("pose wait timed out");
                 try {
-                    Pose pose = Tasks.await(task, Math.min(100, remaining), TimeUnit.MILLISECONDS);
+                    Pose pose = Tasks.await(pending.task, Math.min(100, remaining), TimeUnit.MILLISECONDS);
                     return classify(pose, width, height);
                 } catch (TimeoutException stillPending) { /* poll cancellation between bounded waits */ }
             }
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt(); return unavailable("interrupted");
-        } catch (Exception failure) { return unavailable("pose unavailable"); }
+        } catch (Exception | LinkageError failure) {
+            // If completion-listener registration failed, a completed Task is safe to clean;
+            // otherwise retain the bounded owner rather than guessing native input is released.
+            if (pending.task != null && pending.task.isComplete()) pending.cleanup();
+            return unavailable("pose unavailable");
+        } finally {
+            if (pending.task == null) pending.cleanup();
+        }
     }
 
     private static Result unavailable(String reason) { return new Result("review needed", PROVENANCE + "; " + reason, 0, 0, reason); }

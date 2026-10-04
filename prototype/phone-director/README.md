@@ -241,3 +241,8 @@ existing edit/review actions; it closes before dispatch and validates the curren
 take identity and index. Backgrounding or leaving the screen dismisses it.
 [Verification](../../docs/take-tools-evidence.md) includes actual trim/reorder,
 subtitle/framing journeys and stale retained-button checks on synthetic inputs.
+
+The single-image framing helper now retains one shared slot until actual task
+completion and cleanup, including after cancellation/timeout. [Ownership
+evidence](../../docs/framing-task-ownership-evidence.md) scopes this to the helper
+family; separate live detectors and hard native abort deadlines remain unproved.

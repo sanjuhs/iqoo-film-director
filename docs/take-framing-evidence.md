@@ -128,3 +128,11 @@ Qualified temporary peak **10,903,427,857B**, above 10GB aim/below 15GB cap; fin
 adjacent accounting **9,302,457,105B**, below both. Existing missing-archive/cache/
 oat/provider and full-machine inventory qualifications persist. No new SDK/JDK/
 system-image/model/dependency downloads occurred for this increment.
+
+## Later completion-aware bound
+
+The subsequent [task-ownership checkpoint](framing-task-ownership-evidence.md)
+supersedes the earlier unbounded single-image task admission. Its one shared
+slot stays held until actual task completion and cleanup. This covers
+FramePoseFraming callers; separate live detectors and native abort deadlines
+remain outside that bound. The earlier failure/results ledger stays intact.

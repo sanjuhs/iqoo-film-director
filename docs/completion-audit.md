@@ -43,6 +43,11 @@ scrollable per-take edit/review menu. Four new checks establish current-index
 dispatch and stale-button rejection; existing workflows remain verified on
 synthetic inputs. [Take-tool evidence](take-tools-evidence.md).
 
+The single-image helper now holds one shared processing slot until ML Kit task
+completion and cleanup, even after caller cancellation. Controlled and actual
+public-fixture tests verify admission and reuse.
+[Ownership evidence](framing-task-ownership-evidence.md).
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |
@@ -51,7 +56,7 @@ synthetic inputs. [Take-tool evidence](take-tools-evidence.md).
 | Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Latest fresh-emulator run passed 25 interface methods; screen/edits restore without capture, and trim form scrolls. | An unlocked attended shoot and first-time usability check; the older locked-phone failures below retain their dated context. |
 | Substantial local AI | Actual local CPU Qwen generation, bundled ML Kit pose inference, offline English TTS and whisper tiny.en clip transcription. App has no network permission. | Useful grounding across unseen briefs, sustained camera/inference concurrency and iQOO execution. No NPU/GPU, Kev adaptation or trained-director result. |
 | Pose and direct each take | Live analysis integration, shared vertical crop, persisted lens and optional speech-completion-gated sequence in source. Public pose fixture yielded 33 confident landmarks; empty-frame inference yielded none. | Live framing usefulness, front/rear recording, full sequence, interruption and quiet captured speech. Synthetic geometry is not live capture. |
-| Review saved take framing | Three source-bound sampled frames, approximate vertical crop, plain pose-landmark hints and cancellation/stale-result ownership checks passed on public/synthetic fixtures. | Nearest decoded frames are not exact PTS and may fall outside the cut; no motion, shot-quality, garment or semantic coverage judgment. Real-footage usefulness and global pending ML Kit task bounds remain unverified. |
+| Review saved take framing | Three source-bound sampled frames, approximate vertical crop, plain pose-landmark hints and cancellation/stale-result ownership checks passed on public/synthetic fixtures. | Nearest decoded frames are not exact PTS and may fall outside the cut; no motion, shot-quality, garment or semantic coverage judgment. Real-footage usefulness remains unverified. One shared single-image helper slot now has task-completion ownership evidence; separate live detectors and hard native abort remain outside the bound. |
 | AirPods direction | Offline voice synthesis and two real-engine silent completion/cancellation tests passed. | Paired AirPods playback, microphone routing and physical cue leakage. Synthesis-to-file never played audio. |
 | Understand reels/trends | Sparse-reference and single-frame CPU vision/pose checks passed. Local reference speech → explicit test correction → CPU plan passed; confirmed words and visual notes share a bounded input. | Full trend/story/style understanding and real reference accuracy remain unverified. Source-binding/review checks passed on a fresh unlocked synthetic emulator; physical reference accuracy, observed model errors and conservative abstentions remain. |
 | Start, stop and trim | Explicit CameraX start/stop, actual-container source bounds, editable cuts and reviewed local speech-edge suggestions; actual synthetic cuts exported in order. | Attended capture/finalization and semantic selection of the best performance moments. |

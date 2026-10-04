@@ -1,11 +1,15 @@
 package dev.minifilm.director;
 
 import android.content.Context;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.SystemClock;
 import android.util.Log;
+import com.google.android.gms.tasks.Task;
+import com.google.mlkit.vision.pose.Pose;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;
@@ -15,6 +19,13 @@ import java.io.FileInputStream;
 import java.security.MessageDigest;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import static org.junit.Assert.*;
 
 /** Actual bundled CPU pose on attributed public pixels and black; no live capture/taste claim. */
@@ -64,21 +75,84 @@ public final class FramePoseFramingTest {
                 + " visible=0 elapsedMs=" + (SystemClock.elapsedRealtime() - began) + " framing=pose_landmark_heuristic");
     }
 
-    @Test(timeout = 10_000) public void cancellationAfterTaskStartsReturnsReviewNeededWithoutGuessingAFrameLabel() throws Exception {
-        Bitmap source = BitmapFactory.decodeFile(fixture().getAbsolutePath()); assertNotNull(source);
+    @Test(timeout = 25_000) public void cancellationAfterTaskStartsReturnsReviewNeededWithoutGuessingAFrameLabel() throws Exception {
+        assertNoInternet(); assertCaptureDenied();
+        File file = fixture(); long originalBytes=file.length(),originalMtime=file.lastModified(); assertEquals(SHA,digest(file));
+        Map<String,?> preferences=new HashMap<>(context.getSharedPreferences("shoot",0).getAll());
+        FramePoseFraming.Gate gate=(FramePoseFraming.Gate)productionField("PRODUCTION_GATE");
+        FramePoseFraming.Factory nativeFactory=(FramePoseFraming.Factory)productionField("PRODUCTION_FACTORY");
+        awaitFreeGate(gate);
+        ObservedNativeFactory observed=new ObservedNativeFactory(nativeFactory);
+        Bitmap source = BitmapFactory.decodeFile(file.getAbsolutePath()); assertNotNull(source);
         try {
-            RGB rgb = rgb(source); AtomicInteger polls = new AtomicInteger();
+            RGB rgb = rgb(source);
+            AtomicBoolean cancellationObserved=new AtomicBoolean(),pendingAtCancellation=new AtomicBoolean();
             long began = SystemClock.elapsedRealtime();
-            FramePoseFraming.Result cancelled = FramePoseFraming.inspect(rgb.bytes, rgb.width, rgb.height,
-                    () -> polls.incrementAndGet() > 1);
+            // The wrapper delegates the untouched actual production ML Kit client/Task.
+            // Cancellation starts only after process() returned that real Task, never by
+            // guessing how often admission/preparation happened to poll the supplier.
+            FramePoseFraming.Result cancelled = FramePoseFraming.inspectWith(rgb.bytes,rgb.width,rgb.height,()->{
+                Task<Pose> task=observed.firstSubmitted.get();if(task==null)return false;
+                cancellationObserved.set(true);pendingAtCancellation.set(!task.isComplete());return true;
+            },observed,gate,5000);
             assertEquals("review needed", cancelled.label); assertEquals(0, cancelled.confidence, 0);
-            assertTrue(cancelled.provenance.contains("cancelled"));
+            assertEquals("cancelled",cancelled.reason);
+            assertTrue(cancellationObserved.get());assertEquals(1,observed.submitted.get());
+            assertTrue("A completed-before-cancellation race cannot prove pending-task ownership",pendingAtCancellation.get());
             assertTrue("Cancellation must not wait for the whole five-second pose deadline",
                     SystemClock.elapsedRealtime() - began < 5000);
-            // Pending input lifetime is maintained by the task-completion cleanup in production;
-            // the helper's internal bitmap is not exposed as a misleading test observation.
-        } finally { source.recycle(); }
+            NativeJob first=observed.jobs.get(0);
+            boolean pendingAfterReturn=!first.task.get().isComplete();
+            if(pendingAfterReturn){
+                // Recheck the Task to avoid treating ordinary completion between these
+                // snapshots as an early-release failure.
+                int available=gate.availablePermits();boolean recycled=first.bitmap.isRecycled(),closed=first.closed.get();
+                if(!first.task.get().isComplete()){assertEquals(0,available);assertFalse(recycled);assertFalse(closed);}
+            }
+            // Independent real request uses the same production gate. Its client cannot
+            // be admitted before the first Task finished and input/client cleanup returned.
+            FramePoseFraming.Result reused=FramePoseFraming.inspectWith(rgb.bytes,rgb.width,rgb.height,()->false,observed,gate,5000);
+            assertEquals("full-body",reused.label);assertTrue(reused.confidence>=.75f&&reused.confidence<=1);assertTrue(reused.visibleLandmarks>=9);
+            awaitFreeGate(gate);
+            assertEquals(2,observed.submitted.get());assertEquals(2,observed.jobs.size());
+            assertNotSame(observed.jobs.get(0).task.get(),observed.jobs.get(1).task.get());
+            assertNotSame(observed.jobs.get(0).bitmap,observed.jobs.get(1).bitmap);
+            assertTrue("Next actual client creation must follow completion and both cleanup steps",observed.cleanupBeforeReuse.get());
+            assertEquals(1,observed.maximumClients.get());assertEquals(0,observed.clients.get());
+            for(NativeJob job:observed.jobs){assertTrue(job.task.get().isComplete());assertTrue(job.bitmap.isRecycled());assertTrue(job.closed.get());assertEquals(1,job.closeCalls.get());}
+            assertEquals(1,gate.availablePermits());
+            Log.i("MiniFilmFramePoseTest","NATIVE_OWNERSHIP_PASS publicFixture=true actualTasks=2 productionFactoryDelegated=true sharedProductionGate=true pendingAtCancellation=true pendingAfterCallerReturn="
+                    +pendingAfterReturn+" maximumOwnedClients=1 cleanupBeforeReuse=true bitmapsRecycled=true clientsClosedOnce=true gateReleased=true reuseLabel=full-body nativeAbortClaim=false");
+        } finally {
+            source.recycle();awaitFreeGate(gate);assertEquals(originalBytes,file.length());assertEquals(originalMtime,file.lastModified());assertEquals(SHA,digest(file));
+            assertEquals(preferences,context.getSharedPreferences("shoot",0).getAll());assertCaptureDenied();
+        }
     }
+
+    /** Per-call observer only: never swaps static factory/gate, substitutes pixels or completes a Task. */
+    private static final class ObservedNativeFactory implements FramePoseFraming.Factory {
+        final FramePoseFraming.Factory delegate;final List<NativeJob> jobs=new ArrayList<>();
+        final AtomicReference<Task<Pose>> firstSubmitted=new AtomicReference<>();
+        final AtomicInteger submitted=new AtomicInteger(),clients=new AtomicInteger(),maximumClients=new AtomicInteger();
+        final AtomicBoolean cleanupBeforeReuse=new AtomicBoolean();
+        ObservedNativeFactory(FramePoseFraming.Factory delegate){this.delegate=delegate;}
+        public FramePoseFraming.Client create(){
+            if(!jobs.isEmpty()){NativeJob first=jobs.get(0);cleanupBeforeReuse.set(first.task.get()!=null&&first.task.get().isComplete()&&first.bitmap.isRecycled()&&first.closed.get());}
+            FramePoseFraming.Client client=delegate.create();int active=clients.incrementAndGet();maximumClients.accumulateAndGet(active,Math::max);
+            NativeJob job=new NativeJob(client,this);jobs.add(job);return job;
+        }
+    }
+    private static final class NativeJob implements FramePoseFraming.Client {
+        final FramePoseFraming.Client delegate;final ObservedNativeFactory owner;
+        final AtomicReference<Task<Pose>> task=new AtomicReference<>();final AtomicBoolean closed=new AtomicBoolean();final AtomicInteger closeCalls=new AtomicInteger();
+        Bitmap bitmap;
+        NativeJob(FramePoseFraming.Client delegate,ObservedNativeFactory owner){this.delegate=delegate;this.owner=owner;}
+        public Task<Pose> process(Bitmap bitmap){this.bitmap=bitmap;Task<Pose> real=delegate.process(bitmap);task.set(real);if(owner.submitted.incrementAndGet()==1)owner.firstSubmitted.set(real);return real;}
+        public void close(){closeCalls.incrementAndGet();delegate.close();closed.set(true);owner.clients.decrementAndGet();}
+    }
+    private static Object productionField(String name)throws Exception{Field field=FramePoseFraming.class.getDeclaredField(name);field.setAccessible(true);return field.get(null);}
+    private static void awaitFreeGate(FramePoseFraming.Gate gate)throws Exception{long deadline=SystemClock.elapsedRealtime()+6000;while(gate.availablePermits()!=1&&SystemClock.elapsedRealtime()<deadline)Thread.sleep(20);assertEquals("Actual Task cleanup must release the shared slot",1,gate.availablePermits());}
+    private void assertCaptureDenied(){assertEquals(PackageManager.PERMISSION_DENIED,context.checkSelfPermission(Manifest.permission.CAMERA));assertEquals(PackageManager.PERMISSION_DENIED,context.checkSelfPermission(Manifest.permission.RECORD_AUDIO));}
 
     @Test public void rejectsOversizedOrMalformedRgbAndPreCancelledRequestDoesNotClaimInference() {
         for (int[] shape : new int[][] {{513, 2}, {2, 513}, {0, 2}, {-1, 2}}) {

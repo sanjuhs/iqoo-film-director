@@ -103,3 +103,6 @@ later milestone with explicit pilot approval and manual override.
 Keep the complete local research footprint within 15 GB and aim below 10 GB,
 including the retained archive and incremental dependency/model growth. Do not
 restore or download old model bundles by default.
+
+A six-slide [Phase1 idea deck and PDF](docs/phase1-deck.md) are ready for creator
+review. They remain unsubmitted and disclose pre-event research provenance.

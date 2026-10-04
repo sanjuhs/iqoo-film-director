@@ -208,12 +208,15 @@ confirm them against the current guide at check-in.
 6. **A realistic event build:** fresh event-written implementation, phone-only
    acceptance gate, supported Office Kit transfer and three-minute demo.
 
+A six-slide [editable deck and PDF](phase1-deck.md) now accompany this draft.
+They retain pre-event preparation disclosure and pending hardware/creator checks.
+
 ## Submission checklist
 
 - Confirm the signed-in Phase 1 cutoff and timezone and leave time for upload.
 - Review title, description and track against the actual portal field limits.
 - Attach a reviewed PDF/PPT deck under the portal's 25 MB limit, or a working
-  deck link, as required by the signed-in form. This Markdown is not that upload.
+  deck link, as required by the signed-in form. The reviewed local deck/PDF are ready; this Markdown is not that upload.
 - Creator supplies truthful proficiency/self-reports and reviews the original-work
   checkbox. Do not infer answers, attest on their behalf or silently reuse the
   archived project's application fields.

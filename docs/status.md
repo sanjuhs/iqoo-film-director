@@ -1581,3 +1581,28 @@ above10GB aim/below15GB cap; final adjacent9300356181B belowboth.
 All historic storage qualifications and unchanged gallery28/0/8319196B remain.
 No new dependencies/models. Goal active; remaining acceptance/competition gates
 are unchanged.
+
+### 20:21 IST — completion-held pose slot and idea deck
+
+FramePoseFraming now bounds its single-image helper family to one admitted input/
+client until task completion and exact-once cleanup. Cancel/timeout leaves pending
+resources owned; failed cleanup closes admission. Separate live detectors,
+synchronous SDK calls, provider reads and native abort deadlines remain outside
+this bound. [Ownership evidence](framing-task-ownership-evidence.md).
+
+Physical17/11.636s passed:5controlled ownership+4native framing+5take-core+3actual
+decoder/pose methods. Real cancellation observed an incomplete actual Task after
+process and after caller return; cleanup preceded real independent reuse, max
+one owned client. Input/prefs/denied capture preserved. No new export/gallery
+outputs; inventory1/0.783s unchanged28/0/8319196B. Build1s/normal installs; current
+built/saved/independently read installedAPK52838059B SHA256ae9b04e68f9147fc4de5fe181c356d7ba82372f62a98e69b076bd2744cc7da2b.
+No Internet permission/separate weights inAPK. Normal Main launch behind secure
+keyguard; no unlock/grant/private upload/aircraft action.
+
+Six-slide editable idea deck plus rendered PDF prepared and visually reviewed.
+All pages label pre-event research, actual app captures use synthetic clips, and
+cover illustration is labelled AI-generated. [Deck evidence](phase1-deck.md).
+Draft remains unsubmitted; creator declarations and outgoing approval pending.
+Qualified adjacent storage9320832945B below10GB/15GB, includes external generated
+coveronce; prior reserve/inventory limits persist. No new models/SDK/dependencies.
+Goal active, remaining attended/device/competition gates unchanged.
