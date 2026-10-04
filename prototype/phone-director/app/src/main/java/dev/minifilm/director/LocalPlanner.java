@@ -49,18 +49,66 @@ public final class LocalPlanner {
             {"Say", "Tell", "Introduce"}, {"Tell", "Explain", "Show", "Share"},
             {"Show", "Hold", "Point", "Bring"}, {"Share", "Tell", "Say"},
             {"Welcome", "Wave", "Smile", "Say"}};
-    // Conservative wording filter: also rejects benign "face the camera"; "look at the lens" is allowed.
-    // This catches observed performer/operator drift, not arbitrary semantic errors or product claims.
-    private static final Pattern FASHION_DEVICE_WORDS = Pattern.compile("\\b(camera|phone|screen|tripod)\\b", Pattern.CASE_INSENSITIVE);
+    // English lexical checks, not semantic/safety validation. Camera mentions alone can be body
+    // poses/eyelines. Detect bounded direct handling or hand placement; camera + "adjust it" is
+    // conservatively treated as operation despite pronoun ambiguity. Other devices stay blocked.
+    // Unlisted wording can escape detection; this does not prove a cue is useful or safe.
+    private static final Pattern FASHION_DEVICE_WORDS = Pattern.compile(
+            "\\b(phone|screen|tripod|drone|gimbal)s?\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern CAMERA_WORD = Pattern.compile("\\bcameras?\\b", Pattern.CASE_INSENSITIVE);
+    private static final String CAMERA_OPERATOR_VERB =
+            "(?:hold(?:s|ing)?|held|tak(?:e|es|ing|en)|bring(?:s|ing)?|brought|point(?:s|ing|ed)?|"
+                    + "focus(?:es|ing|ed)?|mov(?:e|es|ing|ed)|adjust(?:s|ing|ed)?|refocus(?:es|ing|ed)?|"
+                    + "reposition(?:s|ing|ed)?|lift(?:s|ing|ed)?|carr(?:y|ies|ying|ied)|aim(?:s|ing|ed)?|"
+                    + "tilt(?:s|ing|ed)?|pan(?:s|ning|ned)?|rotat(?:e|es|ing|ed)|rais(?:e|es|ing|ed)|"
+                    + "lower(?:s|ing|ed)?|turn(?:s|ing|ed)?)";
+    private static final Pattern CAMERA_DIRECT_OPERATION = Pattern.compile(
+            "\\b" + CAMERA_OPERATOR_VERB
+                    + "\\s+(?:(?:a|an|the|your|my|our|their|this|that|its|filming|recording|front|rear|main)\\s+){0,3}cameras?\\b",
+            Pattern.CASE_INSENSITIVE);
+    private static final Pattern CAMERA_HAND_PLACEMENT = Pattern.compile(
+            "\\bcameras?\\s+(?:(?:is|are|being|kept)\\s+){0,2}(?:held|carried|handheld|"
+                    + "in\\s+(?:(?:a|an|the|your|my|our|their|one|both)\\s+){0,3}hands?)\\b",
+            Pattern.CASE_INSENSITIVE);
+    private static final Pattern CAMERA_PRONOUN_OPERATION = Pattern.compile(
+            "\\b" + CAMERA_OPERATOR_VERB + "\\s+(?:it|this|that)\\b", Pattern.CASE_INSENSITIVE);
+    // Narrow English lexical guard for observed Movement drafts: taking a garment part or
+    // treating one as a walking/turning destination. It is not a semantic or safety validator.
+    // Clause/action words stop the noun phrase, so a later "show your pocket" remains valid.
+    private static final String GARMENT_PART = "(?:pocket|lapel|collar|button|zipper|buckle|hem|sleeve)s?";
+    private static final String PART_NOUN_MODIFIERS =
+            "(?:(?!(?:then|and|to|show|point|hold|pose|turn|look|face|walk|move)\\b)[a-z'-]+\\s+){0,6}";
+    private static final Pattern FASHION_TAKE_PART = Pattern.compile(
+            "^take\\s+" + PART_NOUN_MODIFIERS + GARMENT_PART + "\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern FASHION_PART_DESTINATION = Pattern.compile(
+            "^(?:walk|move|turn)\\b[^.;,!?]*?\\b(?:to|toward|towards|into)\\s+" + PART_NOUN_MODIFIERS
+                    + GARMENT_PART + "\\b(?=\\s*(?:$|[.,;!?]|(?:and|then|while|before|after)\\b))",
+            Pattern.CASE_INSENSITIVE);
+    private static final Pattern MOVEMENT_STEPS = Pattern.compile("\\bsteps?\\b", Pattern.CASE_INSENSITIVE);
+    private static final class FashionMovementException extends IllegalArgumentException {
+        FashionMovementException() { super("Invalid fashion movement"); }
+    }
+    private static final class FashionCaptionException extends IllegalArgumentException {
+        FashionCaptionException() { super("Incomplete fashion caption label"); }
+    }
     private static final String REVIEWED_MARKER = "Creator-reviewed reference moments:";
     private static final Pattern TIMED_REVIEW_CHUNK = Pattern.compile("^([0-2]):([0-5][0-9])(?:\\.([0-9]{3}))? (\\S(?:.*\\S)?)$");
     private static final Pattern NAMED_REVIEW_CUE = Pattern.compile("^(Hero pose|Hero|Movement|Detail|Side pose|Closing)\\s*:\\s*(.*)$", Pattern.CASE_INSENSITIVE);
     private static final Pattern CAPTION_CLOCK = Pattern.compile("[0-9]{1,3}:[0-5][0-9](?:\\.[0-9]{1,3})?");
-    // With no explicit reviewed Detail cue, choose among honest creator-choice requests. This is a
-    // deterministic unknown-feature constraint, not learned garment-feature selection or validation.
+    // Without a named reviewed Detail cue, every fashion plan uses creator-choice requests.
+    // Ordinary free-text features are not extracted/verified. The creator can name a Detail in
+    // a reviewed board or edit the resulting shot. This is not learned feature selection.
     private static final String[] CREATOR_DETAIL_INSTRUCTIONS = {
             "Show one visible garment detail you choose.", "Point to one visible garment detail you choose."};
     private static final String[] CREATOR_DETAIL_CAPTIONS = {"Chosen detail", "Your garment detail", "Visible detail"};
+    // Every talking-story Cutaway asks for an available object chosen by the creator. Specific
+    // free-text cutaway props/events are not extracted or verified; the creator can edit the shot.
+    // This closed native choice is disclosed, not learned selection of a story's physical prop.
+    private static final String[] CREATOR_CUTAWAY_INSTRUCTIONS = {
+            "Show an available object you choose for your story.",
+            "Hold an available object you choose for your story."};
+    private static final String[] CREATOR_CUTAWAY_CAPTIONS = {
+            "A story detail", "Chosen story object", "Your story detail"};
     private static boolean runtimeLoaded;
     static { try { System.loadLibrary("director_llm"); runtimeLoaded = true; } catch (LinkageError ignored) { } }
     private final File modelFile;
@@ -105,7 +153,7 @@ public final class LocalPlanner {
         }
         boolean reviewedMoments = reviewedCues.present;
         int detailIndex = indexOfRole(roles, "Detail");
-        boolean constrainDetail = roles == FASHION_ROLES && reviewedMoments && reviewedCues.instructions[detailIndex] == null;
+        boolean constrainDetail = roles == FASHION_ROLES && reviewedCues.instructions[detailIndex] == null;
         // Only our role/verb constants enter the grammar, never the creator's brief.
         String grammar = grammarForRoles(roles, roleActions, constrainDetail);
         try { worker.execute(() -> {
@@ -122,21 +170,7 @@ public final class LocalPlanner {
                     }
                 }
                 if (closed) return;
-                String prompt = "<|im_start|>system\nDirect a creator making five recorded phone takes. Never give preparation or lighting setup as a take. " +
-                        "The phone is already mounted and stationary. Address the creator as the performer with one imperative action, never describe a third person. " +
-                        "The creator never holds, moves, adjusts or refocuses the filming device during a take. Keep body movements small. No aircraft actions. " +
-                        "Use only colors, materials, features and product parts explicitly supplied in the brief; do not invent them. For an unspecified detail, ask the creator to choose one visible detail. " +
-                        "Do not invent personal facts, product benefits or a verdict; ask for the creator's own honest words. " +
-                        sceneBeats(safeStyle, reviewedMoments)
-                        + (constrainDetail ? " No explicit reviewed Detail cue was supplied. For Detail ask the creator to choose one visible garment detail; its caption must be generic, without naming a garment part. " : "")
-                        + " Exact title order: " + String.join(", ", roles) + ". " +
-                        "Return ONLY a JSON array of exactly five objects, each with title (the assigned exact title), instruction (one concrete sentence, at most 90 characters), caption (1 to 30 characters), duration_ms (3000 to 8000, whole seconds). " +
-                        "Creator-reviewed reference moments are shot cues. Source timestamps describe the reference only: never copy them into captions or use them as shot lengths. " +
-                        "When reviewed notes name a shot role, preserve its specified direction or pose in that role instead of a generic substitute. " +
-                        "Captions are short human-readable story phrases starting with a letter, never source timestamps, durations, milliseconds, numeric labels or code. " +
-                        "Allowed opening verbs per title: " + actionHints(roles, roleActions) + ". " +
-                        "No markdown, no explanation.\n<|im_end|>\n<|im_start|>user\nScene: " + safeStyle + "\nBrief: " + safeBrief +
-                        "\n<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
+                String prompt = buildPrompt(safeBrief, safeStyle, roles, roleActions, reviewedMoments, constrainDetail, true);
                 if (closed) return;
                 String result = new String(nativeGenerate(handle, prompt.getBytes(StandardCharsets.UTF_8),
                         grammar.getBytes(StandardCharsets.UTF_8), 580), StandardCharsets.UTF_8);
@@ -151,11 +185,21 @@ public final class LocalPlanner {
                 long elapsed = SystemClock.elapsedRealtime() - began;
                 Log.i("MiniFilmLocalAI", "planner_complete model=qwen35_0.8b backend=cpu shots=" + plan.size() + " elapsed_ms=" + elapsed);
                 String modelLabel = MODEL_LABEL + (constrainDetail ? " · creator-choice detail constraint" : "")
+                        + (roles == TALKING_ROLES ? " · creator-choice cutaway constraint" : "")
                         + (reviewedCues.hasAny() ? " · creator-authored reviewed cues retained" : "");
                 main.post(() -> { if (!closed) listener.onPlan(plan, elapsed, modelLabel); });
             } catch (Exception | LinkageError failure) {
-                Log.w("MiniFilmLocalAI", "planner_failed type=" + failure.getClass().getSimpleName());
-                main.post(() -> { if (!closed) listener.onError("Local AI couldn't produce a valid plan. Use the editable template or try a shorter brief."); });
+                boolean invalidMovement = failure instanceof FashionMovementException;
+                boolean invalidCaption = failure instanceof FashionCaptionException;
+                // Fixed category only: never log the brief, generated text or exception message.
+                Log.w("MiniFilmLocalAI", invalidMovement ? "planner_failed category=fashion_movement"
+                        : invalidCaption ? "planner_failed category=fashion_caption_labels"
+                        : "planner_failed type=" + failure.getClass().getSimpleName());
+                String message = invalidMovement
+                        ? "Local AI proposed an unusable movement. Keep your current plan or use the editable starter."
+                        : invalidCaption ? "Local AI proposed incomplete fashion captions. Keep your current plan or use the editable starter."
+                        : "Local AI couldn't produce a valid plan. Use the editable template or try a shorter brief.";
+                main.post(() -> { if (!closed) listener.onError(message); });
             } finally {
                 if (closed || handle == 0) freeNativeAndRelease();
                 busy.set(false);
@@ -164,6 +208,27 @@ public final class LocalPlanner {
             busy.set(false);
             if (!closed) listener.onError("The local planner is closed.");
         }
+    }
+
+    /** Shared production prompt; only the explicit chat adapter changes for a comparison model. */
+    private static String buildPrompt(String safeBrief, String safeStyle, String[] roles, String[][] roleActions,
+            boolean reviewedMoments, boolean constrainDetail, boolean emptyThinkAdapter) {
+        return "<|im_start|>system\nDirect a creator making five recorded phone takes. Never give preparation or lighting setup as a take. " +
+                "The phone is already mounted and stationary. Address the creator as the performer with one imperative action, never describe a third person. " +
+                "The creator never holds, moves, adjusts or refocuses the filming device during a take. Keep body movements small. No aircraft actions. " +
+                "Use only colors, materials, features and product parts explicitly supplied in the brief; do not invent them. For an unspecified detail, ask the creator to choose one visible detail. " +
+                "Do not invent personal facts, product benefits or a verdict; ask for the creator's own honest words. " +
+                sceneBeats(safeStyle, reviewedMoments)
+                + (constrainDetail ? " No explicit creator-reviewed Detail cue was supplied. For Detail ask the creator to choose one visible garment detail; its caption must be generic, without naming a garment part. " : "")
+                + " Exact title order: " + String.join(", ", roles) + ". " +
+                "Return ONLY a JSON array of exactly five objects, each with title (the assigned exact title), instruction (one concrete sentence, at most 90 characters), caption (1 to 30 characters), duration_ms (3000 to 8000, whole seconds). " +
+                "Creator-reviewed reference moments are shot cues. Source timestamps describe the reference only: never copy them into captions or use them as shot lengths. " +
+                "When reviewed notes name a shot role, preserve its specified direction or pose in that role instead of a generic substitute. " +
+                "Captions are short human-readable story phrases starting with a letter, never source timestamps, durations, milliseconds, numeric labels or code. " +
+                "Allowed opening verbs per title: " + actionHints(roles, roleActions) + ". " +
+                "No markdown, no explanation.\n<|im_end|>\n<|im_start|>user\nScene: " + safeStyle + "\nBrief: " + safeBrief +
+                "\n<|im_end|>\n<|im_start|>assistant\n" +
+                (emptyThinkAdapter ? "<think>\n\n</think>\n\n" : "");
     }
 
     private static List<Shot> parse(String text, String[] roles, String[][] roleActions, boolean constrainDetail) throws Exception {
@@ -184,11 +249,18 @@ public final class LocalPlanner {
                     || CAPTION_CLOCK.matcher(caption).find()
                     || duration < 3000 || duration > 8000)
                 throw new IllegalArgumentException("Invalid shot");
-            if (roles == FASHION_ROLES && FASHION_DEVICE_WORDS.matcher(instruction).find())
+            if (roles == FASHION_ROLES && invalidFashionDeviceCue(instruction))
                 throw new IllegalArgumentException("Fashion cue refers to a filming device");
+            if (roles == FASHION_ROLES && letterCount(caption) < 2)
+                throw new FashionCaptionException();
+            if (roles == FASHION_ROLES && i == 1 && invalidFashionMovement(instruction))
+                throw new FashionMovementException();
             if (constrainDetail && i == 2 && (!contains(CREATOR_DETAIL_INSTRUCTIONS, instruction)
                     || !contains(CREATOR_DETAIL_CAPTIONS, caption)))
                 throw new IllegalArgumentException("Unspecified detail must remain a creator choice");
+            if (roles == TALKING_ROLES && i == 2 && (!contains(CREATOR_CUTAWAY_INSTRUCTIONS, instruction)
+                    || !contains(CREATOR_CUTAWAY_CAPTIONS, caption)))
+                throw new IllegalArgumentException("Talking cutaway must remain a creator choice");
             result.add(new Shot("ai-shot-" + (i + 1), title, instruction, caption, duration));
         }
         return result;
@@ -203,6 +275,25 @@ public final class LocalPlanner {
     private static boolean contains(String[] values, String value) {
         for (String allowed : values) if (allowed.equals(value)) return true;
         return false;
+    }
+
+    private static boolean invalidFashionMovement(String instruction) {
+        return (!MOVEMENT_STEPS.matcher(instruction).find() && FASHION_TAKE_PART.matcher(instruction).find())
+                || FASHION_PART_DESTINATION.matcher(instruction).find();
+    }
+
+    private static boolean invalidFashionDeviceCue(String instruction) {
+        if (FASHION_DEVICE_WORDS.matcher(instruction).find()) return true;
+        return CAMERA_WORD.matcher(instruction).find()
+                && (CAMERA_DIRECT_OPERATION.matcher(instruction).find()
+                    || CAMERA_HAND_PLACEMENT.matcher(instruction).find()
+                    || CAMERA_PRONOUN_OPERATION.matcher(instruction).find());
+    }
+
+    private static int letterCount(String caption) {
+        int letters = 0;
+        for (int i = 0; i < caption.length(); i++) if (Character.isLetter(caption.charAt(i))) letters++;
+        return letters;
     }
 
     private static ReviewedCues parseReviewedCues(String brief, String[] roles) {
@@ -249,8 +340,10 @@ public final class LocalPlanner {
                 throw new IllegalArgumentException("Use one short action for each reviewed role, such as Stand, Face, Pause, Show or Turn.");
             for (int i = 0; i < cue.length(); i++) if (Character.isISOControl(cue.charAt(i)))
                 throw new IllegalArgumentException("Remove unsupported characters from the reviewed cue.");
-            if (roles == FASHION_ROLES && FASHION_DEVICE_WORDS.matcher(cue).find())
-                throw new IllegalArgumentException("Keep fashion cues about your performance; use lens for eyeline and leave the filming device mounted.");
+            if (roles == FASHION_ROLES && invalidFashionDeviceCue(cue))
+                throw new IllegalArgumentException("Keep fashion cues about your performance; leave filming devices mounted and remove device-handling actions.");
+            if (roles == FASHION_ROLES && index == 1 && invalidFashionMovement(cue))
+                throw new IllegalArgumentException("Correct the reviewed Movement cue: use a small body turn or one or two steps; keep garment parts for Detail.");
             result.instructions[index] = cue; // Exact creator wording; role-specific model verbs do not constrain manual edits.
         }
         return result;
@@ -294,7 +387,8 @@ public final class LocalPlanner {
                     .append(" ws \":\" ws ").append(grammarLiteral("\"" + roles[i] + "\""))
                     .append(" ws \",\" ws ").append(grammarLiteral("\"instruction\""))
                     .append(" ws \":\" ws instruction").append(i).append(" \",\" ws ")
-                    .append(constrainDetail && i == 2 ? "detailFields" : "fields").append("\n");
+                    .append(i == 2 && roles == TALKING_ROLES ? "cutawayFields"
+                            : constrainDetail && i == 2 ? "detailFields" : "fields").append("\n");
         }
         grammar.append("fields ::= ").append(grammarLiteral("\"caption\""))
                 .append(" ws \":\" ws caption \",\" ws ").append(grammarLiteral("\"duration_ms\""))
@@ -305,7 +399,17 @@ public final class LocalPlanner {
                     .append(" ws \":\" ws duration \"}\" ws\n")
                     .append("detailCaption ::= (").append(quotedChoices(CREATOR_DETAIL_CAPTIONS)).append(") ws\n");
         }
+        if (roles == TALKING_ROLES) {
+            grammar.append("cutawayFields ::= ").append(grammarLiteral("\"caption\""))
+                    .append(" ws \":\" ws cutawayCaption \",\" ws ").append(grammarLiteral("\"duration_ms\""))
+                    .append(" ws \":\" ws duration \"}\" ws\n")
+                    .append("cutawayCaption ::= (").append(quotedChoices(CREATOR_CUTAWAY_CAPTIONS)).append(") ws\n");
+        }
         for (int role = 0; role < roles.length; role++) {
+            if (roles == TALKING_ROLES && role == 2) {
+                grammar.append("instruction2 ::= (").append(quotedChoices(CREATOR_CUTAWAY_INSTRUCTIONS)).append(") ws\n");
+                continue;
+            }
             if (constrainDetail && role == 2) {
                 grammar.append("instruction2 ::= (").append(quotedChoices(CREATOR_DETAIL_INSTRUCTIONS)).append(") ws\n");
                 continue;
@@ -325,7 +429,7 @@ public final class LocalPlanner {
                 .append("captionStart ::= [a-zA-Z]\n")
                 .append("char ::= [^\"\\\\\\x7F\\x00-\\x1F]\n")
                 .append("duration ::= (\"3000\" | \"4000\" | \"5000\" | \"6000\" | \"7000\" | \"8000\") ws\n")
-                .append("ws ::= [ \\t\\n\\r]*\n");
+                .append("ws ::= [ \\t\\n\\r]{0,8}\n");
         return grammar.toString();
     }
 
@@ -375,22 +479,16 @@ public final class LocalPlanner {
                 "{\"title\":\"Cutaway\",\"instruction\":\"Show an available object you choose for your story.\",\"caption\":\"A story detail\",\"duration_ms\":4000}," +
                 "{\"title\":\"Key idea\",\"instruction\":\"Explain your decision to check your bag next time.\",\"caption\":\"Next time plan\",\"duration_ms\":4000}," +
                 "{\"title\":\"Takeaway\",\"instruction\":\"Share your plan to check your bag next time.\",\"caption\":\"My next step\",\"duration_ms\":4000}] ";
-        String fashionRules = "The creator WEARS the outfit, never lays clothing on a table. Never mention camera, phone, screen or tripod in fashion instructions; use lens for eyeline. " +
-                "Do not invent patterns, colors, materials, fasteners or garment features. Detail asks the creator to choose one visible garment detail. " +
-                "Use complete short captions of 2 to 4 words, not sentence fragments. Caption examples in role order: Outfit hero; Small steps; Chosen detail; Side view; Final pose. ";
-        if (reviewedMoments) return fashionRules +
-                "Use the creator-reviewed pose/direction for each named role. Copy its named pose and direction words into that role's instruction; do not replace them with vague angle wording. " +
-                "Hero pose establishes the worn outfit; " +
-                "Movement is a small body action after checking the path; Detail shows a creator-chosen visible feature; " +
-                "Side pose presents the creator's requested angle; Closing holds the creator's requested final stance. " +
-                "Reference times identify source moments only. They are not captions or new take durations. " +
-                "For roles without reviewed cues choose a simple action consistent with the brief. " +
-                "If no garment feature is confirmed for Detail, use: Show one visible garment detail you choose. " +
-                "Preserve reviewed cues rather than copying a default pose.";
-        return fashionRules +
-                "Adapt these phrasing examples to the brief: Hero pose: Stand wearing your outfit and hold your pose. " +
-                "Movement: Take two small steps after checking your path. Detail: Show one visible detail you choose. " +
-                "Side pose: Turn slightly sideways and hold your pose. Closing: Look at the lens and hold your pose.";
+        return "Fashion: wear the outfit. Use lens for eyeline; never handle the filming device. " +
+                "Invent no garment colors, patterns, materials or parts. Movement is a small body turn or one/two steps after checking the path, never taking a garment part or moving toward one. Parts belong to Detail. " +
+                "Captions are complete 2-4 word phrases, never single-letter labels. " +
+                (reviewedMoments ? "Retain every creator-reviewed named pose/direction. " : "") +
+                "Adapt this generic example to THIS brief; preserve reviewed manual poses instead of copying example poses:\n" +
+                "[{\"title\":\"Hero pose\",\"instruction\":\"Stand wearing your outfit.\",\"caption\":\"My outfit\",\"duration_ms\":4000}," +
+                "{\"title\":\"Movement\",\"instruction\":\"Take two small steps.\",\"caption\":\"Small steps\",\"duration_ms\":4000}," +
+                "{\"title\":\"Detail\",\"instruction\":\"Show one visible garment detail you choose.\",\"caption\":\"Chosen detail\",\"duration_ms\":4000}," +
+                "{\"title\":\"Side pose\",\"instruction\":\"Turn slightly sideways.\",\"caption\":\"Side view\",\"duration_ms\":4000}," +
+                "{\"title\":\"Closing\",\"instruction\":\"Look at the lens and hold your pose.\",\"caption\":\"Final pose\",\"duration_ms\":4000}] ";
     }
 
     public synchronized void close() {

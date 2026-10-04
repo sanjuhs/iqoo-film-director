@@ -3,8 +3,9 @@
 The **pre-event phone prototype is installed and its local media pipeline has
 real fixture evidence**, including reviewed speech-edge application and local image input. The attended Pose → Perform → Assemble workflow and
 competition delivery remain incomplete. This audit separates current source,
-passed checks and observed failures. The final lower-temperature planner fixture
-rerun passed; creative accuracy across unseen briefs remains unverified.
+passed checks and observed failures. Latest focused Fashion and Talking repairs passed17 methods across three
+runners. Earlier invented-shot failures remain retained; creative accuracy
+across unseen briefs and the attended workflow remain unverified.
 
 Evidence: [status](status.md), [capture](capture-evidence.md),
 [local AI](local-ai-evidence.md), [export](export-evidence.md),
@@ -193,3 +194,68 @@ sentence completion or AirPods route was verified. The installed app remains
 behind secure keyguard with camera/microphone denied. Latest SHA/storage and
 retained failures are in [status](status.md). Attended workflow and competition
 acceptance gates remain open; this is still pre-event research.
+
+### 15:04 IST: larger-model comparison and source repairs
+
+Both compact-prompt model methods failed (2 tests /279.718 s); the full
+production-style comparison then passed native/schema/lifetime mechanics
+(2 tests /214.062 s), but manual review still found an unusable baseline
+“Take the left pocket” Movement. The larger Qwen2.5 1.5B candidate was slower
+on all three briefs, lost specific pose/product-use details and gave weaker
+captions. It is not promoted. Exact raw failures, outputs, prompt-token counts
+and sampled numeric memory remain in
+[the comparison ledger](planner-model-comparison-feasibility.md).
+
+Source now bounds whitespace, adds a narrow observed-error Movement filter,
+and requests idle planner cleanup before filming/editing paths. The filter
+can miss other phrasing, including step-containing or different destination
+forms. Cleanup is asynchronous, not proof of no allocation overlap. The initial ten-method guard/native/lease run passed nine and failed the
+explicit-Detail native case; a four-method diagnostic also failed that case.
+The exact raw probe identified a benign eyeline-filter rejection and single-
+letter captions. The revised nine-method runner then passed in106.568 s,
+including actual fresh fashion, hybrid boards and raw diagnostics. Directions
+remain drafts: the raw Closing still loses requested face-forward stance, and
+the kurta Detail chose texture despite a request for creator choice. Attended UI/camera/mic,
+AirPods, real creator footage, iQOO/NPU/Office Kit and accepted event delivery
+remain open.
+
+### 15:42 IST: Fashion causal repairs and Talking regression
+
+The larger comparison model was not promoted. Narrow Movement/caption checks,
+a bounded camera-operation policy and a disclosed creator-choice Fashion Detail
+constraint now have13 focused passes: nine methods in62.159 s and four in118.576 s.
+Actual plain-jacket raw/public paths took28.910/30.837 s; kurta42.055 s and hybrid
+unknown/explicit boards27.243/23.770 s. Native raw explicit-board generation
+took23.832 s. Full plans, policies, earlier failures and qualified memory/storage
+remain in [the comparison ledger](planner-model-comparison-feasibility.md).
+
+Independent review found ambiguous jacket-on-chest wording, repeated garment-
+still phrasing and generic one-word captions. Native Closing still loses the
+explicit face-forward request; creator-authored retention preserves it in hybrid
+plans with a separate label. Four-second allocations are drafts, not fitted
+performance lengths. Source-only planner cleanup and pre-recording cancellation
+label repairs still need attended UI/camera verification.
+
+A shared-whitespace Talking regression failed one test in40.897 s: the model
+returned an unsupplied “Show the door you opened” Cutaway. Key idea also omitted
+an explicit next-time marker; its assertion was not reached after the door
+failure. A disclosed native creator-choice Cutaway grammar/parser is being
+built with the future/story checks retained. Fashion passes do not cover this
+failure; no general story fidelity or complete attended workflow is claimed.
+
+### 15:52 IST: Talking repair and saved checkpoint
+
+The disclosed creator-choice Cutaway decoder/parser passed two deterministic
+methods and two actual train/umbrella story fixtures (**4 tests /67.135 s**).
+Callbacks39.353/27.692 s preserved supplied events and explicit future lessons.
+The future assertion now requires a time/future marker in the instruction; no
+facts/door check was weakened. Full structured outputs and source provenance
+are in [Talking repair evidence](talking-cutaway-repair.json). Generic cutaways
+are honest creator choices, not learned availability; repeated final lessons and
+4s allocations still need performance/creative review.
+
+Seventeen latest focused methods passed. The saved/installed APK, expanded9.279 GB
+qualified storage and normal locked-phone launch are recorded in [status](status.md).
+New source UI/capture cleanup still needs an unlocked attended check. This remains
+pre-event research with no accepted submission, iQOO/NPU/Office Kit, live creator
+reel or audible AirPods result. The goal remains active.

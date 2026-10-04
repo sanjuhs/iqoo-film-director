@@ -1,0 +1,36 @@
+{
+  "schema": "mini_film.talking_cutaway_failure.v1",
+  "date_ist": "2026-10-04",
+  "synthetic_inputs_only": true,
+  "source_snapshot_sha256": "4cd36a7482c39342b147b864823ab10b55248331dbb1917ba5bd7a059e22655e",
+  "runner": {
+    "tests": 1,
+    "failures": 1,
+    "elapsed_seconds": 40.897
+  },
+  "native_public_generation": {
+    "timing_and_label_events": [
+      "scene_case style=Talking head synthetic_input=true model=Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft elapsed_ms=40878"
+    ],
+    "prompt_tokens": [
+      675
+    ],
+    "complete_flattened_synthetic_plan": [
+      "Hook | Say you missed the train. I missed the train Context | Tell how you walked home. Walked home Cutaway | Show the door you opened. The door Key idea | Explain you chose to leave early. Leave early Takeaway | Share your decision to leave early next time. Next time plan "
+    ],
+    "raw_native_json_available": false,
+    "no_manual_merge": true
+  },
+  "observed_failure": {
+    "cutaway_instruction": "Show the door you opened.",
+    "cutaway_caption": "The door",
+    "cause": "invented_unsupplied_object_and_opening_event",
+    "key_idea_instruction": "Explain you chose to leave early.",
+    "key_idea_caption": "Leave early",
+    "secondary_weakness": "omits_explicit_next_time_marker_door_assertion_failed_before_future_assertion",
+    "earlier_supplied_train_and_walk_home_checks_passed": true
+  },
+  "model": "pinned_Qwen3.5_0.8B_Q4_0_local_CPU",
+  "default_model_changed": false,
+  "private_upload_or_capture": false
+}

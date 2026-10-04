@@ -81,12 +81,21 @@ implemented with explicit foreground start/stop; a live capture result remains
 unverified. Bundled ML Kit supplies person landmarks, followed by deterministic
 framing rules. Qwen3.5 0.8B through a pinned llama.cpp runtime runs on the phone's
 CPU to adapt a five-shot scaffold to the brief. Output is bounded, parsed and
-creator-reviewed; an editable template is available when planning fails.
+creator-reviewed; an editable template is available when planning fails. Fashion
+Detail and Talking Cutaway use visibly disclosed creator-choice decoding
+constraints rather than inventing an unspecified garment part or available prop.
+Named reviewed fashion directions are retained as creator-authored edits; this
+does not establish learned reference grounding.
 
 Selected reference clips receive sparse local inspection: at most 24 sampled
 frames, approximate color-change candidates and at most six single-person pose
 samples. These factual observations can accompany the user's brief to the text
-planner. They do not identify a trend, garment, narrative or creative style.
+planner. They do not identify a trend, narrative or creative style. An optional pinned
+Qwen image projector has also run actual sparse single-frame subject inference
+on this phone CPU; creators review/correct those notes before planning. Full-body,
+cropped and black public/synthetic fixtures demonstrated conservative unknown
+results as well as model mistakes. Single-frame execution does not establish
+accurate clothing, age, framing or whole-trend understanding.
 
 Whisper tiny.en through whisper.cpp runs locally on CPU to create editable
 English subtitle drafts from selected clip audio. Media3 assembles reviewed
@@ -114,7 +123,7 @@ attributed public documentation image; no private shoot was captured. See
 
 | Component | Verified preparation result | Remaining limit |
 | --- | --- | --- |
-| Shot planning | Qwen3.5 0.8B CPU: five fresh fashion/product/talking/intro plans in **25.563–31.666 s** each; four-method runner passed in 142.074 s | Narrow synthetic scaffolds; earlier invented details prompted repairs, unseen creative quality still requires review |
+| Shot planning | Latest focused Fashion/Talking checks: **17 methods across three runners**, with actual Fashion drafts **23.770–42.055 s** and two Talking callbacks **27.692/39.353 s** | Includes deterministic methods and hybrid creator retention, not17 native plans; generic choice constraints are disclosed, wording/creative quality still requires review |
 | Pose inference | **33 landmarks in 388 ms** on Google's annotated public pose image; synthetic black input returned zero landmarks | This is image-model execution, not useful live-camera coaching or held-out evaluation |
 | Cue synthesis | Offline-voice synthetic cue produced audio bytes in **511 ms** | Synthesis only: no audible playback, AirPods route or Bluetooth microphone result |
 | English subtitles | CPU tiny.en produced **three draft segments in 3.458 s** from one labelled synthetic spoken clip | End-to-end decoding/load/transcription time; expected words checked, not general ASR accuracy |
@@ -123,12 +132,15 @@ attributed public documentation image; no private shoot was captured. See
 | Auto balance / portable ZIP | Seven analyzer/export checks reduced mild neutral RGB cast spread 12.1742→1.5267 and dim-luma +6.0603; six package checks preserved original bytes/hashes and portable timing | Deterministic heuristic, synthetic inputs; real grading, normal Files ZIP save and Office Kit remain unverified |
 | Reference inspection | **Three device tests passed in 4.883 s**: flat-color negative, two synthetic change boundaries and web-URI rejection | Sparse heuristics only; no semantic trend recognition or general cut-detection accuracy |
 | Phone capture | Explicit foreground implementation is present | Real preview/recorded audio/video, background stop and creator review |
-| Required hardware/integrations | Phone development evidence is available | iQOO, NPU, AirPods, Office Kit and DJI connection/control remain unverified |
+| Required hardware/integrations | Phone development evidence is available; installed app received a normal launch request | Phone remains locked with capture/audio permissions denied; live creator filming, iQOO, NPU, AirPods, Office Kit and DJI connection/control remain unverified |
 
 The measured local LLM, pose, transcription and media pipeline are real device
 execution. Rules are not a trained taste model, and CPU results are not NPU
 results. A generated shot instruction remains a proposal. Earlier drafts invented details;
-targeted refinements passed the tested fixtures without establishing general accuracy. Caption timing/text remain
+latest creator-choice constraints and targeted refinements passed tested fixtures
+without establishing general accuracy. Native reference directions still lost
+requested stance, which is why exact creator-authored retention is labelled
+separately. Full failed outputs remain in the comparison evidence ledger. Caption timing/text remain
 editable. No creator-benefit or end-to-end solo-shoot result is claimed yet.
 
 ## Event build and feasibility

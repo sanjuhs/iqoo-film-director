@@ -1,0 +1,134 @@
+{
+  "schema": "mini_film.talking_cutaway_repair.v1",
+  "date_ist": "2026-10-04",
+  "synthetic_inputs_only": true,
+  "runner": {
+    "tests": 4,
+    "failures": 0,
+    "elapsed_seconds": 67.135,
+    "pass_means": "two_deterministic_policy_and_two_actual_native_story_fixture_checks_not_general_quality"
+  },
+  "source_snapshot_sha256": "b1f78049e877fb78aff37aab1e9643e6113634f1a4f4cacc6bb8510feeb70f81",
+  "native_prompt_tokens": [
+    675,
+    675
+  ],
+  "complete_public_model_plans": [
+    {
+      "event": "FULL_SYNTHETIC_SCENE_PLAN",
+      "syntheticInput": true,
+      "style": "Talking head",
+      "brief": "Make a talking-head story: I missed the train, walked home, and decided to leave early next time. These are the only supplied events. Tell this story without inventing extra events or benefits.",
+      "modelLabel": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice cutaway constraint",
+      "elapsedMs": 39353,
+      "shots": [
+        {
+          "id": "ai-shot-1",
+          "title": "Hook",
+          "instruction": "Say you missed the train.",
+          "caption": "I missed the train",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-2",
+          "title": "Context",
+          "instruction": "Tell how you walked home.",
+          "caption": "Walked home",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-3",
+          "title": "Cutaway",
+          "instruction": "Show an available object you choose for your story.",
+          "caption": "A story detail",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-4",
+          "title": "Key idea",
+          "instruction": "Explain your decision to leave early next time.",
+          "caption": "Next time plan",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-5",
+          "title": "Takeaway",
+          "instruction": "Share your plan to leave early next time.",
+          "caption": "My next step",
+          "durationMs": 4000
+        }
+      ],
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "FULL_SYNTHETIC_SCENE_PLAN",
+      "syntheticInput": true,
+      "style": "Talking head",
+      "brief": "Make a talking-head story: I forgot my umbrella, got wet, and decided to check the forecast next time. These are the only supplied events. Do not invent another event, place or prop.",
+      "modelLabel": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice cutaway constraint",
+      "elapsedMs": 27692,
+      "shots": [
+        {
+          "id": "ai-shot-1",
+          "title": "Hook",
+          "instruction": "Say you forgot your umbrella.",
+          "caption": "Forgot my umbrella",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-2",
+          "title": "Context",
+          "instruction": "Tell how you got wet.",
+          "caption": "Got wet",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-3",
+          "title": "Cutaway",
+          "instruction": "Show an available object you choose for your story.",
+          "caption": "A story detail",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-4",
+          "title": "Key idea",
+          "instruction": "Explain your decision to check the forecast next time.",
+          "caption": "Next time plan",
+          "durationMs": 4000
+        },
+        {
+          "id": "ai-shot-5",
+          "title": "Takeaway",
+          "instruction": "Share your plan to check the forecast next time.",
+          "caption": "My next step",
+          "durationMs": 4000
+        }
+      ],
+      "generalAccuracyClaim": false
+    }
+  ],
+  "policy_events": [
+    "TALKING_CUTAWAY_CHOICE_OK syntheticInputsOnly=true combinations=6 exactFieldsPreserved=true otherRolesUnchanged=true nativeGeneration=false learnedStoryGroundingClaim=false",
+    "TALKING_CUTAWAY_REJECTION_OK syntheticInputsOnly=true observedNativePair=1 syntheticIsolationAnalogs=2 nativeGeneration=false noOutputRewrite=true learnedAvailabilityClaim=false"
+  ],
+  "source_behavior": {
+    "cutaway_native_choices": {
+      "instructions": 2,
+      "captions": 3
+    },
+    "ordinary_free_text_specific_prop_extraction": false,
+    "creator_choice_constraint_disclosed": true,
+    "after_generation_rewrite": false,
+    "native_retry": false,
+    "default_model_changed": false
+  },
+  "manual_review": {
+    "train": "missed_train_walked_home_and_next_time_early_plan_preserved",
+    "umbrella": "forgot_umbrella_got_wet_and_future_forecast_plan_preserved_no_unsupplied_rain_or_available_umbrella",
+    "cutaways": "generic_creator_choice_not_learned_visual_availability",
+    "captions": "readable_but_last_two_shots_repeat_future_lesson_with_generic_labels",
+    "durations": "all_4s_allocations_not_observed_performance_or_speech_fit",
+    "general_accuracy_or_creator_benefit_claim": false
+  },
+  "private_upload_camera_mic_audible_playback": false
+}

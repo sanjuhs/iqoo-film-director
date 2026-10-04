@@ -54,13 +54,19 @@ that fallback a generated result. Setup/provenance is in the
    **Use reviewed moments** explicitly saves the selected cues. Saved boards
    retain text/times/selection rather than images; re-read to see frames again.
    Unconfirmed drafts and typed corrections are temporary across recreation.
-   For a reviewed fashion board without a named Detail cue, the planner uses a
-   visibly labelled creator-choice detail constraint. Other shots remain model
-   drafts: inspect their pose, caption and facts before recording.
+   Fashion plans without an explicitly named creator-reviewed Detail use a
+   visibly labelled creator-choice detail constraint, including ordinary briefs.
+   This deliberately does not extract free-text garment features. Use a named
+   reviewed Detail or edit the shot to specify one yourself. Other shots remain
+   model drafts: inspect their pose, caption and facts before recording.
    Name one shot and an action in a note to retain your own direction, such as
    “Side pose: Pause in profile”. These are creator-authored instructions kept
    after generation, with a separate label; captions remain editable model drafts.
    A malformed or duplicate named cue asks for correction before planning.
+   Observed garment-destination movement phrases and one-letter caption labels
+   are rejected, but the filters are narrow. Body poses toward a mounted camera
+   are allowed; bounded device-handling wording is rejected. Other roles can
+   still invent facts, and even readable captions can be generic. Review them.
 4. Tap **Let's direct this reel →**, then **Start camera**. Check the live preview
    and written pose cue. “Review needed” means insufficient landmark evidence;
    use your own framing judgment. Detail/object shots may disable person advice.
@@ -71,7 +77,10 @@ that fallback a generated result. Setup/provenance is in the
    then tap **Record · 3 sec**. Confirm the spoken countdown finishes, recording
    starts, and directions stay quiet. Speak a short line if you want captions.
    **Stop take** cancels a countdown or stops the take; **Stop at planned shot
-   length** enables its planned stop. Wait for the take to finish saving.
+   length** enables its planned stop. Check that a canceled countdown/pose break
+   returns to a ready label. A take that has already begun waits for saving;
+   turning the sequence off does not cancel that current recording. Wait for
+   the take to finish saving.
    For a talking take, optionally enable **Wait for a quiet pause · experimental**
    before recording. It is off by default and can extend a timed/sequence take
    by at most eight seconds, within the 60-second cap. It measures sound energy,

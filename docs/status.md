@@ -763,3 +763,100 @@ and cache reserves plus phone files/cache; exhaustive inventory remains limited
 as recorded in storage.json. The goal remains active. New board UI/persistence,
 real filming, quiet-stop calibration, audible AirPods, iQOO/NPU/Office Kit and
 organizer-compliant competition source/accepted submission remain open.
+
+
+### Planner comparison, causal repairs and installed checkpoint — 4 October, 15:52 IST
+
+The default remains the pinned **Qwen3.5 0.8B local CPU** model. A separately
+pinned official Qwen2.5 1.5B Q4_K_M candidate was streamed directly into a unique
+phone-only partial file, with length/SHA checked incrementally and independently
+on the phone before publication. No host weight copy remains; no new SDK/JDK
+was installed. Its1,117,320,736 bytes and SHA
+6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e
+match the official pinned Apache2 artifact; source/license metadata is in
+[the comparison ledger](planner-model-comparison-feasibility.md). It is **not
+promoted**: it was slower and less faithful on the measured full-style fixtures.
+
+Both compact-prompt model methods failed (**2 tests /279.718 s**) with incomplete
+or invented outputs. The full production-style raw comparison passed only native
+shape/lifetime mechanics (**2 tests /214.062 s**); manual review still found the
+baseline “Take the left pocket” error. The candidate lost requested poses and
+product-use details and gave weaker captions. All twelve comparison outputs,
+failures, pins and prompt-token counts remain retained. Numeric memory samples
+observed maximum mixed-model PSS1,970,816 /1,957,154 KiB in the two experiments;
+these are sampled maxima, not certified peaks or live-camera concurrency.
+
+Source now bounds JSON whitespace, rejects narrow observed garment-destination
+Movement phrases and single-letter Fashion labels, and requests asynchronous
+planner cleanup before camera/editing paths. The initial10-method runner passed
+9 and failed an explicit-Detail native board; its4-method diagnostic also failed.
+The exact raw probe identified benign “Look at the camera” rejection and F/S/J/S/C
+captions, rather than a Movement failure. A subsequent9-method repair passed
+106.568 s but a6-method plain-jacket checkpoint failed one native case in42.786 s.
+The exact plain probe then failed **1 test /30.933 s**, revealing both a benign
+camera-facing pose and an invented zipper. These failures remain in the ledger.
+
+The final Fashion source allows body/eyeline mentions of a mounted camera, while
+a bounded English operation/hand-placement/pronoun filter rejects tested device
+handling. Seven benign cues and18 synthetic operator cases passed independently
+in draft/reviewed paths. Every Fashion draft without an explicitly named
+creator-reviewed Detail uses the separately disclosed creator-choice instruction/
+caption grammar. Ordinary free-text parts are not extracted/verified; creators
+can author a named reviewed Detail or edit the draft themselves. No native retry,
+hidden starter result or after-generation cue rewrite was added.
+
+The two final Fashion runners passed **9 tests /62.159 s** and **4 tests /118.576 s**.
+Actual raw/public plain plans took **28.910/30.837 s**, kurta **42.055 s**, hybrid
+unknown/explicit boards **27.243/23.770 s** and raw explicit-board **23.832 s**.
+Prompts670/670/668/697/664/664 tokens remained below the unchanged900 cap.
+Full repaired outputs are in [the Fashion evidence](plain-fashion-camera-detail-repair.json).
+Independent review retains ambiguous jacket-on-chest phrasing, repeated garment-
+still directions and generic one-word captions. Raw Closing still substitutes
+lens eyeline for requested face-forward stance; exact hybrid directions are
+creator-authored retention, separately labelled, not learned reference grounding.
+
+A shared-grammar Talking regression failed **1 test /40.897 s**, inventing an
+unsupplied door-opening Cutaway; the future assertion was not reached. Talking
+now decodes and validates a separately disclosed generic creator-choice Cutaway,
+with two possible instructions/three captions. It does not extract/verify ordinary
+free-text props; other four roles remain native drafts. The final Talking runner
+passed **4 tests /67.135 s**, including two parser methods and two actual stories.
+Train/umbrella callbacks took **39.353/27.692 s** with675 tokens each; full plans
+were logged before independent semantic checks. The stronger future check requires
+actual future/next-time wording in the instruction. Both fixtures retained their
+supplied events and future lesson, with no tested invented props/places/events.
+Repeated final lessons and generic captions still need creator editing;4s
+allocations are not observed performance/speech fitting.
+[Talking failure](talking-cutaway-failure.json) and
+[repair](talking-cutaway-repair.json) remain separate evidence.
+
+**17 final focused methods passed across three runners; this is fixture evidence,
+not general creative accuracy, user benefit or an attended full shoot.** Source
+review also repaired stale countdown/pose-break labels. Stop/sequence-disable
+returns a pre-recording canceled state, but excludes a take already starting/
+recording/finalizing; disabling future sequence advancement does not claim that
+current take was canceled. Planner cleanup is queued after its worker, not proof
+of zero momentary allocation overlap or a lower camera memory peak. These UI and
+camera paths remain source-reviewed rather than attended verification.
+
+Both builds/installations succeeded. Final app:
+output/apk/MiniFilm-research.apk, **52,838,059 bytes**, SHA-256
+**8da4469e1fc11a231e86d666e0128426c6bc6b23c68082996dd25d38b0252fac**. Packaged publisher notices exactly match source:
+31,635 bytes, SHA02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68.
+Separate Qwen core/projector/Whisper weights are absent from APK/Git; ML Kit
+bundled SDK assets remain. Manifest has no Internet/network-state permission.
+The installed baseline hash was independently rechecked unchanged. A normal
+MainActivity launch request succeeded; secure keyguard remains unlocked=false
+and camera/microphone remain denied. No unlock/grant bypass, camera/mic, audible
+AirPods, private upload, cloud inference, outgoing submission or aircraft action
+occurred. No source change followed the final checks.
+
+Qualified storage is **9.279 GB**,
+now including measured historical-phone files/cache and all three known installed
+project APKs in addition to workspace, target-phone data and historical archive/
+cache reserves. Missing full archive and untracked/profile/oat cache limits
+remain; this is not a certified complete inventory. Neither backup nor credentials
+were deleted/changed. Prepared phase-one PDF remains unchanged and visually
+verified at its earlier digest. The goal stays active: live filming/AirPods,
+visible UI/pause calibration, required iQOO/NPU/Office Kit, eligible event-created
+competition source and accepted submission remain open.

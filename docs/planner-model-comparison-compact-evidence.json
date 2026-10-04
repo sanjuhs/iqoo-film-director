@@ -1,0 +1,331 @@
+{
+  "schema": "mini_film.planner_comparison.v1",
+  "date_ist": "2026-10-04",
+  "prompt_mode": "compact_comparison_not_full_production_style",
+  "grammar_whitespace": "unbounded",
+  "synthetic_inputs_only": true,
+  "model_selection_changed": false,
+  "runner": {
+    "tests": 2,
+    "failures": 2,
+    "elapsed_seconds": 279.718
+  },
+  "memory": {
+    "samples": 205,
+    "observed_max": {
+      "pss_kib": 1970816,
+      "rss_kib": 2065792,
+      "native_heap_pss_kib": 1134903
+    },
+    "units": "KiB",
+    "peak_certified": false,
+    "models_mixed": true,
+    "sampling_started_after_first_model_loaded": true
+  },
+  "events": [
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "reviewed-jacket",
+      "brief": "I wear my jacket, which has a left pocket. No color or material is given. Creator-reviewed moments: 0:02 Hero: face left; 0:05 Detail: show the left pocket; 0:08 Side pose: pause in profile; 0:11 Closing: face forward.",
+      "elapsedMs": 83405,
+      "promptChars": 1601,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\": \"Hero pose\", \"instruction\": \"Stand with the jacket on the left side of the frame.\", \"caption\": \"The creator stands with the un\"\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                "
+    },
+    {
+      "event": "COMPARISON_NATIVE_OR_SHAPE_FAILURE",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "reviewed-jacket",
+        "elapsedMs": 83406,
+        "nativeShapePass": false,
+        "failure": "JSONException: Unterminated object at character 138 of [{\"title\": \"Hero pose\", \"instruction\": \"Stand with the jacket on the left side of the frame.\", \"caption\": \"The creator stands with the un\""
+      }
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-person-introduction",
+      "brief": "I am Nila. I repair bicycles. I enjoy chess. Introduce me using only these facts; I can choose a visible detail of my bicycle work.",
+      "elapsedMs": 35730,
+      "promptChars": 1463,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\": \"Name\", \"instruction\": \"Say with a smile and introduce yourself as Nila who repairs bicycles and enjoys chess.\", \"caption\": \"Nila smiles and introduces the\", \"duration_ms\": 3000}, {\"title\": \"Work\", \"instruction\": \"Tell with a smile and show the bicycle work you are doing.\", \"caption\": \"Nila shows the\", \"duration_ms\": 3000}, {\"title\": \"Detail\", \"instruction\": \"Point with a smile and show the specific part of the bicycle you are working on.\", \"caption\": \"Nila points at the\", \"duration_ms\": 3000}, {\"title\": \"Personal fact\", \"instruction\": \"Say with a smile and share the chess hobby you enjoy.\", \"caption\": \"Nila shares the\", \"duration_ms\": 3000}, {\"title\": \"Welcome\", \"instruction\": \"Say with a smile and welcome the viewer to the session.\", \"caption\": \"Nila welcomes the\", \"duration_ms\": 3000}]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-person-introduction",
+        "elapsedMs": 35730,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": false,
+          "nameNila": true,
+          "workBicycleRepair": false,
+          "detailRelatesToBicycleWork": true,
+          "personalChess": true,
+          "noExampleFactOrCredentialLeakage": true
+        },
+        "targetedQualityPass": false,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-notebook-product",
+      "brief": "My notebook has an elastic closure and a ribbon bookmark. I use it for lists. Show the elastic closure in Detail. No color, material or benefit is supplied; ask for my own opinion.",
+      "elapsedMs": 31965,
+      "promptChars": 1535,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\": \"Hero\", \"instruction\": \"Hold the notebook vertically to display the elastic closure.\", \"caption\": \"The elastic closure is visible\", \"duration_ms\": 3000}, {\"title\": \"Reveal\", \"instruction\": \"Turn the notebook to show the ribbon bookmark.\", \"caption\": \"The ribbon bookmark is visible\", \"duration_ms\": 3000}, {\"title\": \"Detail\", \"instruction\": \"Show the elastic closure in detail.\", \"caption\": \"The elastic closure is visible\", \"duration_ms\": 3000}, {\"title\": \"In use\", \"instruction\": \"Hold the notebook to show the list-making.\", \"caption\": \"The notebook is used for lists\", \"duration_ms\": 3000}, {\"title\": \"Verdict\", \"instruction\": \"Say the creator's opinion on the product.\", \"caption\": \"The creator says\", \"duration_ms\": 3000}]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-notebook-product",
+        "elapsedMs": 31965,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "heroNotebook": true,
+          "detailElasticClosure": true,
+          "useLists": true,
+          "verdictRequestsOwnOpinion": false,
+          "noUnsupportedBenefitOrProductPart": true
+        },
+        "targetedQualityPass": false,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_COMPARISON_SUMMARY",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "syntheticInputsOnly": true,
+      "cases": [
+        {
+          "case": "reviewed-jacket",
+          "elapsedMs": 83406,
+          "nativeShapePass": false,
+          "failure": "JSONException: Unterminated object at character 138 of [{\"title\": \"Hero pose\", \"instruction\": \"Stand with the jacket on the left side of the frame.\", \"caption\": \"The creator stands with the un\""
+        },
+        {
+          "case": "new-person-introduction",
+          "elapsedMs": 35730,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": false,
+            "nameNila": true,
+            "workBicycleRepair": false,
+            "detailRelatesToBicycleWork": true,
+            "personalChess": true,
+            "noExampleFactOrCredentialLeakage": true
+          },
+          "targetedQualityPass": false,
+          "manualSemanticReviewRequired": true
+        },
+        {
+          "case": "new-notebook-product",
+          "elapsedMs": 31965,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "heroNotebook": true,
+            "detailElasticClosure": true,
+            "useLists": true,
+            "verdictRequestsOwnOpinion": false,
+            "noUnsupportedBenefitOrProductPart": true
+          },
+          "targetedQualityPass": false,
+          "manualSemanticReviewRequired": true
+        }
+      ],
+      "hardFailures": [
+        "reviewed-jacket: JSONException: Unterminated object at character 138 of [{\"title\": \"Hero pose\", \"instruction\": \"Stand with the jacket on the left side of the frame.\", \"caption\": \"The creator stands with the un\""
+      ],
+      "modelReleased": true,
+      "manualSemanticReviewRequired": true,
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "reviewed-jacket",
+      "brief": "I wear my jacket, which has a left pocket. No color or material is given. Creator-reviewed moments: 0:02 Hero: face left; 0:05 Detail: show the left pocket; 0:08 Side pose: pause in profile; 0:11 Closing: face forward.",
+      "elapsedMs": 35701,
+      "promptChars": 1582,
+      "noManualMerge": true,
+      "rawJSON": "[\n  {\n    \"title\": \"Hero pose\",\n    \"instruction\": \"Stand with your back to the camera.\",\n    \"caption\": \"Hero\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Movement\",\n    \"instruction\": \"Take a small step to the left.\",\n    \"caption\": \"Hero\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Detail\",\n    \"instruction\": \"Show the left pocket.\",\n    \"caption\": \"Hero\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Side pose\",\n    \"instruction\": \"Turn to face the camera.\",\n    \"caption\": \"Hero\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Closing\",\n    \"instruction\": \"Look at the camera.\",\n    \"caption\": \"Hero\",\n    \"duration_ms\": 3000\n  }\n]"
+    },
+    {
+      "event": "COMPARISON_NATIVE_OR_SHAPE_FAILURE",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "reviewed-jacket",
+        "elapsedMs": 35702,
+        "nativeShapePass": false,
+        "failure": "IllegalArgumentException: Fashion cue refers to a filming device"
+      }
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-person-introduction",
+      "brief": "I am Nila. I repair bicycles. I enjoy chess. Introduce me using only these facts; I can choose a visible detail of my bicycle work.",
+      "elapsedMs": 46943,
+      "promptChars": 1444,
+      "noManualMerge": true,
+      "rawJSON": "[\n  {\n    \"title\": \"Name\",\n    \"instruction\": \"Say 'I am Nila. I repair bicycles. I enjoy chess.\",\n    \"caption\": \"Nila holds a bicycle with a c簪\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Work\",\n    \"instruction\": \"Tell 'I repair bicycles. I enjoy chess.\",\n    \"caption\": \"Nila shows her bicycle work\",\n    \"duration_ms\": 4000\n  },\n  {\n    \"title\": \"Detail\",\n    \"instruction\": \"Show 'I repair bicycles. I enjoy chess.\",\n    \"caption\": \"Nila points at her bicycle\",\n    \"duration_ms\": 5000\n  },\n  {\n    \"title\": \"Personal fact\",\n    \"instruction\": \"Share 'I repair bicycles. I enjoy chess.\",\n    \"caption\": \"Nila holds a chess set\",\n    \"duration_ms\": 6000\n  },\n  {\n    \"title\": \"Welcome\",\n    \"instruction\": \"Welcome 'I am Nila. I repair bicycles. I enjoy chess.\",\n    \"caption\": \"Nila waves to the camera\",\n    \"duration_ms\": 7000\n  }\n]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-person-introduction",
+        "elapsedMs": 46943,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": false,
+          "noUnfinishedCaption": true,
+          "nameNila": true,
+          "workBicycleRepair": true,
+          "detailRelatesToBicycleWork": true,
+          "personalChess": true,
+          "noExampleFactOrCredentialLeakage": true
+        },
+        "targetedQualityPass": false,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-notebook-product",
+      "brief": "My notebook has an elastic closure and a ribbon bookmark. I use it for lists. Show the elastic closure in Detail. No color, material or benefit is supplied; ask for my own opinion.",
+      "elapsedMs": 37740,
+      "promptChars": 1516,
+      "noManualMerge": true,
+      "rawJSON": "[\n  {\n    \"title\": \"Hero\",\n    \"instruction\": \"Hold the notebook.\",\n    \"caption\": \"A notebook with an elastic top\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Reveal\",\n    \"instruction\": \"Turn the notebook.\",\n    \"caption\": \"The elastic closure is visible\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Detail\",\n    \"instruction\": \"Show the elastic closure.\",\n    \"caption\": \"The elastic closure is visible\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"In use\",\n    \"instruction\": \"Lift the notebook.\",\n    \"caption\": \"The notebook is open for lists\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Verdict\",\n    \"instruction\": \"Say this is useful.\",\n    \"caption\": \"The elastic closure is useful\",\n    \"duration_ms\": 3000\n  }\n]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-notebook-product",
+        "elapsedMs": 37740,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "heroNotebook": true,
+          "detailElasticClosure": true,
+          "useLists": true,
+          "verdictRequestsOwnOpinion": false,
+          "noUnsupportedBenefitOrProductPart": true
+        },
+        "targetedQualityPass": false,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_COMPARISON_SUMMARY",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "syntheticInputsOnly": true,
+      "cases": [
+        {
+          "case": "reviewed-jacket",
+          "elapsedMs": 35702,
+          "nativeShapePass": false,
+          "failure": "IllegalArgumentException: Fashion cue refers to a filming device"
+        },
+        {
+          "case": "new-person-introduction",
+          "elapsedMs": 46943,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": false,
+            "noUnfinishedCaption": true,
+            "nameNila": true,
+            "workBicycleRepair": true,
+            "detailRelatesToBicycleWork": true,
+            "personalChess": true,
+            "noExampleFactOrCredentialLeakage": true
+          },
+          "targetedQualityPass": false,
+          "manualSemanticReviewRequired": true
+        },
+        {
+          "case": "new-notebook-product",
+          "elapsedMs": 37740,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "heroNotebook": true,
+            "detailElasticClosure": true,
+            "useLists": true,
+            "verdictRequestsOwnOpinion": false,
+            "noUnsupportedBenefitOrProductPart": true
+          },
+          "targetedQualityPass": false,
+          "manualSemanticReviewRequired": true
+        }
+      ],
+      "hardFailures": [
+        "reviewed-jacket: IllegalArgumentException: Fashion cue refers to a filming device"
+      ],
+      "modelReleased": true,
+      "manualSemanticReviewRequired": true,
+      "generalAccuracyClaim": false
+    }
+  ]
+}

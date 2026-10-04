@@ -41,9 +41,14 @@ public final class UnseenPlannerTest {
             deny(text, "cotton", "silk", "wool", "woolen", "linen", "denim", "leather", "polyester", "nylon",
                     "velvet", "satin", "rayon", "fleece", "viscose", "knitted", "embroidered", "embroidery",
                     "button", "buttons", "buttoned", "zip", "zipper", "zippers", "zipped", "zippered", "buckle", "buckles");
+            deny(text, "pocket", "pockets", "collar", "collars", "lapel", "lapels", "hem", "hems", "sleeve", "sleeves");
             assertFalse("Worn-kurta shoot should not become tabletop preparation",
                     text.contains("flat surface") || text.contains("tabletop"));
-            for (Shot shot : shots) deny(shot.instruction, "camera", "phone", "screen", "tripod");
+            for (Shot shot : shots) {
+                assertTrue("Fashion directions must follow the bounded equipment-operation policy: " + shot.instruction,
+                        followsFashionDevicePolicy(shot.instruction));
+                deny(shot.caption, "camera", "cameras", "phone", "phones", "screen", "screens", "tripod", "tripods", "gimbal", "gimbals", "drone", "drones");
+            }
             String detail = shots.get(2).instruction;
             assertTrue("Creator-chosen detail should relate to the worn garment, not an invented material/fastener",
                     word(detail, "kurta") || word(detail, "garment") || word(detail, "outfit") || word(detail, "detail"));
@@ -99,6 +104,10 @@ public final class UnseenPlannerTest {
         assertTrue("Fresh actual CPU generation timed out", done.await(150, TimeUnit.SECONDS));
         assertNull("Actual inference must succeed rather than use a template: " + error.get(), error.get());
         assertNotNull(plan.get()); assertNotNull(model.get()); assertTrue(model.get().contains("local CPU"));
+        if (style.equals("Fashion")) {
+            assertTrue("Unspecified Fashion Detail must disclose its creator-choice constraint", model.get().contains("creator-choice detail constraint"));
+            assertTrue(plan.get().get(2).instruction.toLowerCase(Locale.ROOT).matches("(?s).*\\b(choose|chosen|choice|pick|select|selected)\\b.*"));
+        }
         JSONArray logged = new JSONArray();
         for (Shot shot : plan.get()) logged.put(new JSONObject().put("title", shot.title)
                 .put("instruction", shot.instruction).put("caption", shot.caption).put("durationMs", shot.targetDurationMs));
@@ -132,6 +141,13 @@ public final class UnseenPlannerTest {
     }
     private static boolean word(String text, String word) {
         return Pattern.compile("\\b" + Pattern.quote(word) + "\\b", Pattern.CASE_INSENSITIVE).matcher(text).find();
+    }
+    // Policy alignment only, not independent semantic validation. Separate synthetic operator/body
+    // fixtures exercise expected behavior; unknown facts and hardware captions remain independent checks.
+    private static boolean followsFashionDevicePolicy(String instruction) throws Exception {
+        java.lang.reflect.Method predicate = LocalPlanner.class.getDeclaredMethod("invalidFashionDeviceCue", String.class);
+        predicate.setAccessible(true);
+        return !((Boolean) predicate.invoke(null, instruction));
     }
     private static void deny(String text, String... words) {
         for (String word : words) assertFalse("Unsupplied fixture detail/example leakage: " + word, word(text, word));

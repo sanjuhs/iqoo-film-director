@@ -1,0 +1,398 @@
+{
+  "schema": "mini_film.planner_comparison.v1",
+  "date_ist": "2026-10-04",
+  "prompt_mode": "full_production_style_before_movement_repair",
+  "grammar_whitespace_bound": 8,
+  "synthetic_inputs_only": true,
+  "model_selection_changed": false,
+  "runner": {
+    "tests": 2,
+    "failures": 0,
+    "elapsed_seconds": 214.062,
+    "pass_means": "native/schema/lifetime mechanics, not semantic quality"
+  },
+  "prompt_tokens_in_case_order": [
+    675,
+    610,
+    673,
+    669,
+    605,
+    666
+  ],
+  "memory": {
+    "samples": 170,
+    "observed_max": {
+      "pss_kib": 1957154,
+      "rss_kib": 2022112,
+      "native_heap_pss_kib": 1133778
+    },
+    "units": "KiB",
+    "peak_certified": false,
+    "models_mixed": true,
+    "sampling_started_after_first_model_loaded": true
+  },
+  "events": [
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "reviewed-jacket",
+      "brief": "I wear my jacket, which has a left pocket. No color or material is given. Creator-reviewed moments: 0:02 Hero: face left; 0:05 Detail: show the left pocket; 0:08 Side pose: pause in profile; 0:11 Closing: face forward.",
+      "elapsedMs": 35616,
+      "promptChars": 3158,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\": \"Hero pose\", \"instruction\": \"Stand with face left\", \"caption\": \"Face Left\", \"duration_ms\": 3000}, {\"title\": \"Movement\", \"instruction\": \"Take the left pocket\", \"caption\": \"Pocket\", \"duration_ms\": 3000}, {\"title\": \"Detail\", \"instruction\": \"Show the left pocket\", \"caption\": \"Pocket\", \"duration_ms\": 3000}, {\"title\": \"Side pose\", \"instruction\": \"Turn in profile\", \"caption\": \"Profile\", \"duration_ms\": 3000}, {\"title\": \"Closing\", \"instruction\": \"Stand with face forward\", \"caption\": \"Face Forward\", \"duration_ms\": 3000}]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "reviewed-jacket",
+        "elapsedMs": 35616,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "heroLeftDirectionKeyword": true,
+          "detailLeftPocket": true,
+          "sideProfileKeyword": true,
+          "closingForwardKeyword": true,
+          "noUnsuppliedGarmentParts": true,
+          "noMovementDestinationGarmentPart": true
+        },
+        "targetedQualityPass": true,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-person-introduction",
+      "brief": "I am Nila. I repair bicycles. I enjoy chess. Introduce me using only these facts; I can choose a visible detail of my bicycle work.",
+      "elapsedMs": 24512,
+      "promptChars": 2761,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\":\"Name\",\"instruction\":\"Say your name is Nila.\",\"caption\":\"Welcome\",\"duration_ms\":4000},{\"title\":\"Work\",\"instruction\":\"Tell how you repair bicycles.\",\"caption\":\"I repair bicycles\",\"duration_ms\":4000},{\"title\":\"Detail\",\"instruction\":\"Show one bicycle detail you choose.\",\"caption\":\"Bicycle details\",\"duration_ms\":4000},{\"title\":\"Personal fact\",\"instruction\":\"Say you enjoy chess.\",\"caption\":\"I enjoy chess\",\"duration_ms\":4000},{\"title\":\"Welcome\",\"instruction\":\"Welcome your audience with a smile.\",\"caption\":\"Welcome\",\"duration_ms\":4000}]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-person-introduction",
+        "elapsedMs": 24512,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "nameNila": true,
+          "workBicycleRepair": true,
+          "detailRelatesToBicycleWork": true,
+          "personalChess": true,
+          "noExampleFactOrCredentialLeakage": true
+        },
+        "targetedQualityPass": true,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-notebook-product",
+      "brief": "My notebook has an elastic closure and a ribbon bookmark. I use it for lists. Show the elastic closure in Detail. No color, material or benefit is supplied; ask for my own opinion.",
+      "elapsedMs": 27503,
+      "promptChars": 3035,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\":\"Hero\",\"instruction\":\"Hold your notebook and show the ribbon bookmark clearly.\",\"caption\":\"My notebook\",\"duration_ms\":4000},{\"title\":\"Reveal\",\"instruction\":\"Turn your notebook in your hands to reveal the elastic closure.\",\"caption\":\"The notebook\",\"duration_ms\":4000},{\"title\":\"Detail\",\"instruction\":\"Show the elastic closure in detail.\",\"caption\":\"Elastic closure\",\"duration_ms\":4000},{\"title\":\"In use\",\"instruction\":\"Show how you actually use the notebook for lists.\",\"caption\":\"How I use it\",\"duration_ms\":4000},{\"title\":\"Verdict\",\"instruction\":\"Say your own honest one-line opinion of your notebook.\",\"caption\":\"My opinion\",\"duration_ms\":4000}]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-notebook-product",
+        "elapsedMs": 27503,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "heroNotebook": true,
+          "detailElasticClosure": true,
+          "useLists": true,
+          "verdictRequestsOwnOpinion": true,
+          "noUnsupportedBenefitOrProductPart": true
+        },
+        "targetedQualityPass": true,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_COMPARISON_SUMMARY",
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "syntheticInputsOnly": true,
+      "cases": [
+        {
+          "case": "reviewed-jacket",
+          "elapsedMs": 35616,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "heroLeftDirectionKeyword": true,
+            "detailLeftPocket": true,
+            "sideProfileKeyword": true,
+            "closingForwardKeyword": true,
+            "noUnsuppliedGarmentParts": true,
+            "noMovementDestinationGarmentPart": true
+          },
+          "targetedQualityPass": true,
+          "manualSemanticReviewRequired": true
+        },
+        {
+          "case": "new-person-introduction",
+          "elapsedMs": 24512,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "nameNila": true,
+            "workBicycleRepair": true,
+            "detailRelatesToBicycleWork": true,
+            "personalChess": true,
+            "noExampleFactOrCredentialLeakage": true
+          },
+          "targetedQualityPass": true,
+          "manualSemanticReviewRequired": true
+        },
+        {
+          "case": "new-notebook-product",
+          "elapsedMs": 27503,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "heroNotebook": true,
+            "detailElasticClosure": true,
+            "useLists": true,
+            "verdictRequestsOwnOpinion": true,
+            "noUnsupportedBenefitOrProductPart": true
+          },
+          "targetedQualityPass": true,
+          "manualSemanticReviewRequired": true
+        }
+      ],
+      "hardFailures": [],
+      "modelReleased": true,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "manualSemanticReviewRequired": true,
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "reviewed-jacket",
+      "brief": "I wear my jacket, which has a left pocket. No color or material is given. Creator-reviewed moments: 0:02 Hero: face left; 0:05 Detail: show the left pocket; 0:08 Side pose: pause in profile; 0:11 Closing: face forward.",
+      "elapsedMs": 40720,
+      "promptChars": 3139,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "noManualMerge": true,
+      "rawJSON": "[\n  {\n    \"title\": \"Hero pose\",\n    \"instruction\": \"Stand facing left.\",\n    \"caption\": \"Hero pose\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Movement\",\n    \"instruction\": \"Take a small step to the right.\",\n    \"caption\": \"Take\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Detail\",\n    \"instruction\": \"Show the left pocket.\",\n    \"caption\": \"Show\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Side pose\",\n    \"instruction\": \"Turn to the side.\",\n    \"caption\": \"Turn\",\n    \"duration_ms\": 3000\n  },\n  {\n    \"title\": \"Closing\",\n    \"instruction\": \"Look forward.\",\n    \"caption\": \"Look\",\n    \"duration_ms\": 3000\n  }\n]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "reviewed-jacket",
+        "elapsedMs": 40720,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "heroLeftDirectionKeyword": true,
+          "detailLeftPocket": true,
+          "sideProfileKeyword": false,
+          "closingForwardKeyword": true,
+          "noUnsuppliedGarmentParts": true,
+          "noMovementDestinationGarmentPart": true
+        },
+        "targetedQualityPass": false,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-person-introduction",
+      "brief": "I am Nila. I repair bicycles. I enjoy chess. Introduce me using only these facts; I can choose a visible detail of my bicycle work.",
+      "elapsedMs": 30225,
+      "promptChars": 2742,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\":\"Name\",\"instruction\":\"Say your name is Nila.\",\"caption\":\"Meet Nila\",\"duration_ms\":4000},{\"title\":\"Work\",\"instruction\":\"Tell how you repair bicycles.\",\"caption\":\"I repair bicycles\",\"duration_ms\":4000},{\"title\":\"Detail\",\"instruction\":\"Show one bicycle detail you choose.\",\"caption\":\"Bicycle wheel\",\"duration_ms\":4000},{\"title\":\"Personal fact\",\"instruction\":\"Share what you enjoy.\",\"caption\":\"I enjoy chess\",\"duration_ms\":4000},{\"title\":\"Welcome\",\"instruction\":\"Welcome your audience with a smile.\",\"caption\":\"Welcome\",\"duration_ms\":4000}]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-person-introduction",
+        "elapsedMs": 30225,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "nameNila": true,
+          "workBicycleRepair": true,
+          "detailRelatesToBicycleWork": true,
+          "personalChess": true,
+          "noExampleFactOrCredentialLeakage": true
+        },
+        "targetedQualityPass": true,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_NATIVE_COMPARISON",
+      "syntheticInputsOnly": true,
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "backend": "localCPU",
+      "threads": 4,
+      "case": "new-notebook-product",
+      "brief": "My notebook has an elastic closure and a ribbon bookmark. I use it for lists. Show the elastic closure in Detail. No color, material or benefit is supplied; ask for my own opinion.",
+      "elapsedMs": 46291,
+      "promptChars": 3016,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "noManualMerge": true,
+      "rawJSON": "[\n  {\n    \"title\": \"Hero\",\n    \"instruction\": \"Hold your notebook and show it clearly.\",\n    \"caption\": \"My notebook\",\n    \"duration_ms\": 4000\n  },\n  {\n    \"title\": \"Reveal\",\n    \"instruction\": \"Turn your notebook slowly in your hands.\",\n    \"caption\": \"The notebook\",\n    \"duration_ms\": 4000\n  },\n  {\n    \"title\": \"Detail\",\n    \"instruction\": \"Show one visible feature of the notebook closure you choose.\",\n    \"caption\": \"Closure detail\",\n    \"duration_ms\": 4000\n  },\n  {\n    \"title\": \"In use\",\n    \"instruction\": \"Show one way you actually use your notebook.\",\n    \"caption\": \"How I use it\",\n    \"duration_ms\": 4000\n  },\n  {\n    \"title\": \"Verdict\",\n    \"instruction\": \"Say your own honest one-line opinion of your notebook.\",\n    \"caption\": \"My opinion\",\n    \"duration_ms\": 4000\n  }\n]"
+    },
+    {
+      "event": "TARGETED_COMPARISON_QUALITY",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "syntheticInputsOnly": true,
+      "result": {
+        "case": "new-notebook-product",
+        "elapsedMs": 46291,
+        "nativeShapePass": true,
+        "targetedQuality": {
+          "noUnsuppliedColorsMaterialsDevices": true,
+          "noUnfinishedCaption": true,
+          "heroNotebook": true,
+          "detailElasticClosure": false,
+          "useLists": false,
+          "verdictRequestsOwnOpinion": true,
+          "noUnsupportedBenefitOrProductPart": true
+        },
+        "targetedQualityPass": false,
+        "manualSemanticReviewRequired": true
+      },
+      "generalAccuracyClaim": false
+    },
+    {
+      "event": "RAW_COMPARISON_SUMMARY",
+      "model": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "pin": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "syntheticInputsOnly": true,
+      "cases": [
+        {
+          "case": "reviewed-jacket",
+          "elapsedMs": 40720,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "heroLeftDirectionKeyword": true,
+            "detailLeftPocket": true,
+            "sideProfileKeyword": false,
+            "closingForwardKeyword": true,
+            "noUnsuppliedGarmentParts": true,
+            "noMovementDestinationGarmentPart": true
+          },
+          "targetedQualityPass": false,
+          "manualSemanticReviewRequired": true
+        },
+        {
+          "case": "new-person-introduction",
+          "elapsedMs": 30225,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "nameNila": true,
+            "workBicycleRepair": true,
+            "detailRelatesToBicycleWork": true,
+            "personalChess": true,
+            "noExampleFactOrCredentialLeakage": true
+          },
+          "targetedQualityPass": true,
+          "manualSemanticReviewRequired": true
+        },
+        {
+          "case": "new-notebook-product",
+          "elapsedMs": 46291,
+          "nativeShapePass": true,
+          "targetedQuality": {
+            "noUnsuppliedColorsMaterialsDevices": true,
+            "noUnfinishedCaption": true,
+            "heroNotebook": true,
+            "detailElasticClosure": false,
+            "useLists": false,
+            "verdictRequestsOwnOpinion": true,
+            "noUnsupportedBenefitOrProductPart": true
+          },
+          "targetedQualityPass": false,
+          "manualSemanticReviewRequired": true
+        }
+      ],
+      "hardFailures": [],
+      "modelReleased": true,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "manualSemanticReviewRequired": true,
+      "generalAccuracyClaim": false
+    }
+  ]
+}

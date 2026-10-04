@@ -1,0 +1,253 @@
+{
+  "schema": "mini_film.fashion_camera_detail_repair.v1",
+  "date_ist": "2026-10-04",
+  "synthetic_inputs_only": true,
+  "runner": {
+    "tests": 9,
+    "failures": 0,
+    "elapsed_seconds": 62.159,
+    "pass_means": "targeted_policy_and_native_fixture_checks_not_general_accuracy"
+  },
+  "source_snapshot_sha256": "4cd36a7482c39342b147b864823ab10b55248331dbb1917ba5bd7a059e22655e",
+  "raw_native": {
+    "event": "RAW_REVIEWED_BOARD_DIAGNOSTIC",
+    "fixtureId": "plainjacket",
+    "syntheticInputsOnly": true,
+    "model": "Qwen3.5 0.8B Q4_0",
+    "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+    "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+    "bytes": 563036064,
+    "backend": "localCPU",
+    "threads": 4,
+    "context": 1536,
+    "maxOutputTokens": 580,
+    "promptMode": "full_production_style",
+    "whitespaceBound": 8,
+    "emptyThinkAdapter": true,
+    "fixedFixture": "Help me perform a five-shot reel while wearing my jacket. I have not supplied its color, material, pattern, or fasteners. Give direct performer instructions without adding those details.",
+    "reviewedMoments": false,
+    "constrainDetail": true,
+    "elapsedMs": 28910,
+    "noManualMerge": true,
+    "rawJSON": "[{\"title\":\"Hero pose\",\"instruction\":\"Stand facing the camera with the jacket on your chest.\",\"caption\":\"Jacket\",\"duration_ms\":4000},{\"title\":\"Movement\",\"instruction\":\"Take two steps forward while keeping the jacket in place.\",\"caption\":\"Small steps\",\"duration_ms\":4000},{\"title\":\"Detail\",\"instruction\":\"Show one visible garment detail you choose.\",\"caption\":\"Chosen detail\",\"duration_ms\":4000},{\"title\":\"Side pose\",\"instruction\":\"Turn slightly to the right while maintaining the jacket position.\",\"caption\":\"Side view\",\"duration_ms\":4000},{\"title\":\"Closing\",\"instruction\":\"Look at the lens and hold your pose.\",\"caption\":\"Final pose\",\"duration_ms\":4000}]"
+  },
+  "parse_results": [
+    {
+      "event": "RAW_BOARD_PARSE_RESULT",
+      "fixtureId": "plainjacket",
+      "syntheticInputsOnly": true,
+      "nativeShapePass": true,
+      "creatorCueFaithfulnessOrBenefitClaim": false
+    }
+  ],
+  "native_prompt_tokens": [
+    670,
+    670
+  ],
+  "deterministic_policy_events": [
+    "REVIEWED_MOVEMENT_PREFLIGHT_OK syntheticInputsOnly=true cases=4 observedNativeExamples=2 syntheticAnalogs=2 errorCallbacksOnMain=true residentHandle=0 modelLeaseHeld=false nativeGeneration=false closedQueuedCallbacks=0 arbitrarySemanticValidityClaim=false",
+    "BOUNDED_CAMERA_OPERATIONS_OK syntheticInputsOnly=true bodyCases=7 observedBodyExample=1 syntheticBodyAnalogs=6 syntheticOperatorCases=18 reviewedAndDraftExact=true pronouns=it,this,that nativeGeneration=false arbitrarySemanticValidityClaim=false",
+    "EYELINE_DEVICE_POLICY_OK syntheticInputsOnly=true wholeBenignCueExact=true mixedAndUnrelatedRejected=true nativeGeneration=false arbitrarySemanticValidityClaim=false",
+    "NATIVE_DRAFT_VALIDATION_OK syntheticInputsOnly=true cases=4 observedNativeExamples=2 syntheticAnalogs=2 nativeGeneration=false arbitrarySemanticValidityClaim=false",
+    "CAPTION_LABEL_POLICY_OK syntheticInputsOnly=true rejectedCases=4 acceptedPhrases=3 exactCaptionPreserved=true nativeGeneration=false arbitrarySemanticValidityClaim=false",
+    "LEGITIMATE_MOVEMENT_DETAIL_OK syntheticInputsOnly=true cases=2 exactDraftAndReviewedWording=true nativeGeneration=false arbitrarySemanticValidityClaim=false",
+    "FASHION_DETAIL_POLICY_OK syntheticInputsOnly=true unknownDetailCreatorChoice=true explicitCreatorFeatureAllowed=true nativeGeneration=false learnedFeatureGroundingClaim=false"
+  ],
+  "public_generation": {
+    "label_and_timing_events": [
+      "planner_case style=Fashion synthetic_input=true model=Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice detail constraint elapsed_ms=30837 shots=5"
+    ],
+    "complete_synthetic_plans": [
+      "Hero pose | Stand facing the camera with the jacket on your chest. | Jacket Movement | Take two steps forward while keeping the jacket in place. | Small steps Detail | Show one visible garment detail you choose. | Chosen detail Side pose | Turn slightly to the right while maintaining the jacket position. | Side view Closing | Look at the lens and hold your pose. | Final pose "
+    ]
+  },
+  "manual_review": {
+    "hero": "same_benign_performer_camera_facing_phrase_now_accepted",
+    "detail": "explicit_creator_choice_grammar_and_label_no_invented_zipper",
+    "other_roles": "practical_steps_and_body_turn_on_this_fixture",
+    "captions": "readable_but_Hero_Jacket_is_generic_one_word",
+    "raw_and_public_outputs": "same_synthetic_plan_on_two_measured_paths_not_general_repeatability",
+    "camera_operation_guard": "bounded_English_lexical_policy_7_body_18_operator_cases_not_semantic_or_safety_proof"
+  },
+  "private_upload_or_capture": false,
+  "default_planner_changed": false,
+  "secondary_runner": {
+    "tests": 4,
+    "failures": 0,
+    "elapsed_seconds": 118.576,
+    "prompt_tokens_in_order": [
+      668,
+      697,
+      664,
+      664
+    ],
+    "kurta_public_plan": [
+      {
+        "elapsed_ms": 42055,
+        "label": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice detail constraint",
+        "shots": [
+          {
+            "title": "Hero pose",
+            "instruction": "Stand wearing the kurta facing the lens.",
+            "caption": "My kurta",
+            "durationMs": 4000
+          },
+          {
+            "title": "Movement",
+            "instruction": "Take two small steps while keeping the kurta still.",
+            "caption": "Small steps",
+            "durationMs": 4000
+          },
+          {
+            "title": "Detail",
+            "instruction": "Show one visible garment detail you choose.",
+            "caption": "Chosen detail",
+            "durationMs": 4000
+          },
+          {
+            "title": "Side pose",
+            "instruction": "Turn slightly to the right while holding the kurta still.",
+            "caption": "Side view",
+            "durationMs": 4000
+          },
+          {
+            "title": "Closing",
+            "instruction": "Look at the lens and hold the kurta still.",
+            "caption": "Final pose",
+            "durationMs": 4000
+          }
+        ]
+      }
+    ],
+    "hybrid_plans": [
+      {
+        "path": "UNSPECIFIED_DETAIL",
+        "label": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice detail constraint \u00b7 creator-authored reviewed cues retained",
+        "shots": [
+          {
+            "id": "ai-shot-1",
+            "title": "Hero pose",
+            "instruction": "face left",
+            "caption": "My face",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-2",
+            "title": "Movement",
+            "instruction": "Take two small steps while facing the lens.",
+            "caption": "Small steps",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-3",
+            "title": "Detail",
+            "instruction": "Point to one visible garment detail you choose.",
+            "caption": "Chosen detail",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-4",
+            "title": "Side pose",
+            "instruction": "pause in profile",
+            "caption": "Side view",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-5",
+            "title": "Closing",
+            "instruction": "face forward",
+            "caption": "Final pose",
+            "durationMs": 4000
+          }
+        ],
+        "learned_grounding_claim": false
+      },
+      {
+        "path": "EXPLICIT_CREATOR_DETAIL",
+        "label": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-authored reviewed cues retained",
+        "shots": [
+          {
+            "id": "ai-shot-1",
+            "title": "Hero pose",
+            "instruction": "face right",
+            "caption": "Hero",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-2",
+            "title": "Movement",
+            "instruction": "Take two small steps.",
+            "caption": "Small steps",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-3",
+            "title": "Detail",
+            "instruction": "show the jacket left pocket",
+            "caption": "Pocket",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-4",
+            "title": "Side pose",
+            "instruction": "Turn slightly sideways.",
+            "caption": "Side view",
+            "durationMs": 4000
+          },
+          {
+            "id": "ai-shot-5",
+            "title": "Closing",
+            "instruction": "face forward",
+            "caption": "Final pose",
+            "durationMs": 4000
+          }
+        ],
+        "learned_grounding_claim": false
+      }
+    ],
+    "hybrid_measured_events": [
+      "HYBRID_REVIEWED_CUES_OK syntheticManualNotes=true roles=5 exactCreatorInstructions=hero,side,closing generatedFields=otherInstructions,captions,durations unknownDetailConstraintDisclosed=true creatorRetentionDisclosed=true elapsedMs=27243 summaryChars=90 backend=localCPU learnedGroundingClaim=false",
+      "HYBRID_EXPLICIT_DETAIL_OK syntheticManualNotes=true roles=5 exactCreatorInstructions=hero,detail,closing generatedFields=movement,side,captions,durations suppliedFeature=leftPocket unknownDetailConstraintDisclosed=false creatorRetentionDisclosed=true invalidPreflightThenValidNativeRetry=true elapsedMs=23770 backend=localCPU learnedGroundingClaim=false"
+    ],
+    "raw_explicit_detail": {
+      "event": "RAW_REVIEWED_BOARD_DIAGNOSTIC",
+      "fixtureId": "explicit-reviewed-detail",
+      "syntheticInputsOnly": true,
+      "model": "Qwen3.5 0.8B Q4_0",
+      "pin": "ggml-org/Qwen3.5-0.8B-GGUF@8fea620810c4afa23dd6443f999a48574c1611a3",
+      "sha": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "bytes": 563036064,
+      "backend": "localCPU",
+      "threads": 4,
+      "context": 1536,
+      "maxOutputTokens": 580,
+      "promptMode": "full_production_style",
+      "whitespaceBound": 8,
+      "emptyThinkAdapter": true,
+      "fixedFixture": "A solo fashion reel wearing my jacket.\nCreator-reviewed reference moments: 0:01 Hero: face right; 0:04.500 Detail: show the jacket left pocket; 0:07.500 Closing: face forward",
+      "reviewedMoments": true,
+      "constrainDetail": false,
+      "elapsedMs": 23832,
+      "noManualMerge": true,
+      "rawJSON": "[{\"title\":\"Hero pose\",\"instruction\":\"Face right.\",\"caption\":\"Hero\",\"duration_ms\":4000},{\"title\":\"Movement\",\"instruction\":\"Take two small steps.\",\"caption\":\"Small steps\",\"duration_ms\":4000},{\"title\":\"Detail\",\"instruction\":\"Show the jacket left pocket.\",\"caption\":\"Pocket\",\"duration_ms\":4000},{\"title\":\"Side pose\",\"instruction\":\"Turn slightly sideways.\",\"caption\":\"Side view\",\"duration_ms\":4000},{\"title\":\"Closing\",\"instruction\":\"Look at the lens and hold your pose.\",\"caption\":\"Final pose\",\"duration_ms\":4000}]"
+    },
+    "raw_parse_results": [
+      {
+        "event": "RAW_BOARD_PARSE_RESULT",
+        "fixtureId": "explicit-reviewed-detail",
+        "syntheticInputsOnly": true,
+        "nativeShapePass": true,
+        "creatorCueFaithfulnessOrBenefitClaim": false
+      }
+    ],
+    "manual_review": {
+      "kurta": "no_invented_named_features_creator_choice_detail_but_repetitive_keep_hold_kurta_still_phrasing",
+      "hybrid_unknown_hero_caption": "My face_is_readable_but_shifts_focus_from_outfit",
+      "hybrid_explicit_cues": "exact_creator_hero_detail_closing_retained_and_separately_disclosed",
+      "raw_explicit_closing": "lens_eyeline_omits_requested_face_forward_creator_retention_still_required",
+      "captions": "Hero_and_Pocket_generic_one_word_not_all_2_to_4_word_phrases",
+      "durations": "all_4s_model_draft_allocations_not_observed_performance_or_speech_fit",
+      "general_accuracy_or_creator_benefit_claim": false
+    }
+  }
+}

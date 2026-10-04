@@ -334,7 +334,7 @@ public final class ReferenceBoardTest {
         Log.i("MiniFilmReferenceBoardTest", "GENERATED_HYBRID_REVIEWED_BOARD_PLAN syntheticManualNotes=true path=" + path
                 + " modelLabel=" + result.label + " shots=" + generated + " learnedGroundingClaim=false");
     }
-    private static void assertPlanShapeAndSuppliedFacts(List<Shot> shots, boolean leftPocketSupplied) {
+    private static void assertPlanShapeAndSuppliedFacts(List<Shot> shots, boolean leftPocketSupplied) throws Exception {
         String[] roles = {"Hero pose", "Movement", "Detail", "Side pose", "Closing"}; assertEquals(5, shots.size());
         for (int i = 0; i < shots.size(); i++) {
             Shot shot = shots.get(i); assertEquals(roles[i], shot.title); assertEquals("ai-shot-" + (i + 1), shot.id);
@@ -345,15 +345,25 @@ public final class ReferenceBoardTest {
             assertFalse("Source timestamps must not become story captions: " + shot.caption,
                     shot.caption.matches("(?s).*\\d{1,3}:\\d{2}(?:[.,]\\d+)?\\b.*"));
             String wording = (shot.instruction + " " + shot.caption).toLowerCase(Locale.ROOT);
-            assertFalse("Plan invented an unsupplied color/material/device: " + wording,
+            assertFalse("Plan invented an unsupplied color/material: " + wording,
                     wording.matches("(?s).*\\b(red|blue|green|yellow|black|white|orange|purple|pink|brown|grey|gray|navy|beige|"
-                            + "leather|cotton|denim|wool|velvet|silk|linen|polyester|fabric|metal|plastic|wood|glass|"
-                            + "camera|phone|screen|tripod|gimbal|drone)\\b.*"));
+                            + "leather|cotton|denim|wool|velvet|silk|linen|polyester|fabric|metal|plastic|wood|glass)\\b.*"));
+            assertTrue("Fashion directions must follow the bounded equipment-operation policy: " + shot.instruction,
+                    followsFashionDevicePolicy(shot.instruction));
+            assertFalse("Hardware words must not become story captions: " + shot.caption,
+                    shot.caption.toLowerCase(Locale.ROOT).matches("(?s).*\\b(camera|phone|screen|tripod|gimbal|drone)s?\\b.*"));
             // Only the explicit fixture supplies a left pocket. Every other named part remains unconfirmed.
             String unknownParts = "lapels?|collars?|buttons?|zippers?|buckles?|hems?|sleeves?" + (leftPocketSupplied ? "|pockets" : "|pockets?");
             assertFalse("This brief does not establish that garment part: " + wording, wording.matches("(?s).*\\b(" + unknownParts + ")\\b.*"));
             if (leftPocketSupplied) assertFalse("Only a left pocket was supplied: " + wording, wording.matches("(?s).*\\bright\\s+pocket\\b.*"));
         }
+    }
+    // Policy alignment only, not independent semantic validation. Separate synthetic operator/body
+    // fixtures exercise expected behavior; unknown facts and hardware captions remain independent checks.
+    private static boolean followsFashionDevicePolicy(String instruction) throws Exception {
+        java.lang.reflect.Method predicate = LocalPlanner.class.getDeclaredMethod("invalidFashionDeviceCue", String.class);
+        predicate.setAccessible(true);
+        return !((Boolean) predicate.invoke(null, instruction));
     }
     private void assertPlannerPreflightRejected(LocalPlanner planner, String summary, String expectedErrorPart) throws Exception {
         assertFalse("Invalid input must not acquire another model owner's lease", LocalModelLease.isHeld());

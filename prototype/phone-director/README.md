@@ -77,3 +77,41 @@ a portable JSON timeline. Its six fixture checks passed; actual Files ZIP saving
 and Office Kit transfer remain unverified. No desktop-editor importer is claimed.
 [Office Kit acceptance research](../../docs/office-kit-research.md) and
 [packaged third-party notices](../../docs/third-party-notices.md) document the remaining gates.
+
+### 4 October planner quality experiment
+
+The default remains Qwen3.5 0.8B on CPU. A separately pinned Qwen2.5 1.5B
+phone-only candidate loaded and generated synthetic comparison drafts, but was
+slower in the full-style comparison and lost specific scene facts/captions. It is
+not selected by the app. See [comparison evidence](../../docs/planner-model-comparison-feasibility.md).
+No larger-model quality, NPU execution or sustained camera-concurrency claim is made.
+
+The grammar bounds JSON whitespace; a narrow English Fashion Movement filter
+rejects observed taking/walking-to-garment-part errors in generated drafts and
+reviewed named Movement cues. It is not semantic or safety validation and can
+miss other nonsensical actions. Directions/captions still require review.
+Leaving Brief for Direct/Assemble, starting the camera, or creating/importing
+editing media requests asynchronous planner cleanup. The fresh planner is empty;
+cleanup follows its prior worker safely. This does not prove zero momentary
+overlap with camera allocation or a lower live-shoot memory peak.
+
+Without a named creator-reviewed Fashion Detail, native decoding uses the
+visibly disclosed creator-choice Detail instruction/caption constraint, including
+ordinary briefs. It deliberately does not extract free-text garment parts. Name
+a reviewed Detail or edit the draft yourself to use an actual known feature.
+Other roles and captions remain model drafts requiring review. Camera-facing
+body poses are allowed; a bounded English handling/pronoun filter rejects tested
+device-operation wording. This is not semantic validation and can miss unlisted
+wording. Two-letter Fashion captions can still be generic or meaningless.
+
+Stop during a pre-recording countdown/pose break now requests ready/canceled
+labels. Disabling the sequence does not claim to cancel a take already starting,
+recording or finalizing. This source repair still needs attended UI verification.
+
+Talking stories likewise use a separately disclosed native creator-choice
+Cutaway constraint: choose an object actually available to you. This does not
+extract/verify a prop from ordinary free text; edit the shot to specify one. Two
+actual synthetic stories passed with their supplied events and explicit future
+plans, alongside two parser methods (4 tests /67.135 s); broader story accuracy
+remains unverified. [Full failures and repaired output](../../docs/planner-model-comparison-feasibility.md)
+remain available.

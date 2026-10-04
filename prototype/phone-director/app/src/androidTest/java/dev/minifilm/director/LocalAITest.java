@@ -188,14 +188,19 @@ public final class LocalAITest {
                     "brown", "grey", "gray", "navy", "beige", "maroon", "teal", "cyan", "magenta",
                     "silver", "gold", "golden", "cream", "tan", "ivory", "turquoise", "burgundy",
                     "lavender", "khaki");
+            assertNoWords("Unknown jacket facts must not become invented materials or named garment parts anywhere in the plan", text,
+                    "cotton", "silk", "wool", "linen", "denim", "leather", "polyester", "nylon", "velvet", "satin",
+                    "pattern", "patterned", "zip", "zipper", "zippers", "zipped", "button", "buttons", "buttoned",
+                    "buckle", "buckles", "pocket", "pockets", "collar", "collars", "lapel", "lapels", "hem", "hems", "sleeve", "sleeves");
             assertFalse("Worn-jacket fixture should direct a person rather than tabletop preparation",
                     text.contains("tabletop") || text.contains("flat surface"));
             for (Shot shot : plan) {
-                // Conservative solo-performer boundary: lens eyeline is fine, equipment handling is not.
-                // These actual-output checks cover the previously observed 'hold the camera steady'
-                // and 'standing with camera'; they do not call the production validity guard.
-                assertNoWords("A stationary-phone shoot must not ask the creator to operate filming equipment",
-                        shot.instruction, "camera", "phone", "screen", "tripod");
+                // Body-facing camera mentions are allowed; the bounded production operation policy
+                // still rejects handling. This alignment is not independent semantic validation.
+                assertTrue("Fashion directions must follow the bounded equipment-operation policy: " + shot.instruction,
+                        followsFashionDevicePolicy(shot.instruction));
+                assertNoWords("Hardware words must not become creator story captions", shot.caption,
+                        "camera", "cameras", "phone", "phones", "screen", "screens", "tripod", "tripods", "gimbal", "gimbals", "drone", "drones");
             }
             assertTrue("Hero should give a body/eyeline pose, not recording setup",
                     plan.get(0).instruction.matches("(?:Stand|Pose|Face|Look|Smile) \\S.*"));
@@ -227,6 +232,14 @@ public final class LocalAITest {
         }
     }
 
+    // Policy alignment only, not independent semantic validation. Separate synthetic operator/body
+    // fixtures exercise expected behavior; unknown facts and hardware captions remain independent checks.
+    private static boolean followsFashionDevicePolicy(String instruction) throws Exception {
+        java.lang.reflect.Method predicate = LocalPlanner.class.getDeclaredMethod("invalidFashionDeviceCue", String.class);
+        predicate.setAccessible(true);
+        return !((Boolean) predicate.invoke(null, instruction));
+    }
+
     private void assertNoWords(String message, String text, String... words) {
         for (String word : words) assertFalse(message + ": " + word,
                 java.util.regex.Pattern.compile("\\b" + java.util.regex.Pattern.quote(word) + "\\b",
@@ -250,6 +263,11 @@ public final class LocalAITest {
         assertNotNull(result.get());
         assertEquals(5, result.get().size());
         assertTrue(model.get().contains("local CPU"));
+        if (style.equals("Fashion")) {
+            assertTrue("Ordinary Fashion's creator-choice Detail restriction must be disclosed", model.get().contains("creator-choice detail constraint"));
+            assertTrue("Unspecified Detail must ask the creator to choose a visible feature", result.get().get(2).instruction.toLowerCase(Locale.ROOT)
+                    .matches("(?s).*\\b(choose|chosen|choice|pick|select|selected)\\b.*"));
+        }
         for (Shot shot : result.get()) {
             assertTrue(shot.id.startsWith("ai-shot-"));
             assertFalse(shot.title.trim().isEmpty());

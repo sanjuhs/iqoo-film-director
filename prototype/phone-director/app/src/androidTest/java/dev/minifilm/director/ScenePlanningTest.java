@@ -13,11 +13,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Two actual CPU-model drafts from synthetic public inputs, never camera/microphone capture.
+ * Three actual CPU-model drafts from synthetic public inputs, never camera/microphone capture.
  * Assertions target these supplied facts and selected known failure modes, not general
  * factual accuracy, creator benefit, training, speech playback or semantic vision.
  */
@@ -36,6 +38,7 @@ public final class ScenePlanningTest {
                             + "These are the only supplied events. Tell this story without inventing extra events or benefits.",
                     "Talking head");
             assertBoundedRoles(shots, TALKING_VERBS, "Hook", "Context", "Cutaway", "Key idea", "Takeaway");
+            assertCreatorChoiceCutaway(shots.get(2));
             String text = signature(shots).toLowerCase(Locale.ROOT);
             assertTrue("The draft should retain the supplied train event", hasWord(text, "train"));
             assertTrue("The draft should retain walking home", text.contains("walk") && hasWord(text, "home"));
@@ -50,11 +53,37 @@ public final class ScenePlanningTest {
                     Pattern.compile("\\bwalked\\s+out\\s+early\\b", Pattern.CASE_INSENSITIVE).matcher(text).find());
             String keyIdea = shotText(shots.get(3));
             assertTrue("The key idea must retain the supplied early-departure decision", hasWord(keyIdea, "early"));
-            assertTrue("The key idea must frame the departure as a decision or future plan",
-                    Pattern.compile("\\b(?:next\\s+time|plan|decision|decided|intend|will|going\\s+to|future)\\b", Pattern.CASE_INSENSITIVE)
-                            .matcher(keyIdea).find());
+            assertExplicitFuture(shots.get(3).instruction, "The departure is a next-time plan, not an already completed early departure");
             Log.i("MiniFilmScenePlanningTest", "talking_fixture pass=true shots=5 exact_roles=true bounded_cues=true"
                     + " supplied_train_walk_home_early=true targeted_unsupplied_events_absent=true");
+        } finally { planner.close(); }
+    }
+
+    @Test(timeout = 180_000) public void heldOutUmbrellaStoryRetainsWetEventAndFutureForecastWithoutInventedCutaway() throws Exception {
+        LocalPlanner planner = new LocalPlanner(context());
+        try {
+            List<Shot> shots = generate(planner,
+                    "Make a talking-head story: I forgot my umbrella, got wet, and decided to check the forecast next time. "
+                            + "These are the only supplied events. Do not invent another event, place or prop.", "Talking head");
+            assertBoundedRoles(shots, TALKING_VERBS, "Hook", "Context", "Cutaway", "Key idea", "Takeaway");
+            assertCreatorChoiceCutaway(shots.get(2));
+            String hook = shotText(shots.get(0)), context = shotText(shots.get(1)), text = signature(shots);
+            assertTrue("Hook must preserve the forgotten umbrella event", hasWord(hook, "umbrella")
+                    && Pattern.compile("\\b(?:forgot|forgotten|forget|left\\s+(?:my|your|the)\\s+umbrella)\\b", Pattern.CASE_INSENSITIVE).matcher(hook).find());
+            assertTrue("Context must retain getting wet", hasWord(context, "wet"));
+            assertTrue("The supplied forecast belongs in the key idea", hasWord(shotText(shots.get(3)), "forecast"));
+            assertExplicitFuture(shots.get(3).instruction, "Forecast checking is a next-time decision, not something already done");
+            assertTrue("Takeaway must preserve the supplied forecast plan", hasWord(shotText(shots.get(4)), "forecast"));
+            assertExplicitFuture(shots.get(4).instruction, "The final forecast cue must retain the future decision");
+            assertNoWords("Forgotten umbrella and getting wet do not establish substitute props or transport", text,
+                    "door", "doors", "opened", "train", "taxi", "uber", "bus", "cafe", "café", "raincoat", "towel", "sponsor", "brand");
+            assertFalse("The story does not establish a completed forecast-checking event",
+                    Pattern.compile("\\bchecked\\b[^.!?]{0,30}\\bforecast\\b", Pattern.CASE_INSENSITIVE).matcher(text).find());
+            String cutaway = shotText(shots.get(2));
+            assertNoWords("A forgotten umbrella is not an established available cutaway prop", cutaway, "umbrella", "forecast", "wet");
+            Log.i("MiniFilmScenePlanningTest", "held_out_umbrella_story pass=true synthetic_input=true roles=5"
+                    + " supplied_forgot_umbrella_wet_future_forecast=true creator_choice_cutaway_disclosed=true"
+                    + " targeted_unsupplied_events_absent=true general_accuracy_claim=false");
         } finally { planner.close(); }
     }
 
@@ -127,13 +156,31 @@ public final class ScenePlanningTest {
         assertNull("A template fallback does not satisfy this model-execution test: " + error.get(), error.get());
         assertNotNull(result.get());
         assertNotNull(label.get());
+        JSONArray full = new JSONArray();
+        for (Shot shot : result.get()) full.put(new JSONObject().put("id", shot.id).put("title", shot.title)
+                .put("instruction", shot.instruction).put("caption", shot.caption).put("durationMs", shot.targetDurationMs));
+        // These complete outputs and briefs are synthetic; log before targeted semantic assertions.
+        Log.i("MiniFilmScenePlanningTest", new JSONObject().put("event", "FULL_SYNTHETIC_SCENE_PLAN")
+                .put("syntheticInput", true).put("style", style).put("brief", brief).put("modelLabel", label.get())
+                .put("elapsedMs", SystemClock.elapsedRealtime() - began).put("shots", full).put("generalAccuracyClaim", false).toString());
         assertTrue("Report the actual CPU backend", label.get().contains("local CPU"));
         for (Shot shot : result.get()) assertTrue("Output must carry the AI-generated ID", shot.id.startsWith("ai-shot-"));
-        Log.i("MiniFilmScenePlanningTest", "scene_case style=" + style + " synthetic_input=true model=" + label.get()
-                + " elapsed_ms=" + (SystemClock.elapsedRealtime() - began));
-        // Log only the new synthetic fixtures, never a real user's brief or footage.
-        Log.i("MiniFilmScenePlanningTest", "synthetic_plan=" + signature(result.get()).replace('\n', ' '));
+        if (style.toLowerCase(Locale.ROOT).contains("talk") || style.toLowerCase(Locale.ROOT).contains("story"))
+            assertTrue("Talking's creator-choice cutaway restriction must be disclosed", label.get().contains("creator-choice cutaway constraint"));
         return result.get();
+    }
+
+    private static void assertCreatorChoiceCutaway(Shot cutaway) {
+        String instruction = cutaway.instruction.toLowerCase(Locale.ROOT);
+        assertTrue("Cutaway must ask for an already available object", hasWord(instruction, "available") && hasWord(instruction, "object"));
+        assertTrue("The creator chooses the actual object", hasWord(instruction, "choose"));
+        assertTrue("Cutaway caption must remain generic story/choice wording", hasWord(cutaway.caption, "story"));
+        assertNoWords("No specific cutaway place or unavailable story object is established", shotText(cutaway),
+                "door", "opened", "train", "home", "umbrella", "forecast", "station", "platform", "rain", "car", "carriage");
+    }
+    private static void assertExplicitFuture(String instruction, String reason) {
+        assertTrue(reason + ": " + instruction,
+                Pattern.compile("\\b(?:next\\s+time|plan|intend|will|going\\s+to|future)\\b", Pattern.CASE_INSENSITIVE).matcher(instruction).find());
     }
 
     private static String shotText(Shot shot) { return shot.instruction + " " + shot.caption; }
