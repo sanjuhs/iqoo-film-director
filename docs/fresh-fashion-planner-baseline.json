@@ -1,0 +1,223 @@
+{
+  "schema": "minifilm.prospective-fashion-evaluation.v1",
+  "syntheticInputsOnly": true,
+  "nativeBackend": "CPU",
+  "defaultModelSha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+  "defaultModelBytes": 563036064,
+  "retries": 0,
+  "fallback": false,
+  "generalAccuracyClaim": false,
+  "userBenefitClaim": false,
+  "manualSemanticReviewPending": true,
+  "cases": [
+    {
+      "id": "minimal-jumpsuit",
+      "brief": "Make a five-shot daily solo fashion reel while I wear my jumpsuit. Its color and material are unspecified. Ask me to choose a visible garment detail. Small body turns or one or two steps are allowed. The phone is already mounted.",
+      "style": "Fashion",
+      "prospectiveCriteria": "Retain jumpsuit; worn solo performance; unspecified Detail is a disclosed creator choice. Manually inspect all other facts, parts, props, movement and captions.",
+      "manualSemanticReviewPending": true,
+      "status": "targeted_checks_passed_manual_review_pending",
+      "detailInstructionProvenance": "native closed creator-choice constraint; not learned feature selection",
+      "otherFourInstructionsProvenance": "actual native model draft",
+      "allCaptionsProvenance": "actual native model draft",
+      "wallElapsedMs": 25293,
+      "nativeElapsedMs": 25291,
+      "callbackOnMain": true,
+      "callbackCount": 1,
+      "modelLabel": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice detail constraint",
+      "error": null,
+      "loadedNativeHandleAtCallback": true,
+      "shots": [
+        {
+          "id": "ai-shot-1",
+          "title": "Hero pose",
+          "instruction": "Stand wearing the jumpsuit in the center of the frame.",
+          "caption": "Jumpsuit",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-2",
+          "title": "Movement",
+          "instruction": "Take two small steps toward the lens.",
+          "caption": "Small steps",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-3",
+          "title": "Detail",
+          "instruction": "Show one visible garment detail you choose.",
+          "caption": "Chosen detail",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-4",
+          "title": "Side pose",
+          "instruction": "Turn slightly to the right.",
+          "caption": "Side view",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-5",
+          "title": "Closing",
+          "instruction": "Look at the lens and smile at the camera.",
+          "caption": "Final pose",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        }
+      ],
+      "preMergeNativeDraftAvailable": false,
+      "workerTerminatedAfterClose": true,
+      "nativeHandleZeroAfterClose": true,
+      "leaseReleasedAfterClose": true,
+      "targetedFindings": [],
+      "targetedChecksPassed": true
+    },
+    {
+      "id": "named-moon-patch",
+      "brief": "Make a five-shot daily solo fashion reel while I wear my navy pullover with a small moon patch. No logos or stripes are supplied. Small body turns are allowed; the phone is mounted. Creator-reviewed reference moments: 0:01 Detail: Show the moon patch on my pullover.",
+      "style": "Fashion",
+      "prospectiveCriteria": "Retain navy/pullover; exact Detail is creator-authored retention, not native grounding. Inspect other four directions and all native captions for unsupplied facts.",
+      "manualSemanticReviewPending": true,
+      "status": "targeted_checks_passed_manual_review_pending",
+      "detailInstructionProvenance": "deterministic creator-authored override after native generation; not native understanding",
+      "otherFourInstructionsProvenance": "actual native model draft",
+      "allCaptionsProvenance": "actual native model draft",
+      "wallElapsedMs": 26139,
+      "nativeElapsedMs": 26132,
+      "callbackOnMain": true,
+      "callbackCount": 1,
+      "modelLabel": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-authored reviewed cues retained",
+      "error": null,
+      "loadedNativeHandleAtCallback": true,
+      "shots": [
+        {
+          "id": "ai-shot-1",
+          "title": "Hero pose",
+          "instruction": "Stand wearing the navy pullover with the moon patch.",
+          "caption": "Moon patch",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-2",
+          "title": "Movement",
+          "instruction": "Take two small steps.",
+          "caption": "Small steps",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-3",
+          "title": "Detail",
+          "instruction": "Show the moon patch on my pullover.",
+          "caption": "Moon patch",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-4",
+          "title": "Side pose",
+          "instruction": "Turn slightly to the side.",
+          "caption": "Side view",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-5",
+          "title": "Closing",
+          "instruction": "Look at the lens and hold the pose.",
+          "caption": "Final pose",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        }
+      ],
+      "preMergeNativeDraftAvailable": false,
+      "workerTerminatedAfterClose": true,
+      "nativeHandleZeroAfterClose": true,
+      "leaseReleasedAfterClose": true,
+      "targetedFindings": [],
+      "targetedChecksPassed": true
+    },
+    {
+      "id": "stationary-talking-fashion",
+      "brief": "Make a stationary talking-fashion reel while I wear my burgundy waistcoat. I want to describe my own layering choice. Stay in one marked spot: no walking or steps. Small body turns are fine. No new props. The phone is already mounted.",
+      "style": "Fashion",
+      "prospectiveCriteria": "Retain waistcoat/burgundy; practical speech direction about my own layering choice. Stay planted without walking/steps; inspect new props and invented reasons/benefits.",
+      "manualSemanticReviewPending": true,
+      "status": "targeted_findings",
+      "detailInstructionProvenance": "native closed creator-choice constraint; not learned feature selection",
+      "otherFourInstructionsProvenance": "actual native model draft",
+      "allCaptionsProvenance": "actual native model draft",
+      "wallElapsedMs": 29732,
+      "nativeElapsedMs": 29724,
+      "callbackOnMain": true,
+      "callbackCount": 1,
+      "modelLabel": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice detail constraint",
+      "error": null,
+      "loadedNativeHandleAtCallback": true,
+      "shots": [
+        {
+          "id": "ai-shot-1",
+          "title": "Hero pose",
+          "instruction": "Stand wearing the burgundy waistcoat and facing the lens.",
+          "caption": "Burgundy waistcoat",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-2",
+          "title": "Movement",
+          "instruction": "Take two small steps while maintaining the waistcoat position.",
+          "caption": "Small steps",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-3",
+          "title": "Detail",
+          "instruction": "Show one visible garment detail you choose.",
+          "caption": "Chosen detail",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-4",
+          "title": "Side pose",
+          "instruction": "Turn slightly sideways while keeping the waistcoat in place.",
+          "caption": "Side view",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        },
+        {
+          "id": "ai-shot-5",
+          "title": "Closing",
+          "instruction": "Look at the lens and hold the waistcoat position.",
+          "caption": "Final pose",
+          "durationMs": 4000,
+          "framingTarget": "scene_default"
+        }
+      ],
+      "preMergeNativeDraftAvailable": false,
+      "workerTerminatedAfterClose": true,
+      "nativeHandleZeroAfterClose": true,
+      "leaseReleasedAfterClose": true,
+      "targetedFindings": [
+        "no actual speaking direction about creator's layering choice",
+        "locomotion wording despite stationary brief; inspect full draft"
+      ],
+      "targetedChecksPassed": false
+    }
+  ],
+  "preferencesPreserved": true,
+  "modelMetadataPreserved": true,
+  "modelHashPreserved": true,
+  "modelLeaseHeldAtEnd": false,
+  "findings": [
+    "stationary-talking-fashion: no actual speaking direction about creator's layering choice",
+    "stationary-talking-fashion: locomotion wording despite stationary brief; inspect full draft"
+  ]
+}

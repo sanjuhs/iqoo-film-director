@@ -105,6 +105,34 @@ public final class LocalPlanner {
     private static final String[] CREATOR_DETAIL_INSTRUCTIONS = {
             "Show one visible garment detail you choose.", "Point to one visible garment detail you choose."};
     private static final String[] CREATOR_DETAIL_CAPTIONS = {"Chosen detail", "Your garment detail", "Visible detail"};
+    // Explicit English intent changes bounded decoding, not a post-generation rewrite. These
+    // patterns do not interpret arbitrary briefs; only the creator's pre-reference context counts.
+    private static final Pattern STATIONARY_INTENT = Pattern.compile(
+            "\\bstationary\\s+(?:(?:talking(?:[ -]fashion)?|spoken(?:\\s+(?:outfit|fashion))?)\\s+)?(?:fashion|outfit|reel|pose)\\b"
+                    + "|(?:^|[.!?:;]\\s*|\\bI\\s+(?:will\\s+)?)(?:stay|remain)\\s+(?:in\\s+(?:one|the\\s+same)\\s+(?:marked\\s+)?spot|planted|still)\\b"
+                    + "|\\bno\\s+(?:walking|steps)\\b|\\b(?:do not|don't)\\s+(?:walk|take\\s+steps)\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern FASHION_SPEECH_INTENT = Pattern.compile(
+            "\\b(?:talking[ -]fashion|talking\\s+(?:outfit|reel)|spoken\\s+(?:outfit|fashion|reel))\\b"
+                    + "|\\bI\\s+(?:(?:want|plan|would\\s+like)\\s+to|will)\\s+(?:talk|speak|describe|explain|tell|say|share)\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NEGATED_SPEECH_INTENT = Pattern.compile(
+            "\\bsilent\\b|\\b(?:do not|don't|not|never)\\s+(?:want\\s+to\\s+)?(?:talk|speak|describe|explain|tell|say|share)\\b"
+                    + "|\\bnot\\s+(?:a\\s+)?talking[ -]fashion\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern LOCOMOTION_WORD = Pattern.compile(
+            "\\b(?:walk(?:s|ing|ed)?|steps?|stepping|stepped|stroll(?:s|ing)?|run(?:s|ning)?|stride(?:s|ing)?)\\b", Pattern.CASE_INSENSITIVE);
+    private static final String[] STATIONARY_MOVEMENT_INSTRUCTIONS = {
+            "Turn your upper body slightly while staying in one spot.",
+            "Turn slightly in place, keeping your feet planted."};
+    private static final String[] STATIONARY_MOVEMENT_CAPTIONS = {"In-place turn", "Small body turn", "Staying planted"};
+    private static final String FASHION_SPEECH_PREFIX = "Tell in your own words ";
+    private static final Pattern CREATOR_SPEECH_REQUEST = Pattern.compile(
+            "\\bI\\s+(?:(?:want|plan|would\\s+like)\\s+to|will)\\s+((?:describe|explain|tell|say|share|talk|speak)\\b)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SPOKEN_ACTION = Pattern.compile("(?:Describe|Explain|Tell|Say|Share|Talk|Speak) +\\S.*", Pattern.CASE_INSENSITIVE);
+    private static final class FashionIntent {
+        static final FashionIntent NONE = new FashionIntent(false, false);
+        final boolean stationary, speaking;
+        FashionIntent(boolean stationary, boolean speaking) { this.stationary = stationary; this.speaking = speaking; }
+        boolean active() { return stationary || speaking; }
+    }
     // Every talking-story Cutaway asks for an available object chosen by the creator. Specific
     // free-text cutaway props/events are not extracted or verified; the creator can edit the shot.
     // This closed native choice is disclosed, not learned selection of a story's physical prop.
@@ -116,6 +144,7 @@ public final class LocalPlanner {
     private static boolean runtimeLoaded;
     static { try { System.loadLibrary("director_llm"); runtimeLoaded = true; } catch (LinkageError ignored) { } }
     private final File modelFile;
+    private final boolean retainCreatorSpeech;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
     private final AtomicBoolean busy = new AtomicBoolean(false);
@@ -133,23 +162,31 @@ public final class LocalPlanner {
         }
     }
 
-    public LocalPlanner(Context context) { modelFile = new File(context.getFilesDir(), "director-model.gguf"); }
+    public LocalPlanner(Context context) { this(context, true); }
+    // Research-only native-fidelity evaluation: same model/prompt/grammar, without author merge.
+    LocalPlanner(Context context, boolean retainCreatorSpeech) {
+        modelFile = new File(context.getFilesDir(), "director-model.gguf"); this.retainCreatorSpeech = retainCreatorSpeech;
+    }
     public boolean isModelAvailable() { return runtimeLoaded && modelFile.isFile() && modelFile.length() > 10000000; }
 
     public void generate(String brief, String style, Listener listener) {
         if (closed || !isModelAvailable()) { listener.onError("Local model isn't installed. Use the editable template."); return; }
         if (!busy.compareAndSet(false, true)) { listener.onError("The local planner is already working."); return; }
-        String safeBrief = clip(brief, 500).replace("<|", "").replace("|>", "");
+        String originalBrief = brief == null ? "" : brief.trim();
+        String safeBrief = clip(originalBrief, 500).replace("<|", "").replace("|>", "");
         String safeStyle = clip(style, 60).replace("<|", "").replace("|>", "");
         String[] roles = rolesForStyle(safeStyle);
-        String[][] roleActions = actionsForRoles(roles);
+        FashionIntent fashionIntent = fashionIntent(originalBrief, roles);
+        String[][] roleActions = actionsForIntent(roles, fashionIntent);
         final ReviewedCues reviewedCues;
+        final String creatorSpeech;
         try {
-            String originalBrief = brief == null ? "" : brief.trim();
             if (originalBrief.contains(REVIEWED_MARKER) && originalBrief.length() > 500)
                 throw new IllegalArgumentException("Shorten the brief and reviewed reference notes to 500 characters together.");
             // Parse the original before chat-token sanitation, so retained creator wording is never silently altered.
             reviewedCues = parseReviewedCues(originalBrief, roles);
+            validateReviewedFashionIntent(reviewedCues, fashionIntent);
+            creatorSpeech = creatorSpeechRequest(originalBrief, fashionIntent, reviewedCues, retainCreatorSpeech);
         } catch (IllegalArgumentException failure) {
             busy.set(false);
             main.post(() -> { if (!closed) listener.onError(failure.getMessage()); });
@@ -159,7 +196,7 @@ public final class LocalPlanner {
         int detailIndex = indexOfRole(roles, "Detail");
         boolean constrainDetail = roles == FASHION_ROLES && reviewedCues.instructions[detailIndex] == null;
         // Only our role/verb constants enter the grammar, never the creator's brief.
-        String grammar = grammarForRoles(roles, roleActions, constrainDetail);
+        String grammar = grammarForRoles(roles, roleActions, constrainDetail, fashionIntent);
         try { worker.execute(() -> {
             long began = SystemClock.elapsedRealtime();
             try {
@@ -174,11 +211,11 @@ public final class LocalPlanner {
                     }
                 }
                 if (closed) return;
-                String prompt = buildPrompt(safeBrief, safeStyle, roles, roleActions, reviewedMoments, constrainDetail, true);
+                String prompt = buildPrompt(safeBrief, safeStyle, roles, roleActions, reviewedMoments, constrainDetail, true, fashionIntent);
                 if (closed) return;
                 String result = new String(nativeGenerate(handle, prompt.getBytes(StandardCharsets.UTF_8),
                         grammar.getBytes(StandardCharsets.UTF_8), 580), StandardCharsets.UTF_8);
-                List<Shot> plan = parse(result, roles, roleActions, constrainDetail);
+                List<Shot> plan = parse(result, roles, roleActions, constrainDetail, fashionIntent);
                 // Native output is still a real five-shot draft. Named instructions below are creator-authored
                 // authoritative edits, not evidence that the model understood or preserved the reviewed direction.
                 for (int i = 0; i < plan.size(); i++) if (reviewedCues.instructions[i] != null) {
@@ -186,12 +223,20 @@ public final class LocalPlanner {
                     plan.set(i, new Shot(generated.id, generated.title, reviewedCues.instructions[i],
                             generated.caption, generated.targetDurationMs));
                 }
+                // Explicit author wording is kept separate from native topic understanding.
+                // The other four roles and the generated speech duration remain unchanged.
+                plan = applyCreatorSpeechRequest(plan, creatorSpeech);
+                validatePlanFashionIntent(plan, fashionIntent);
                 long elapsed = SystemClock.elapsedRealtime() - began;
                 Log.i("MiniFilmLocalAI", "planner_complete model=qwen35_0.8b backend=cpu shots=" + plan.size() + " elapsed_ms=" + elapsed);
                 String modelLabel = MODEL_LABEL + (constrainDetail ? " · creator-choice detail constraint" : "")
+                        + (fashionIntent.stationary ? " · stationary movement constraint" : "")
+                        + (fashionIntent.speaking ? " · talking-fashion speech constraint" : "")
+                        + (creatorSpeech != null ? " · Closing: creator-authored speech request retained" : "")
                         + (roles == TALKING_ROLES ? " · creator-choice cutaway constraint" : "")
                         + (reviewedCues.hasAny() ? " · creator-authored reviewed cues retained" : "");
-                main.post(() -> { if (!closed) listener.onPlan(plan, elapsed, modelLabel); });
+                List<Shot> publishedPlan = plan;
+                main.post(() -> { if (!closed) listener.onPlan(publishedPlan, elapsed, modelLabel); });
             } catch (Exception | LinkageError failure) {
                 boolean invalidMovement = failure instanceof FashionMovementException;
                 boolean invalidCaption = failure instanceof FashionCaptionException;
@@ -217,12 +262,16 @@ public final class LocalPlanner {
     /** Shared production prompt; only the explicit chat adapter changes for a comparison model. */
     private static String buildPrompt(String safeBrief, String safeStyle, String[] roles, String[][] roleActions,
             boolean reviewedMoments, boolean constrainDetail, boolean emptyThinkAdapter) {
+        return buildPrompt(safeBrief, safeStyle, roles, roleActions, reviewedMoments, constrainDetail, emptyThinkAdapter, FashionIntent.NONE);
+    }
+    private static String buildPrompt(String safeBrief, String safeStyle, String[] roles, String[][] roleActions,
+            boolean reviewedMoments, boolean constrainDetail, boolean emptyThinkAdapter, FashionIntent intent) {
         return "<|im_start|>system\nDirect a creator making five recorded phone takes. Never give preparation or lighting setup as a take. " +
                 "The phone is already mounted and stationary. Address the creator as the performer with one imperative action, never describe a third person. " +
                 "The creator never holds, moves, adjusts or refocuses the filming device during a take. Keep body movements small. No aircraft actions. " +
                 "Use only colors, materials, features and product parts explicitly supplied in the brief; do not invent them. For an unspecified detail, ask the creator to choose one visible detail. " +
                 "Do not invent personal facts, product benefits or a verdict; ask for the creator's own honest words. " +
-                sceneBeats(safeStyle, reviewedMoments)
+                (intent.active() ? fashionIntentBeats(intent, reviewedMoments) : sceneBeats(safeStyle, reviewedMoments))
                 + (constrainDetail ? " No explicit creator-reviewed Detail cue was supplied. For Detail ask the creator to choose one visible garment detail; its caption must be generic, without naming a garment part. " : "")
                 + " Exact title order: " + String.join(", ", roles) + ". " +
                 "Return ONLY a JSON array of exactly five objects, each with title (the assigned exact title), instruction (one concrete sentence, at most 90 characters), caption (1 to 30 characters), duration_ms (3000 to 8000, whole seconds). " +
@@ -236,6 +285,9 @@ public final class LocalPlanner {
     }
 
     private static List<Shot> parse(String text, String[] roles, String[][] roleActions, boolean constrainDetail) throws Exception {
+        return parse(text, roles, roleActions, constrainDetail, FashionIntent.NONE);
+    }
+    private static List<Shot> parse(String text, String[] roles, String[][] roleActions, boolean constrainDetail, FashionIntent intent) throws Exception {
         JSONArray array = new JSONArray(text.trim());
         if (array.length() != 5) throw new IllegalArgumentException("Expected five shots");
         List<Shot> result = new ArrayList<>();
@@ -259,6 +311,13 @@ public final class LocalPlanner {
                 throw new FashionCaptionException();
             if (roles == FASHION_ROLES && i == 1 && invalidFashionMovement(instruction))
                 throw new FashionMovementException();
+            if (intent.stationary && (hasLocomotion(instruction) || hasLocomotion(caption)))
+                throw new IllegalArgumentException("Stationary fashion must stay in place");
+            if (intent.stationary && i == 1 && (!contains(STATIONARY_MOVEMENT_INSTRUCTIONS, instruction)
+                    || !contains(STATIONARY_MOVEMENT_CAPTIONS, caption)))
+                throw new IllegalArgumentException("Stationary movement must remain an in-place turn");
+            if (intent.speaking && i == 4 && (!instruction.startsWith(FASHION_SPEECH_PREFIX) || duration < 6000))
+                throw new IllegalArgumentException("Talking fashion needs a short own-words speech cue");
             if (constrainDetail && i == 2 && (!contains(CREATOR_DETAIL_INSTRUCTIONS, instruction)
                     || !contains(CREATOR_DETAIL_CAPTIONS, caption)))
                 throw new IllegalArgumentException("Unspecified detail must remain a creator choice");
@@ -283,6 +342,104 @@ public final class LocalPlanner {
 
     private static boolean invalidFashionMovement(String instruction) {
         return FASHION_TAKE_PART.matcher(instruction).find() || FASHION_PART_DESTINATION.matcher(instruction).find();
+    }
+
+    private static FashionIntent fashionIntent(String brief, String[] roles) {
+        if (roles != FASHION_ROLES) return FashionIntent.NONE;
+        String context = creatorContext(brief);
+        String stationaryContext = context.replaceAll("(?i)\\bnot\\s+stationary\\b", "");
+        return new FashionIntent(STATIONARY_INTENT.matcher(stationaryContext).find(),
+                FASHION_SPEECH_INTENT.matcher(context).find() && !NEGATED_SPEECH_INTENT.matcher(context).find());
+    }
+
+    private static String creatorContext(String brief) {
+        int end = brief.length();
+        for (String referenceLabel : new String[]{REVIEWED_MARKER, "Creator-reviewed reference speech:",
+                "Reference notes (reviewed when visual AI is used; approximate):"}) {
+            int marker = brief.indexOf(referenceLabel);
+            if (marker >= 0) end = Math.min(end, marker);
+        }
+        return brief.substring(0, end);
+    }
+
+    /** Literal English request retention, not topic extraction or learned understanding. Only
+     * remove the finite first-person request prefix and capitalize the speech verb. Unsupported
+     * prose leaves the editable native draft; recognized ambiguous/bad clauses fail visibly.
+     */
+    private static String creatorSpeechRequest(String brief, FashionIntent intent, ReviewedCues reviewed, boolean enabled) {
+        if (!enabled || !intent.speaking || reviewed.instructions[4] != null) return null;
+        String context = creatorContext(brief);
+        Matcher requests = CREATOR_SPEECH_REQUEST.matcher(context);
+        if (!requests.find()) return null;
+        if (brief.length() > 500) throw new IllegalArgumentException("Shorten the brief and spoken request to 500 characters together. Nothing was truncated.");
+        int start = requests.start(1), verbEnd = requests.end(1);
+        if (requests.find()) throw new IllegalArgumentException("Keep one explicit spoken request, or edit Closing yourself.");
+        int end = context.length();
+        for (int i = verbEnd; i < context.length(); i++) {
+            char ch = context.charAt(i);
+            if (ch == '.' || ch == '!' || ch == '?') {
+                end = i + 1;
+                if (end < context.length() && !Character.isWhitespace(context.charAt(end)))
+                    throw new IllegalArgumentException("Use one plainly punctuated short sentence for the spoken request, or edit Closing yourself.");
+                break;
+            }
+        }
+        String clause = context.substring(start, end).trim();
+        String subject = context.substring(verbEnd, end).replaceAll("[.!?]$", "").trim();
+        if (subject.isEmpty() || clause.length() > 90 || clause.contains("<|") || clause.contains("|>")
+                || clause.indexOf('{') >= 0 || clause.indexOf('}') >= 0 || clause.indexOf('"') >= 0 || clause.indexOf(';') >= 0
+                || Pattern.compile("\\b(?:and|or|then)\\s+(?:describe|explain|tell|say|share|talk|speak)\\b", Pattern.CASE_INSENSITIVE).matcher(clause).find())
+            throw new IllegalArgumentException("Use one plain spoken request with a subject, at most 90 characters after the request prefix. Nothing was shortened.");
+        for (int i = 0; i < clause.length(); i++) if (Character.isISOControl(clause.charAt(i)))
+            throw new IllegalArgumentException("Keep the spoken request on one line without control characters.");
+        String instruction = Character.toUpperCase(clause.charAt(0)) + clause.substring(1);
+        if (invalidFashionDeviceCue(instruction) || intent.stationary && hasLocomotion(instruction))
+            throw new IllegalArgumentException("The spoken request conflicts with mounted-device or stationary direction. Edit the request or Closing.");
+        return instruction;
+    }
+
+    private static List<Shot> applyCreatorSpeechRequest(List<Shot> nativePlan, String request) {
+        if (request == null) return nativePlan;
+        List<Shot> retained = new ArrayList<>(nativePlan);
+        Shot closing = nativePlan.get(4);
+        retained.set(4, new Shot(closing.id, closing.title, request, "My own words", closing.targetDurationMs, closing.framingTarget));
+        return retained;
+    }
+
+    private static String[][] actionsForIntent(String[] roles, FashionIntent intent) {
+        String[][] actions = actionsForRoles(roles);
+        if (!intent.active()) return actions;
+        actions = actions.clone();
+        if (intent.stationary) actions[1] = new String[]{"Turn"};
+        if (intent.speaking) actions[4] = new String[]{"Tell"};
+        return actions;
+    }
+
+    // Conservative lexical check only: negated motion requests are allowed, but other motion
+    // words (including ambiguous procedural "steps") fail closed for this explicit intent.
+    // It does not establish every generated action or brief interpretation as physically valid.
+    private static boolean hasLocomotion(String text) {
+        String positive = text.replaceAll("(?i)\\b(?:no|without)\\s+(?:walking|steps)(?:\\s+(?:or|and)\\s+(?:walking|steps))?\\b", "")
+                .replaceAll("(?i)\\b(?:never|not|do not|don't|without)\\s+(?:walk|walking|step|steps|take\\s+(?:any\\s+)?steps)\\b", "");
+        return LOCOMOTION_WORD.matcher(positive).find();
+    }
+
+    private static void validateReviewedFashionIntent(ReviewedCues reviewed, FashionIntent intent) {
+        if (intent.stationary) for (String cue : reviewed.instructions) if (cue != null && hasLocomotion(cue))
+            throw new IllegalArgumentException("Your reviewed cue conflicts with staying in one place. Remove walking or steps, or edit the brief.");
+        String closing = reviewed.instructions[4];
+        if (intent.speaking && closing != null && !SPOKEN_ACTION.matcher(closing).matches())
+            throw new IllegalArgumentException("Talking-fashion Closing needs your spoken sentence. Review its named cue or remove talking from the brief.");
+    }
+
+    private static void validatePlanFashionIntent(List<Shot> plan, FashionIntent intent) {
+        if (intent.active()) for (Shot shot : plan) if (invalidFashionDeviceCue(shot.instruction))
+            throw new IllegalArgumentException("Fashion performance must leave filming devices mounted.");
+        if (intent.stationary) for (Shot shot : plan) if (hasLocomotion(shot.instruction) || hasLocomotion(shot.caption))
+            throw new IllegalArgumentException("Stationary fashion must stay in place");
+        if (intent.speaking && (!SPOKEN_ACTION.matcher(plan.get(4).instruction).matches()
+                || plan.get(4).targetDurationMs < 6000))
+            throw new IllegalArgumentException("Talking fashion needs a short own-words speech cue");
     }
 
     private static boolean invalidFashionDeviceCue(String instruction) {
@@ -384,18 +541,31 @@ public final class LocalPlanner {
     }
 
     private static String grammarForRoles(String[] roles, String[][] roleActions, boolean constrainDetail) {
+        return grammarForRoles(roles, roleActions, constrainDetail, FashionIntent.NONE);
+    }
+    private static String grammarForRoles(String[] roles, String[][] roleActions, boolean constrainDetail, FashionIntent intent) {
         StringBuilder grammar = new StringBuilder("root ::= \"[\" ws shot0 \",\" ws shot1 \",\" ws shot2 \",\" ws shot3 \",\" ws shot4 \"]\" ws\n");
         for (int i = 0; i < roles.length; i++) {
             grammar.append("shot").append(i).append(" ::= \"{\" ws ").append(grammarLiteral("\"title\""))
                     .append(" ws \":\" ws ").append(grammarLiteral("\"" + roles[i] + "\""))
                     .append(" ws \",\" ws ").append(grammarLiteral("\"instruction\""))
                     .append(" ws \":\" ws instruction").append(i).append(" \",\" ws ")
-                    .append(i == 2 && roles == TALKING_ROLES ? "cutawayFields"
+                    .append(intent.stationary && i == 1 ? "stationaryFields"
+                            : intent.speaking && i == 4 ? "speechFields"
+                            : i == 2 && roles == TALKING_ROLES ? "cutawayFields"
                             : constrainDetail && i == 2 ? "detailFields" : "fields").append("\n");
         }
         grammar.append("fields ::= ").append(grammarLiteral("\"caption\""))
                 .append(" ws \":\" ws caption \",\" ws ").append(grammarLiteral("\"duration_ms\""))
                 .append(" ws \":\" ws duration \"}\" ws\n");
+        if (intent.stationary) grammar.append("stationaryFields ::= ").append(grammarLiteral("\"caption\""))
+                .append(" ws \":\" ws stationaryCaption \",\" ws ").append(grammarLiteral("\"duration_ms\""))
+                .append(" ws \":\" ws duration \"}\" ws\n")
+                .append("stationaryCaption ::= (").append(quotedChoices(STATIONARY_MOVEMENT_CAPTIONS)).append(") ws\n");
+        if (intent.speaking) grammar.append("speechFields ::= ").append(grammarLiteral("\"caption\""))
+                .append(" ws \":\" ws caption \",\" ws ").append(grammarLiteral("\"duration_ms\""))
+                .append(" ws \":\" ws speechDuration \"}\" ws\n")
+                .append("speechDuration ::= (\"6000\" | \"7000\" | \"8000\") ws\n");
         if (constrainDetail) {
             grammar.append("detailFields ::= ").append(grammarLiteral("\"caption\""))
                     .append(" ws \":\" ws detailCaption \",\" ws ").append(grammarLiteral("\"duration_ms\""))
@@ -409,6 +579,16 @@ public final class LocalPlanner {
                     .append("cutawayCaption ::= (").append(quotedChoices(CREATOR_CUTAWAY_CAPTIONS)).append(") ws\n");
         }
         for (int role = 0; role < roles.length; role++) {
+            if (intent.stationary && role == 1) {
+                grammar.append("instruction1 ::= (").append(quotedChoices(STATIONARY_MOVEMENT_INSTRUCTIONS)).append(") ws\n");
+                continue;
+            }
+            if (intent.speaking && role == 4) {
+                grammar.append("instruction4 ::= ").append(grammarLiteral("\"" + FASHION_SPEECH_PREFIX))
+                        .append(" char{1,").append(90 - FASHION_SPEECH_PREFIX.length()).append("} ")
+                        .append(grammarLiteral("\"")).append(" ws\n");
+                continue;
+            }
             if (roles == TALKING_ROLES && role == 2) {
                 grammar.append("instruction2 ::= (").append(quotedChoices(CREATOR_CUTAWAY_INSTRUCTIONS)).append(") ws\n");
                 continue;
@@ -451,6 +631,19 @@ public final class LocalPlanner {
     private static String clip(String value, int length) {
         String clean = value == null ? "" : value.trim();
         return clean.length() > length ? clean.substring(0, length) : clean;
+    }
+
+    private static String fashionIntentBeats(FashionIntent intent, boolean reviewedMoments) {
+        return "Fashion: wear THIS outfit; invent no colors, parts, materials, patterns or props. "
+                + (intent.stationary ? "Stationary request: keep every take in one spot. No walking or steps. Movement is only a small in-place body turn. "
+                        : "Movement is a small body turn or one/two steps after checking the path; never take a garment part. ")
+                + "Hero pose shows the supplied worn garment. Detail requests one visible feature chosen by the creator. Side pose shows a small side angle. "
+                + (intent.speaking ? "Closing asks for ONE short sentence in the creator's own words about THIS brief's actual speech topic. Name that topic. "
+                        + "Begin Tell in your own words, then name the supplied speech subject; do not substitute a generic clothing topic or filler. "
+                        + "Do not supply their reason, opinion or benefit. Allow 6-8 seconds as an editable speech-length draft. "
+                        : "Closing asks for a final held pose and eyeline. ")
+                + (reviewedMoments ? "Preserve creator-reviewed named cues. " : "")
+                + "Captions are short complete phrases about the actual garment, pose or supplied speech subject. ";
     }
 
     private static String sceneBeats(String style, boolean reviewedMoments) {

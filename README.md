@@ -130,3 +130,17 @@ Subtitle review now protects current words from canceled/background/stale
 editor actions while retaining malformed timestamps for correction.
 [Subtitle editor evidence](docs/subtitle-editor-ownership-evidence.md) records
 four physical and36 fresh-emulator methods plus ordinary synthetic form review.
+
+Three prospective synthetic fashion briefs now retain full actual CPU output.
+The stationary talking brief failed by asking for steps and omitting speech;
+[planner evidence](docs/fresh-fashion-planner-evidence.md) keeps that failure and
+distinguishes native instructions from creator-authored cues and closed choices.
+
+**Start a new reel** deselects older takes and clears the title while keeping
+originals and edits. [Reset checks](docs/new-reel-evidence.md) verify Cancel and
+retained facts. Guided shooting now clearly shows its required planned stop;
+[setting checks](docs/guided-stop-settings-evidence.md) retain the initial helper
+failures and corrected results. Short explicit talking-fashion requests are
+preserved as labelled creator wording after real CPU planning;
+[hybrid evidence](docs/creator-speech-retention-evidence.md) separates this from
+the native model's retained topic failures.

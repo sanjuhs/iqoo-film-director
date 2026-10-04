@@ -62,6 +62,14 @@ UI36/68.802s passed; ordinary synthetic form/Save/prefs were reviewed.
 [Subtitle editor evidence](subtitle-editor-ownership-evidence.md) scopes this to
 review actions, with standalone transcription background behavior unchanged.
 
+Current usability increments add **Start a new reel** without deleting older
+originals/edits and clearly show forced planned stopping in guided mode.
+[Reset evidence](new-reel-evidence.md), [stop-setting evidence](guided-stop-settings-evidence.md).
+Raw native stationary/talking failures remain recorded. One actual default CPU
+hybrid run retained the creator's explicit short speech request with separate
+Closing provenance; [hybrid evidence](creator-speech-retention-evidence.md) does
+not establish native topic understanding or attended spoken fit.
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |

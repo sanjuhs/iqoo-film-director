@@ -283,3 +283,22 @@ Existing bad/overlapping times remain available for correction, with all-row
 validation before Save. [Checks and limits](../../docs/subtitle-editor-ownership-evidence.md)
 record four physical and36 interface passes; standalone transcription background
 behavior remains outside this repair.
+
+### Prospective fashion direction checks
+
+Three fresh synthetic briefs exposed a concrete stationary talking-fashion failure:
+the local draft suggested steps and omitted speaking. Full original outputs and
+provenance remain in [planner evidence](../../docs/fresh-fashion-planner-evidence.md).
+A named reviewed Detail is retained creator wording; an unspecified Detail is a
+disclosed creator-choice constraint. These checks do not establish creator benefit
+or general shot quality. Explicit stationary/talking constraints are evaluated
+separately from ordinary fashion and reference context.
+
+**Start a new reel** deselects older takes and clears the title while keeping
+originals and edits. [Reset checks](../../docs/new-reel-evidence.md) verify Cancel and
+retained facts. Guided shooting now clearly shows its required planned stop;
+[setting checks](../../docs/guided-stop-settings-evidence.md) retain the initial helper
+failures and corrected results. Short explicit talking-fashion requests are
+preserved as labelled creator wording after real CPU planning;
+[hybrid evidence](../../docs/creator-speech-retention-evidence.md) separates this from
+the native model's retained topic failures.

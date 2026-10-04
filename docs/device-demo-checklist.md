@@ -351,3 +351,21 @@ for another cut. Correct all invalid/overlapping times before Save; an error
 keeps current saved words intact. Later applies nothing. Remove explicitly
 clears only this take's subtitles and restores fallback typography. Saving or
 removing returns you to your previous place. [Editor evidence](subtitle-editor-ownership-evidence.md).
+
+## Begin another reel and keep your spoken request
+
+In Assemble, **Start a new reel** asks for confirmation. It clears the title and
+deselects older takes, then returns to Brief; originals and all edits remain.
+Review the retained brief/plan before drafting or recording the next reel.
+[Reset evidence](new-reel-evidence.md).
+
+For a talking-fashion brief, a short request such as **I want to describe my own
+layering choice.** is retained in Closing after the local five-shot draft, labelled
+creator-authored. Check all other model directions/captions yourself. This literal
+English path is bounded; it does not demonstrate topic understanding. Edit the
+shot duration to fit what you will actually say. [Evidence](creator-speech-retention-evidence.md).
+
+Guided shooting requires planned stopping, so its stop switch stays checked and
+disabled. For free talking, turn guidance off and planned stop off; end the take
+yourself. The existing60-second hard limit still applies. Changes affect the next
+take. [Setting evidence](guided-stop-settings-evidence.md).

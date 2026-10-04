@@ -1,0 +1,74 @@
+{
+  "syntheticOnly": true,
+  "brief": "Make a stationary talking-fashion reel while I wear my burgundy waistcoat. I want to describe my own layering choice. Stay in one marked spot: no walking or steps. Small body turns are fine. No new props. The phone is already mounted.",
+  "backend": "CPU",
+  "attempts": 1,
+  "retries": 0,
+  "fallback": false,
+  "nativeFiveShotDraftRequiredBeforeMerge": true,
+  "nativeTopicUnderstandingClaim": false,
+  "actualSpeechFitClaim": false,
+  "userBenefitClaim": false,
+  "closingInstructionOrigin": "literal creator-authored request",
+  "closingCaptionOrigin": "creator-owned disclosure caption",
+  "closingDurationOrigin": "native bounded 6-8 second draft",
+  "otherFourFieldsOrigin": "actual native draft, including disclosed closed-choice Movement and Detail constraints",
+  "complete": true,
+  "nativeElapsedMs": 30381,
+  "wallElapsedMs": 30384,
+  "modelLabel": "Qwen3.5 0.8B · local CPU · editable AI draft · creator-choice detail constraint · stationary movement constraint · talking-fashion speech constraint · Closing: creator-authored speech request retained",
+  "error": null,
+  "actualNativeHandlePresentAtCallback": true,
+  "shots": [
+    {
+      "title": "Hero pose",
+      "instruction": "Stand in front of the camera wearing the burgundy waistcoat",
+      "caption": "Worn waistcoat",
+      "durationMs": 4000,
+      "instructionOrigin": "native decoded draft",
+      "captionOrigin": "native decoded draft",
+      "durationOrigin": "native decoded draft"
+    },
+    {
+      "title": "Movement",
+      "instruction": "Turn slightly in place, keeping your feet planted.",
+      "caption": "Small body turn",
+      "durationMs": 3000,
+      "instructionOrigin": "native decoded draft",
+      "captionOrigin": "native decoded draft",
+      "durationOrigin": "native decoded draft"
+    },
+    {
+      "title": "Detail",
+      "instruction": "Show one visible garment detail you choose.",
+      "caption": "Visible detail",
+      "durationMs": 4000,
+      "instructionOrigin": "native decoded draft",
+      "captionOrigin": "native decoded draft",
+      "durationOrigin": "native decoded draft"
+    },
+    {
+      "title": "Side pose",
+      "instruction": "Turn to the side, keeping your face visible.",
+      "caption": "Side pose",
+      "durationMs": 3000,
+      "instructionOrigin": "native decoded draft",
+      "captionOrigin": "native decoded draft",
+      "durationOrigin": "native decoded draft"
+    },
+    {
+      "title": "Closing",
+      "instruction": "Describe my own layering choice.",
+      "caption": "My own words",
+      "durationMs": 6000,
+      "instructionOrigin": "creator-authored retained request",
+      "captionOrigin": "creator-owned disclosure caption",
+      "durationOrigin": "native decoded draft"
+    }
+  ],
+  "targetedHybridChecksPassed": true,
+  "workerDrained": true,
+  "nativeHandleAndLeaseReleased": true,
+  "preferencesPreserved": true,
+  "modelPreserved": true
+}

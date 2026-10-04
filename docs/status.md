@@ -1751,3 +1751,45 @@ upload/capture/playback/aircraft action. Only own AVD/reg removed after terminal
 other untouched. Qualified peak10460685716B, finaladjacent9329161620B; historic
 inventory/reserve/runtime qualifications persist, no new downloads. Goal active;
 attended/device/competition gates remain unchanged.
+
+### 22:29 IST — another reel, honest stopping and creator speech
+
+**Start a new reel** confirms deselection/title clearing and retains originals,
+all edits, current brief/plan/look and output references. UI26/91.226s passed and
+ordinary synthetic Cancel/Confirm JSON plus visible screens were reviewed.
+[Reset evidence](new-reel-evidence.md). Guided stopping now appears checked/disabled
+while sequence guidance forces it; guidance off restores the manual preference.
+Initial UI25/28 had three shared-helper return-contract failures; source unchanged,
+corrected helper focused3/5.404s passed. Ordinary switching confirmed states.
+[Stop setting evidence](guided-stop-settings-evidence.md). No recording policy change.
+
+Three prospective native fashion briefs retained actual outputs: jumpsuit and
+named-moon-patch pullover yielded editable directions, but stationary talking
+waistcoat asked for steps and omitted speech. Explicit intent decoding repaired
+stationary movement while two-topic native runs still failed the requested
+layering/styling topic: first39,819/25,947ms; example-removal29,967/32,449ms; one
+raw Closing-first31,162ms also failed and truncated captions. All failures and
+first-observation/regression provenance remain. [Native evidence](fresh-fashion-planner-evidence.md).
+
+Default planning now keeps one bounded literal creator first-person speech
+request after real five-shot native generation, changes only Closing instruction/
+caption with explicit provenance and preserves its native duration plus other
+four objects. Named reviewed Closing wins. Deterministic retention3+intent3 and
+one real CPU hybrid passed; native30,381ms/wall30,384ms, creator Closing
+**Describe my own layering choice.**/My own words/6000ms. Worker/handle/lease,
+prefs/model preservation verified. Parent invocation mistyped two companion
+class names (7 actual pass+2 class-load failures/32.12s); correct companion-only
+11/0.175s passed without repeating inference. Native-fidelity tests explicitly
+disable this author merge; unchanged topic assertions/failures remain.
+[Hybrid evidence](creator-speech-retention-evidence.md). No native-understanding,
+spoken-fit, creator benefit or attended-capture claim.
+
+Offline build1s/normal installs. Built/saved/independently read installedAPK
+52838059B SHA256b1d40c5947c0e4b62cbcd0c3a4f13b4255070f160fce185829a18b92406c8e49. Source-identical notices,
+separate weights excluded/noInternet. Gallery1/0.761s unchanged29/0/8,373,323B.
+Normal Main launch behind secure keyguard, capture denied; no unlock/grant/private
+upload/capture/audio/aircraft action. Only own AVD/reg removed after parent
+terminal, other untouched. Qualified peak11137596624B,
+final adjacent9332161744B; historic reserve/runtime
+qualifications persist. No new downloads. Goal active until midnight; attended
+filming/AirPods/iQOO/NPU/event eligibility and accepted submission remain open.

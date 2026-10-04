@@ -1,0 +1,117 @@
+{
+  "syntheticOnly": true,
+  "backend": "CPU",
+  "retries": 0,
+  "fallback": false,
+  "actualSpeechFitClaim": false,
+  "userBenefitClaim": false,
+  "manualSemanticReviewPending": true,
+  "cases": [
+    {
+      "id": "observed-waistcoat-repair",
+      "brief": "Make a stationary talking-fashion reel while I wear my burgundy waistcoat. I want to describe my own layering choice. Stay in one marked spot: no walking or steps. Small body turns are fine. No new props. The phone is already mounted.",
+      "status": "targeted_findings",
+      "expectedNativeDecodedInstructions": 5,
+      "stationaryMovementClosedChoice": true,
+      "speechTopicNativeFreeText": true,
+      "creatorOverride": false,
+      "shots": [
+        {
+          "title": "Hero pose",
+          "instruction": "Stand wearing your burgundy waistcoat.",
+          "caption": "My outfit",
+          "durationMs": 4000
+        },
+        {
+          "title": "Movement",
+          "instruction": "Turn your upper body slightly while staying in one spot.",
+          "caption": "In-place turn",
+          "durationMs": 4000
+        },
+        {
+          "title": "Detail",
+          "instruction": "Show one visible garment detail you choose.",
+          "caption": "Chosen detail",
+          "durationMs": 4000
+        },
+        {
+          "title": "Side pose",
+          "instruction": "Turn slightly sideways in place.",
+          "caption": "Side view",
+          "durationMs": 4000
+        },
+        {
+          "title": "Closing",
+          "instruction": "Tell in your own words one short sentence about your outfit choice.",
+          "caption": "My outfit choice",
+          "durationMs": 8000
+        }
+      ],
+      "nativeElapsedMs": 39819,
+      "wallElapsedMs": 39823,
+      "modelLabel": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice detail constraint \u00b7 stationary movement constraint \u00b7 talking-fashion speech constraint",
+      "error": null,
+      "workerDrained": true,
+      "nativeHandleAndLeaseReleased": true,
+      "targetedFindings": [
+        "practical own-words cue must name supplied speech topic"
+      ]
+    },
+    {
+      "id": "prospective-violet-poncho",
+      "brief": "Make a stationary spoken outfit reel while I wear my violet poncho. I want to explain my own styling choice. Stay planted: no walking or steps. Only small body turns; no new props or fasteners. The phone is mounted.",
+      "status": "targeted_findings",
+      "expectedNativeDecodedInstructions": 5,
+      "stationaryMovementClosedChoice": true,
+      "speechTopicNativeFreeText": true,
+      "creatorOverride": false,
+      "shots": [
+        {
+          "title": "Hero pose",
+          "instruction": "Stand wearing your violet poncho.",
+          "caption": "My outfit",
+          "durationMs": 4000
+        },
+        {
+          "title": "Movement",
+          "instruction": "Turn your upper body slightly while staying in one spot.",
+          "caption": "In-place turn",
+          "durationMs": 4000
+        },
+        {
+          "title": "Detail",
+          "instruction": "Show one visible garment detail you choose.",
+          "caption": "Chosen detail",
+          "durationMs": 4000
+        },
+        {
+          "title": "Side pose",
+          "instruction": "Turn slightly sideways in place.",
+          "caption": "Side view",
+          "durationMs": 4000
+        },
+        {
+          "title": "Closing",
+          "instruction": "Tell in your own words one short sentence about your outfit choice.",
+          "caption": "My outfit choice",
+          "durationMs": 8000
+        }
+      ],
+      "nativeElapsedMs": 25947,
+      "wallElapsedMs": 25954,
+      "modelLabel": "Qwen3.5 0.8B \u00b7 local CPU \u00b7 editable AI draft \u00b7 creator-choice detail constraint \u00b7 stationary movement constraint \u00b7 talking-fashion speech constraint",
+      "error": null,
+      "workerDrained": true,
+      "nativeHandleAndLeaseReleased": true,
+      "targetedFindings": [
+        "practical own-words cue must name supplied speech topic"
+      ]
+    }
+  ],
+  "preferencesPreserved": true,
+  "modelPreserved": true,
+  "findings": [
+    "observed-waistcoat-repair: practical own-words cue must name supplied speech topic",
+    "prospective-violet-poncho: practical own-words cue must name supplied speech topic"
+  ]
+}

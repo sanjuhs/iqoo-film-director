@@ -1,0 +1,67 @@
+{
+  "syntheticOnly": true,
+  "brief": "Make a stationary talking-fashion reel while I wear my burgundy waistcoat. I want to describe my own layering choice. Stay in one marked spot: no walking or steps. Small body turns are fine. No new props. The phone is already mounted.",
+  "backend": "local CPU",
+  "modelSha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+  "modelBytes": 563036064,
+  "maxOutputTokens": 580,
+  "contextTokens": 1536,
+  "cpuThreads": 4,
+  "emptyThinkAdapter": true,
+  "changedOnlyTitleAndRootOrder": true,
+  "generationOrder": "Exact title order: Closing, Hero pose, Movement, Detail, Side pose.",
+  "nativeCalls": 1,
+  "retry": false,
+  "fallback": false,
+  "fieldRewrite": false,
+  "creatorOverride": false,
+  "generalQualityClaim": false,
+  "status": "diagnostic_failed",
+  "rawNativeJSON": "[{\"title\": \"Closing\", \"instruction\": \"Tell in your own words about the brief's actual speech topic.\", \"caption\": \"I am wearing a burgundy waistc\", \"duration_ms\": 6000}, {\"title\": \"Hero pose\", \"instruction\": \"Stand in one spot while wearing the burgundy waistcoat.\", \"caption\": \"I wear a burgundy waistco\", \"duration_ms\": 6000}, {\"title\": \"Movement\", \"instruction\": \"Turn slightly in place, keeping your feet planted.\", \"caption\": \"In-place turn\", \"duration_ms\": 6000}, {\"title\": \"Detail\", \"instruction\": \"Show one visible garment detail you choose.\", \"caption\": \"Visible detail\", \"duration_ms\": 6000}, {\"title\": \"Side pose\", \"instruction\": \"Turn to the side while maintaining the waistcoat.\", \"caption\": \"Side pose\", \"duration_ms\": 6000}]",
+  "nativeGenerationMs": 31162,
+  "loadAndGenerationMs": 32414,
+  "rawFirstClosing": true,
+  "rawOwnWords": true,
+  "rawLayeringTopicNamed": false,
+  "rawSpeechDurationValid": true,
+  "canonicalProductionParsePassed": true,
+  "canonicalObjects": [
+    {
+      "title": "Hero pose",
+      "instruction": "Stand in one spot while wearing the burgundy waistcoat.",
+      "caption": "I wear a burgundy waistco",
+      "duration_ms": 6000
+    },
+    {
+      "title": "Movement",
+      "instruction": "Turn slightly in place, keeping your feet planted.",
+      "caption": "In-place turn",
+      "duration_ms": 6000
+    },
+    {
+      "title": "Detail",
+      "instruction": "Show one visible garment detail you choose.",
+      "caption": "Visible detail",
+      "duration_ms": 6000
+    },
+    {
+      "title": "Side pose",
+      "instruction": "Turn to the side while maintaining the waistcoat.",
+      "caption": "Side pose",
+      "duration_ms": 6000
+    },
+    {
+      "title": "Closing",
+      "instruction": "Tell in your own words about the brief's actual speech topic.",
+      "caption": "I am wearing a burgundy waistc",
+      "duration_ms": 6000
+    }
+  ],
+  "failureClass": "AssertionError",
+  "wallElapsedMs": 32417,
+  "nativeFreeReturned": true,
+  "nativeHandleZeroAfterFree": true,
+  "leaseReleased": true,
+  "preferencesPreserved": true,
+  "modelHashSizeMtimePreserved": true
+}
