@@ -150,6 +150,23 @@ sequence. Confirm these behaviors on the real phone before a presentation.
 3. **Generate offline subtitles** transcribes the existing clip locally; it does
    not open the microphone. Use **Review subtitle words & timing**, correct the
    English words and source timestamps, then **Save reviewed subtitles**.
+   For several takes, choose **Draft missing subtitles for selected takes**.
+   It skips existing subtitle edits and unselected takes. Choose at most 12 takes
+   needing words, each source no longer than three minutes; the reel still has
+   its separate three-minute total limit. Identical source URIs are read once,
+   and progress counts completed unique clips. New drafts have
+   `whisper-tiny.en-draft` provenance and still require per-take word/timing
+   review. No microphone or playback starts. **Cancel local processing** or
+   leaving the app keeps completed drafts and waits for the current reader to
+   stop; returning does not resume the batch. Start it again yourself if needed.
+   Fifteen core/UI/assembly checks passed on a fresh capture-permission-denied
+   emulator (13.077s). A synthetic headless phone batch passed (16.177s): two
+   serial CPU reads supplied three independent drafts, kept manual/unselected
+   takes and originals intact, then exported a three-cut 720×1280 reel plus JSON
+   (20.387s output from 20.251s nominal cuts). At most one reader was observed.
+   These results do not replace your own recorded-speech or physical UI check;
+   AirPods and creator capture remain unverified. See
+   [batch subtitle evidence](subtitle-batch-evidence.md).
    Remove a bad draft or use manual text. Short cues fit up to four lines.
 4. Choose **Clean**, **Warm**, **Cinematic** or opt-in **Auto balance**. These are
    deterministic presets or sampled color/exposure correction, not learned taste.

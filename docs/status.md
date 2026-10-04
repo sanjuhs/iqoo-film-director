@@ -1318,3 +1318,46 @@ including all3 installed project APKs/phone+test allocation/owned gallery. Same
 historical missing-archive/cache/oat/provider qualifications persist. Goal active;
 creator/AirPods, iQOO/NPU/Office Kit, permitted event-code provenance and accepted
 submission still required.
+
+### Selected missing-subtitle batch — 4 October, 18:40 IST
+
+Assemble now offers **Draft missing subtitles for selected takes**. It snapshots
+up to twelve missing-subtitle takes (each source at most three minutes), reads
+duplicate URIs once and delivers independent cue/list copies. Existing subtitle
+words and unselected takes are skipped. Each real reader must acknowledge native
+idle before draft delivery or the next read. Cancel/background suppress late
+results, keep completed saved drafts and hold busy until drain; no automatic
+resume. New words retain `whisper-tiny.en-draft` provenance and need review.
+Whole-batch preflight prevents a partially started invalid selection.
+
+Fresh empty API36 ARM64 emulator passed **15/13.077s**: six model-free coordinator,
+six actual-button/persistence/cancellation/background/ownership UI and three
+existing assembly-review methods. No fake weights, media, microphone, inference
+or playback were used by those checks. Headless Nothing Phone test passed
+**1/16.177s**, using two existing labelled synthetic encoded-AAC sources and real
+Whisper tiny.en CPU reads: **4438/5284ms**, maximum one reader, **3 independent
+drafts/0 failures/2 skips**, batch9735ms. Actual Media3 export5458ms produced a
+**20,387ms**,720×1280 reel against a20,251ms nominal timeline, preserving all
+source/timeline subtitle offsets and raw draft provenance in JSON. Caption
+region pixels on each cut and original SHA/size/mtime preservation passed;
+appearance is not OCR, sound review or general accuracy. No Activity/preferences
+were changed by that physical check. Only its callback-verified COMPLETE journal
+was detached; labelled MP4/JSON remain. [Full batch evidence](subtitle-batch-evidence.md).
+
+Build1s and normal app/test installs succeeded. Built/saved/independently read
+physical installed APK **52,838,059B**, SHA256
+**6aa93419bc66b50f967efb2ccda99fa5bc8db72187367aa1fd71a5a5793eb6a8**.
+Notices match source31,635B/SHA02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68;
+no Internet permission or separate Qwen/Whisper weights in APK/Git. Bundled
+MLKit assets remain. Metadata inventory passed **1/0.148s**:21owned/0pending/
+6,614,976B. Normal launch requested behind secure keyguard; camera/mic denied.
+No attended filming, AirPods playback, permission bypass, aircraft action,
+private upload or submission occurred.
+
+Existing tools/image reused, boot-complete observed8.579s after polling began,
+host camera/audio/snapshots disabled, airplane mode enabled. Removed only own
+AVD/registration after tests. Qualified temporary peak **10,425,629,653B** above
+10GB aim/below15GB cap; final adjacent accounting **9,294,420,949B**, below both.
+Missing archive/cache/oat/provider qualifications persist in storage.json; no
+new model/SDK/JDK/image download. Goal active; real creator/AirPods, iQOO/NPU,
+Office Kit, eligible event provenance and accepted submission remain unfinished.
