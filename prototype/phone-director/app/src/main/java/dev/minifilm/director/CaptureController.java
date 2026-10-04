@@ -4,12 +4,15 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Looper;
+import android.util.Rational;
 import android.util.Size;
 
 import androidx.activity.ComponentActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
+import androidx.camera.core.UseCaseGroup;
+import androidx.camera.core.ViewPort;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FallbackStrategy;
 import androidx.camera.video.FileOutputOptions;
@@ -80,6 +83,22 @@ public final class CaptureController implements AutoCloseable {
 
     public boolean isAnalysisAvailable() { return analysisAvailable; }
 
+    public int getLensFacing() { return lensFacing; }
+
+    /** Select a lens before explicit preview, or rebind the active visible preview. */
+    public void setLensFacing(int facing) {
+        requireMainThread();
+        if (facing != CameraSelector.LENS_FACING_FRONT && facing != CameraSelector.LENS_FACING_BACK)
+            throw new IllegalArgumentException("Choose the front or back phone camera");
+        if (closed || facing == lensFacing) return;
+        if (isRecording()) {
+            listener.onError("Finish this take before switching cameras.");
+            return;
+        }
+        lensFacing = facing;
+        if (previewRequested) startPreview();
+    }
+
     public void startPreview() {
         requireMainThread();
         if (closed) return;
@@ -131,8 +150,13 @@ public final class CaptureController implements AutoCloseable {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
         attachAnalyzer();
+        // Same sensor crop for the phone's portrait reel, visible preview and pose frames.
+        ViewPort viewport = new ViewPort.Builder(new Rational(9, 16), rotation)
+                .setScaleType(ViewPort.FILL_CENTER).build();
         try {
-            provider.bindToLifecycle(activity, selector, preview, videoCapture, analysis);
+            UseCaseGroup group = new UseCaseGroup.Builder().setViewPort(viewport)
+                    .addUseCase(preview).addUseCase(videoCapture).addUseCase(analysis).build();
+            provider.bindToLifecycle(activity, selector, group);
             analysisAvailable = true;
         } catch (IllegalArgumentException unsupportedCombination) {
             // Some cameras cannot provide video, preview and analysis together.
@@ -141,7 +165,9 @@ public final class CaptureController implements AutoCloseable {
             analysis.clearAnalyzer();
             analysis = null;
             analysisAvailable = false;
-            provider.bindToLifecycle(activity, selector, preview, videoCapture);
+            UseCaseGroup group = new UseCaseGroup.Builder().setViewPort(viewport)
+                    .addUseCase(preview).addUseCase(videoCapture).build();
+            provider.bindToLifecycle(activity, selector, group);
         }
         ready = true;
         listener.onReady();
@@ -170,9 +196,8 @@ public final class CaptureController implements AutoCloseable {
             listener.onError("Finish this take before switching cameras.");
             return;
         }
-        lensFacing = lensFacing == CameraSelector.LENS_FACING_FRONT
-                ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT;
-        startPreview();
+        setLensFacing(lensFacing == CameraSelector.LENS_FACING_FRONT
+                ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT);
     }
 
     public void startRecording() {

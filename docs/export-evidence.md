@@ -133,3 +133,109 @@ list to the user-selected local Downloads folder. Actual output is 1,512 bytes
 and its SHA-256 matches the source JSON; UI displayed success. No broad storage
 permission, overwrite, cloud provider or Office Kit pairing was used. Source
 URIs remain phone references, not a portable self-contained desktop project.
+
+## Full typography and export restart checks
+
+The renderer now preserves complete caption text: it reduces font size within
+35–24 pixels for up to four full lines, or rejects before Transformer/temp/gallery
+outputs with an instruction to shorten/edit text. One-line heading bounds are
+120/140 characters with minimum font sizes 14/12; no silent truncation remains.
+Two additional media tests passed: six manual/ASR/title rejection cases create
+no outputs, and an actual encoded 199-character four-line caption retains the
+full layout/JSON. All six media tests, five portable-package tests and four UI
+tests passed within a 20-test runner (21.065 s); that runner had one separate
+recovery fixture-cleanup error, recorded below.
+
+ReelExporter now journals each UUID-scoped temporary output/private cut list/
+owned MediaStore row before creating it. READY is durable before publication;
+startup checks exact package/name/path, matching JSON exportId/schema and video
+byte count. A verified published pair is recovered; only verified unfinished
+outputs are cleaned. Sources are never part of journal cleanup. Malformed,
+ambiguous, oversized or unverifiable records preserve media with a warning.
+At most 128 small journals are inspected. This is foreground export plus restart
+reconciliation, not an Android background-service implementation.
+
+Five staged interruption tests passed in **0.775 s**, including encoding cleanup,
+insert-before-URI/pending-copy cleanup, published-before-complete commit recovery,
+repeated startup, ambiguous published preservation and forged/oversized record
+handling. The first combined runner failed when fixture cleanup deleted an
+already-deleted row (Android raised SecurityException); the helper now queries
+for existence and does not suppress permission errors on a remaining row. The
+recovery-class-only rerun passed. These tests stage journal/publication states;
+they do not prove killing an actively encoding Android process at every boundary.
+Logs: ignored `private/evidence/recovery-package-media-ui-test.log` and
+`private/evidence/recovery-repeat-test.log`.
+
+[Official shared-media documentation](https://developer.android.com/training/data-storage/shared/media)
+was checked for pending publication and owned-media access. API documentation
+supports the implementation contract, rather than establishing hardware behavior.
+
+
+## Opt-in automatic balance — actual exported-video check
+
+**Auto balance** is a conservative deterministic option, separate from learned
+LLM grading. It inspects three local ≤160-pixel samples inside each selected
+trim and applies only small RGB gains (0.94–1.06) and linear brightness (±0.04).
+Neutral detail must be distributed across at least three quadrants; uniform,
+clipped/extreme, HDR, insufficient or changing-color samples retain Clean with
+an explicit reason. Source URI, shot identity and in/out range must match the
+immutable measurement. Per-cut JSON records measurements, sample positions,
+reason and parameters, with learned=false/review-required provenance.
+
+All five analyzer and two actual exporter instrumentation tests passed. The
+first fixture attempted an unsupported 96×128 encoder shape; only its encoder
+helper was corrected to the already supported 360×640/24-fps/900-kbps profile
+with explicit capability checks. In-memory measurement fixtures and production
+logic stayed unchanged. Measured cast-neutral RGB was
+122.55609/116.71964/110.93282, giving gains 0.94/0.9990174/1.06. The dim neutral
+fixture had mean luma65.71014 and brightness0.025491094.
+
+Actual Media3 encoded **Auto versus Clean** output reduced mild cast RGB spread
+from **12.174217 to 1.5266876**, lifted dim luma by **6.0603104**, and preserved
+intentional flat color. Reversed measurement order still paired each source
+correctly; missing/stale source/shot/in/out measurements failed before output
+creation. Original SHA-256 values remained unchanged. Retained ignored logs:
+`private/evidence/balance-ui-repeat-test.log` and `balance-repeat-metrics.log`.
+The combined runner's five UI failures occurred behind secure keyguard; they
+do not invalidate its seven headless color checks or pass UI behavior.
+
+These synthetic positives/abstentions establish bounded execution, not grading
+quality on skin tones, outfits, real lighting, moving cameras or unseen clips.
+The creator must compare/review the result and can choose Clean.
+
+
+### Retained synthetic delivery and timestamp fixes — completed checks
+
+The final runner passed **six tests in 20.578 s**: four exact-time parsing/format
+regressions, strict source-bounded speech-to-export captions, and integrated
+retained reel plus portable package. ClipTranscriber now caps source-offset
+ASR endpoints to actual container duration, so codec padding cannot create a
+draft beyond the clip. Trim/subtitle fields preserve three-decimal seconds;
+5.746s round-trips to 5746 ms and default review no longer rounds beyond source.
+Invalid/nonfinite/overflow decimal input is rejected. Visible dialog behavior
+still awaits normal unlock; these headless checks establish the exact conversion.
+
+The actual retained reel is **11.795737 s / 720×1280 / H.264 + AAC**, versus the
+reviewed 11746 ms timeline. Three visual cuts precede the full known 5.746 s
+synthetic English clip. Actual decoded frames verified caption white-pixel counts
+3955 inside first cue, 0 in the gap and 2864 inside second cue. CPU transcription
+of source and completed output retained jacket/green in three segments each
+(4.039s source and 4.707 s output in this run). No audio was played or recorded.
+
+The 252,326-byte portable ZIP resolves four unchanged originals totaling 246,497
+bytes, relative paths, reviewed order/trims and source-to-timeline subtitle
+ranges. Copies under ignored `output/demo/` matched phone SHA-256 values on the
+laptop; ffprobe independently confirmed codecs, dimensions and duration.
+Reel SHA-256: 20ebb74737cc2e782f3afaf478475ff84e81f63eb6a447c732df0677e4bf2540.
+ZIP SHA-256: 0668a39bf8f36542f5cd3f25f9eaee17165e4b40b8032d3d88b1b29e9f31ba78.
+See `output/demo/README.txt` and `metrics.json` for synthetic provenance.
+
+The failed delivery's exact owned synthetic output was cleaned only after
+ID/title/source/MediaStore ownership proof; original fixtures and saved shoot
+preferences stayed intact. Successful test-only journal markers are removed
+after durable delivery copies so later startup does not replace the saved
+project's output pointer. A separate media-test marker was locally archived
+and removed after verifying its exact known synthetic source; its MP4/JSON stay
+intact. Future media checks use callback-scoped fixture-marker cleanup.
+Normal Files ZIP saving, Office Kit receipt, attended capture/AirPods, actual
+iQOO and organizer-compliant event code/submission remain unverified.

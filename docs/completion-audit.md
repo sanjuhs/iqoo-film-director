@@ -1,0 +1,136 @@
+# User-goal completion audit — 4 October 2026
+
+The **pre-event phone prototype is installed and its local media pipeline has
+real fixture evidence**. The attended Pose → Perform → Assemble workflow and
+competition delivery remain incomplete. This audit separates current source,
+passed checks and observed failures. The final lower-temperature planner fixture
+rerun passed; creative accuracy across unseen briefs remains unverified.
+
+Evidence: [status](status.md), [capture](capture-evidence.md),
+[local AI](local-ai-evidence.md), [export](export-evidence.md),
+[transcription](transcription-evidence.md), [portable edits](portable-edit-evidence.md)
+and [Office Kit research](office-kit-research.md). Older statements in those
+ledgers retain their dated context; the results below include the latest parent
+runner reports and direct synthetic-output review.
+
+## Acceptance against the user's request
+
+| Requirement | Established now | Remaining gate |
+| --- | --- | --- |
+| Activate the app through ADB | Fresh Mini Film APK built, installed and launched on Nothing Phone (3a), Android 16. Synthetic takes/reel and editable plans have been saved. | Required iQOO hardware validation and final installed-source checkpoint. |
+| Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Earlier inactive UI fixtures passed. | An unlocked attended shoot and first-time usability check; latest visual/lifecycle rerun is invalid under the locked-phone conditions below. |
+| Substantial local AI | Actual local CPU Qwen generation, bundled ML Kit pose inference, offline English TTS and whisper tiny.en clip transcription. App has no network permission. | Useful grounding across unseen briefs, sustained camera/inference concurrency and iQOO execution. No NPU/GPU, Kev adaptation or trained-director result. |
+| Pose and direct each take | Live analysis integration, shared vertical crop, persisted lens and optional speech-completion-gated sequence in source. Public pose fixture yielded 33 confident landmarks; empty-frame inference yielded none. | Live framing usefulness, front/rear recording, full sequence, interruption and quiet captured speech. Synthetic geometry is not live capture. |
+| AirPods direction | Offline voice synthesis and two real-engine silent completion/cancellation tests passed. | Paired AirPods playback, microphone routing and physical cue leakage. Synthesis-to-file never played audio. |
+| Understand reels/trends | Three local sparse-reference fixture tests passed; creator describes the story and reviews the plan. | Semantic trend/style/shot understanding is unimplemented; sparse heuristics do not establish it. |
+| Start, stop and trim | Explicit CameraX start/stop, bounded planned-duration takes and editable cut ranges; actual synthetic cuts exported in order. | Attended capture/finalization and semantic selection of the best performance moments. |
+| Color correction | Local presets plus heuristic Auto balance have actual analyzer/export evidence below. | Real footage, creative suitability and shot matching. This is not learned AI grading. |
+| Subtitles and typography | Local English timed drafts, creator word/time review, real burned-in captions, and full-text fit-or-reject handling passed. | Attended speech accuracy and longer real text. No karaoke, generated music or semantic caption polishing. |
+| Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths and hashes. | Real creator reel, attended sound review, normal Files ZIP saving, desktop-editor compatibility and actual Office Kit transfer. |
+| Recovery | Five staged export-journal tests passed; originals are outside cleanup scope. | A killed-live-export experiment, revoked/missing real inputs and ready-package UI lifecycle under valid visible conditions. |
+| Drone demo | Imported clips can join the edit; no aircraft action or connection occurred. | Separate supported Mini 4 Pro propellers-off read-only probe, then documented pilot-approved capture/control gates. Neo 2/Fly and Action 4 remain research. |
+| Hackathon completion | Signed-in idea deadline date is 5 October; countdown implies about 23:59 IST. Idea/pitch assets prepared. | Human attestation/self-report and accepted receipt. Finale is 9–11 October; competition code must be event-written unless organizers approve reuse. |
+
+## Current source repairs
+
+Read-only inspection of MainActivity confirms these repairs. Passing hardware/UI
+checks are stated separately rather than assumed from the code.
+
+- **Planning input consistency:** runPlanner stops listening and speech before
+  generation. SpeechCoach invalidates recognition sessions, preventing stale
+  results from replacing the brief. Busy processing recursively disables text
+  inputs, spinners, checkboxes and switches; Cancel remains available.
+- **Selected cut length:** checkbox changes save selection and immediately call
+  updateSelectionSummary, showing selected count/duration and 12-cut/three-minute
+  limits. Export reads the selected cuts independently.
+- **Object-shot framing:** style/title rules disable person-pose advice for
+  product, detail and cutaway shots. This is an explicit heuristic, not semantic
+  object recognition. The inactive UI gating check passed; live object capture
+  remains pending.
+- **Spoken sequence:** matching utterance completion precedes the eight-second
+  pose break; each spoken countdown number completes before advancing. Stop,
+  error, timeout and background exit invalidate callbacks before capture. Two
+  silent framework tests establish listener dispatch/stale-ID cancellation,
+  not audible timing or Bluetooth buffering.
+- **Ready edit package:** the cache ZIP pointer is persisted and validated on
+  restore; a completed package launches Files only while RESUMED. Otherwise it
+  stays ready for an explicit save after returning. Cancelled saves disclose
+  possible partial destination documents. The ready-package visible/recreation
+  path still needs a valid unlocked UI rerun.
+- **Lens/crop:** selected lens persists and shared 9:16 ViewPort geometry is
+  applied to preview/video/analysis. Three rotation/crop geometry tests and an
+  earlier inactive lens-selection check passed; live lens rebinding is pending.
+
+## Latest measured checks and failures
+
+**Media and recovery:** all six MediaWorkflowTest cases passed in the combined
+20-test / 21.065-second run, including actual 199-character four-line caption
+output and overflow rejection with no new outputs. One recovery fixture failed
+in its own already-deleted-row cleanup; corrected cleanup then passed all five
+recovery tests in 0.775 seconds. These stage interruption/commit gaps and preserve
+ambiguous outputs; they do not kill a live export. Earlier real Assemble UI
+export produced a 6.060408-second vertical reel; normal Files saving copied a
+1,512-byte JSON with matching source/destination hash.
+
+**Portable package:** all six package tests passed, including original byte/hash
+integrity, deduplication, relative paths, cut/subtitle offsets, bounds, revoked
+sources, blocked-stream cancellation/late-open suppression and MIME handling.
+The standard ZIP destination picker and persisted-ready UI are source-integrated,
+but have not yet passed a valid attended Files-save check. Packaging files is
+not Office Kit transfer or a demonstrated third-party editor import.
+
+**Auto balance:** five analyzer and two exporter tests passed on rerun. Decoded
+synthetic output reduced RGB cast spread from **12.1742 to 1.5267** and raised dim
+fixture luma by **6.0603**; intentional flat color stayed neutral, exact source/range
+pairing was enforced and original hashes stayed unchanged. These are bounded
+neutral/exposure heuristics, not learned correction or demonstrated benefit on
+real fashion footage. Evidence: ignored balance-repeat-metrics.log and
+balance-ui-repeat-test.log under private/evidence. The earlier combined run
+had MediaCodec fixture-start failures; the corrected fixture rerun is the color
+execution evidence.
+
+**UI:** the earlier combined framing/speech runner passed nine tests in 14.110
+seconds. The latest seven UI-method attempt on the locked phone had five
+visual/lifecycle failures; preview size was NaN and RESUMED/recreation waits timed
+out. Only busy-editor gating and object-shot pose gating passed in that attempt.
+Those invalid visible-state conditions neither establish a usable layout nor
+justify claiming five application regressions were resolved. An unlocked rerun
+and attended capture are pending. Camera/microphone remained inactive.
+
+**Planner, previous failed run:** the prior few-shot runner took **140.584 seconds**:
+three methods/four actual generations, one introduction assertion failure.
+Introduction retained Rae, ceramic bowls and coffee; its Detail said “your work”,
+a clear antecedent to the previous ceramic-bowls take. The test now accepts that
+explicit detail/feature reference and still rejects observed invented rims.
+Product met the strengthened mug fixture in 34.693 seconds and requested an
+honest opinion; this is a targeted example, not general product quality.
+
+Direct review found additional failures that the then-current green assertions
+missed: talking invented an opened door and changed a future early-departure
+plan into a past event; fashion invented a yellow pattern and repeated incomplete
+caption phrases. These remain observed defects in that build. Temperature is
+now 0.25, with short fashion caption examples and tighter next-time/cutaway
+instructions, plus targeted independent regressions. The fresh four-method /
+five-plan rerun passed in **142.074 s**, with actual plans25.563–31.666s. Direct
+review confirmed the targeted story-event/intro/fashion/product errors absent.
+These synthetic checks prove model execution and selected constraints, not
+creative accuracy on unseen briefs.
+
+## Completion boundary
+
+The user can review a real development-phone local pipeline; a finished useful
+creator shoot has not yet been demonstrated. Required next checks are an unlocked
+visible UI/package save, attended phone/AirPods sequence and
+sound review, then iQOO/Office Kit and organizer-compliant submission evidence.
+Automatic semantic editing, multicamera alignment and aircraft control remain
+unimplemented extensions. There was no unattended private capture, upload,
+aircraft action or submission in this audit. This update changes only this
+Markdown document; root owns builds/device work and other evidence ledgers.
+
+
+Integrated delivery now passed: six tests / 20.578 s, actual 11.795737 s vertical
+H.264/AAC reel, preserved synthesized jacket/green speech, decoded caption
+timing and portable ZIP with four hash-verified originals. Container-bound ASR
+and exact review/trim time conversion are repaired and checked headlessly.
+Desktop copies matched hashes. Normal visible Files saving and all attended/
+event gates above remain open.

@@ -46,13 +46,13 @@ public final class PoseCoach implements ImageAnalysis.Analyzer {
         Image media = frame.getImage();
         if (media == null) { busy.set(false); frame.close(); return; }
         int rotation = frame.getImageInfo().getRotationDegrees();
-        int width = rotation % 180 == 0 ? frame.getWidth() : frame.getHeight();
-        int height = rotation % 180 == 0 ? frame.getHeight() : frame.getWidth();
         try {
+            FramingGeometry geometry = new FramingGeometry(frame.getWidth(), frame.getHeight(),
+                    frame.getCropRect(), rotation);
             detector.process(InputImage.fromMediaImage(media, rotation))
                     .addOnSuccessListener(pose -> {
                         long latency = SystemClock.elapsedRealtime() - now;
-                        if (!closed && enabled && latency <= 2000) report(pose, width, height, latency);
+                        if (!closed && enabled && latency <= 2000) report(pose, geometry, latency);
                     })
                     .addOnFailureListener(error -> emit("Framing coach unavailable. Use the preview to check your framing.", 0,
                             SystemClock.elapsedRealtime() - now))
@@ -64,35 +64,34 @@ public final class PoseCoach implements ImageAnalysis.Analyzer {
         }
     }
 
-    private void report(Pose pose, int width, int height, long latency) {
+    private void report(Pose pose, FramingGeometry geometry, long latency) {
         int visible = 0;
-        for (PoseLandmark point : pose.getAllPoseLandmarks()) if (inFrame(point, width, height)) visible++;
+        for (PoseLandmark point : pose.getAllPoseLandmarks()) if (inFrame(point, geometry)) visible++;
         PoseLandmark nose = pose.getPoseLandmark(PoseLandmark.NOSE);
         PoseLandmark left = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
         PoseLandmark right = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER);
-        if (!inFrame(nose, width, height) || !inFrame(left, width, height) || !inFrame(right, width, height)) {
+        if (!inFrame(nose, geometry) || !inFrame(left, geometry) || !inFrame(right, geometry)) {
             emit("I can't confidently see your face and shoulders. Check the preview and lighting.", visible, latency);
             return;
         }
-        float center = (left.getPosition().x + right.getPosition().x) / (2f * width);
-        float headY = nose.getPosition().y / height;
-        float span = Math.abs(left.getPosition().x - right.getPosition().x) / width;
+        float center = (geometry.normalizeX(left.getPosition().x) + geometry.normalizeX(right.getPosition().x)) / 2f;
+        float headY = geometry.normalizeY(nose.getPosition().y);
+        float span = Math.abs(left.getPosition().x - right.getPosition().x) / geometry.getWidth();
         String cue;
         if (center < .25f || center > .75f) cue = "Bring your upper body closer to the center of the frame.";
         else if (headY < .08f) cue = "Leave a little more room above your head.";
         else if (span > .72f) cue = "Your shoulders are near the frame edges. Widen the framing if you want more room.";
         else if (mode.contains("fashion") &&
-                (!inFrame(pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE), width, height) ||
-                 !inFrame(pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE), width, height)))
+                (!inFrame(pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE), geometry) ||
+                 !inFrame(pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE), geometry)))
             cue = "For a full outfit shot, check that your shoes fit in the preview.";
         else cue = "Face and shoulders detected. Check the preview, relax, and hold your pose.";
         emit(cue, visible, latency);
     }
 
-    private static boolean inFrame(PoseLandmark point, int width, int height) {
+    private static boolean inFrame(PoseLandmark point, FramingGeometry geometry) {
         return point != null && point.getInFrameLikelihood() >= .65f &&
-                point.getPosition().x >= 0 && point.getPosition().x <= width &&
-                point.getPosition().y >= 0 && point.getPosition().y <= height;
+                geometry.contains(point.getPosition().x, point.getPosition().y);
     }
 
     private void emit(String cue, int count, long latency) {

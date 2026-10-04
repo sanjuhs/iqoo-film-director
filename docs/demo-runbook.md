@@ -13,14 +13,12 @@ Nothing Phone (3a) results do not replace final iQOO validation.
 | Local pose model | **33 landmarks / 388 ms** on the attributed public documentation image; black image returned none | This does not prove live framing advice or creator benefit. |
 | Offline cue synthesis | Synthetic English cue to audio bytes in **511 ms** | No audible output, AirPods route or microphone playback test is established. |
 | Local clip subtitles | Whisper tiny.en CPU: **three segments / 3.458 s** on one synthetic English speech fixture | This includes decoding/load/transcription. General accents, noise and timestamp accuracy are untested. |
-| Reel assembly | Real **6.060 s, 720×1280 H.264/AAC** synthetic sequence; order, originals, trimmed caption visibility and cancellation checked | Four media tests took **13.743 s** together; this is not a single-export speed measurement. |
+| Reel assembly | Real **6.060 s, 720×1280 H.264/AAC** synthetic sequence; order, originals, trimmed caption visibility and cancellation checked | Six media tests passed with full-caption rendering/rejection in the combined **21.065 s** media/package/recovery/UI runner; this is not a single-export speed measurement. |
 | Reference inspection | **Three tests / 4.883 s**; flat-color negative, two obvious synthetic boundaries, web-URI rejection | Sparse measurements, not semantic understanding of a trend. |
 
 Evidence: [local AI](local-ai-evidence.md), [export](export-evidence.md),
 [transcription](transcription-evidence.md), [reference inspection](reference-evidence.md)
-and [current status](status.md). The media-suite pass precedes a subsequent
-heading cosmetic adjustment; visually recheck the final build before recording
-its presentation.
+and [current status](status.md). Automatic balance also passed seven analyzer/export checks; its actual neutral-cast fixture improved RGB spread from 12.1742 to 1.5267. The six portable-package checks preserve selected source bytes and portable cut/subtitle mapping. These remain synthetic results; rehearse the final presentation on an unlocked phone.
 
 ## Prepare the current demo
 
@@ -30,7 +28,7 @@ Do not show private device screens, personal files or a person's likeness
 without the corresponding permission. Local model/runtime setup and public
 fixture attribution must match the evidence notes.
 
-The text model currently needs roughly 50 seconds for a short plan. Reserve a
+Recent text plans need roughly 25–53 seconds per five-shot draft; latency and wording vary. Reserve a
 full minute; while it works, explain the three phases and the measured local
 components. If using a saved generated plan instead, announce that it was
 **generated earlier on this phone** and give its recorded time. Do not imply a
@@ -49,8 +47,8 @@ remain available. Keep the app visible while exporting.
 | 0:00–0:20 | Show Brief and the three phases | “A solo creator is the performer, director and editor. Mini Film Director brings that workflow onto the phone: pose, perform, then assemble a reel I can still change. Daily fashion is our first story.” |
 | 0:20–1:20 | Enter a synthetic jacket brief; start local planning; discuss evidence while it runs; review one generated cue | “This phone is generating five shots with Qwen3.5 0.8B on CPU. Our measured fashion draft took 52.6 seconds, so we plan before filming. During performance, the app follows that reviewed shot list. The visual model has processed a public person image locally; cue synthesis is also local. I still review the directions because the model can invent details.” Allow this full minute; if unfinished, use a labelled earlier plan rather than claiming completion. |
 | 1:20–1:40 | Show Direct screen's pose/performance controls without starting capture | “Here is the intended filming phase: frame the pose, hear one cue through earbuds, then explicitly start the take. Live capture and AirPods have not been tested yet. The preparation tests opened neither a camera nor a microphone.” A future consented live demo may replace this segment only after those gates pass. |
-| 1:40–2:15 | Inspect a synthetic reference; select/trim demo takes; review timed subtitle draft and choose a look | “The reference inspector measures sampled changes; it does not know what a trend means. These numbered clips are synthetic. I choose the takes and cuts, review the local English subtitle draft, and choose a color preset. A generated caption or cue remains editable.” |
-| 2:15–2:45 | Export and play the actual synthetic MP4; show cut list | “The phone creates a real vertical MP4, with the selected order and captions at the reviewed times. Our tested three-scene result is 6.060 seconds at 720 by 1280. The cut list keeps the source and timing decisions editable.” If showing an existing file, identify it as previously exported; show progress for any fresh export. |
+| 1:40–2:15 | Inspect a synthetic reference; select/trim demo takes; review timed subtitle draft and choose a look | “The reference inspector measures sampled changes; it does not know what a trend means. These numbered clips are synthetic. I choose the takes and cuts, review the local English subtitle draft, and choose a color preset or the conservative, opt-in Auto balance heuristic. A generated caption or cue remains editable.” |
+| 2:15–2:45 | Export and play the actual synthetic MP4; show cut list | “The phone creates a real vertical MP4, with the selected order and captions at the reviewed times. Our tested three-scene result is 6.060 seconds at 720 by 1280. The cut list keeps the source and timing decisions editable. The portable ZIP adds selected originals and relative paths for laptop use; actual Office Kit transfer remains a separate check.” If showing an existing file, identify it as previously exported; show progress for any fresh export. |
 | 2:45–3:00 | Finish on the reviewed result and capability labels | “Local planning, pose inference, English clip transcription and real reel output have run on Nothing Phone (3a). The next gate is a consented creator shoot, then the required iQOO and Office Kit demonstration. Drone control and NPU acceleration remain separate research.” |
 
 For a shorter planning segment, show a saved AI plan with its measured time and
@@ -71,7 +69,7 @@ them. Use one outfit, a fixed portrait phone, a clear floor and five short shots
 3. **Live posing:** confirm the camera supports preview, capture and analysis
    together. Observe a real subject, absent/cropped states and uncertainty.
    Preserve scene instructions; a detail shot should not receive full-body cues.
-4. **Recording:** explicitly start a countdown, make a short consented take,
+4. **Recording:** ensure a long cue finishes fully before the eight-second pose break and spoken countdown; explicitly start a countdown, make a short consented take,
    stop it and play the saved audio/video. Confirm orientation/duration. Cancel
    and restart a countdown; it must still give the full delay.
 5. **Quiet performance:** no cue should overlap recorded speech. STOP ends the
@@ -118,8 +116,7 @@ manual override, plus venue permission where applicable.
 
 ## Submission handoff
 
-Build the reviewed deck from [the Phase 1 copy](submission-draft.md); its PDF is
-being prepared separately under `output/pdf/`. The Markdown is not the required
+Build the reviewed deck from [the Phase 1 copy](submission-draft.md); its prepared, visually checked PDF is retained separately under `output/pdf/`. The Markdown is not the required
 portal attachment. Keep the pre-event prototype disclosure and plan fresh
 competition source inside the allowed window. The creator supplies their own
 self-reports and original-work attestation. Inspect the final fields/attachment,

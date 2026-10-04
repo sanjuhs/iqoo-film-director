@@ -9,6 +9,9 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.speech.tts.UtteranceProgressListener;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -31,10 +34,20 @@ public final class SpeechCoach {
     private String pendingSpeech;
     private int utterance;
     private int recognitionSession;
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private String activeUtterance;
+    private Runnable afterSpeech, speechFailed, speechTimeout;
 
     public SpeechCoach(Context context) {
         this.context = context.getApplicationContext();
         tts = new TextToSpeech(this.context, status -> initializeVoice(status));
+        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override public void onStart(String id) {}
+            @Override public void onDone(String id) { main.post(() -> finishSpeech(id, true)); }
+            @Override public void onError(String id) { main.post(() -> finishSpeech(id, false)); }
+            @Override public void onError(String id, int error) { main.post(() -> finishSpeech(id, false)); }
+            @Override public void onStop(String id, boolean interrupted) { main.post(() -> finishSpeech(id, false)); }
+        });
     }
 
     private void initializeVoice(int status) {
@@ -56,11 +69,59 @@ public final class SpeechCoach {
     }
 
     public boolean speak(String text) {
-        if (closed || listening || text == null || text.trim().isEmpty()) return false;
-        if (!ready) { pendingSpeech = text; return false; }
-        return tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "cue-" + (++utterance)) == TextToSpeech.SUCCESS;
+        if (!ready && !closed && !listening && text != null && !text.trim().isEmpty()) {
+            pendingSpeech = text;
+            return false;
+        }
+        return speakThen(text, null, null);
     }
-    public void stop() { pendingSpeech = null; tts.stop(); }
+
+    /** Completion means the engine finished playback, not merely accepted text. */
+    public boolean speakThen(String text, Runnable completed, Runnable failed) {
+        if (closed || listening || !ready || text == null || text.trim().isEmpty()
+                || text.length() > TextToSpeech.getMaxSpeechInputLength()) {
+            if (failed != null) main.post(failed);
+            return false;
+        }
+        stop();
+        String id = "cue-" + (++utterance);
+        activeUtterance = id;
+        afterSpeech = completed;
+        speechFailed = failed;
+        speechTimeout = () -> {
+            if (!id.equals(activeUtterance)) return;
+            tts.stop();
+            finishSpeech(id, false);
+        };
+        int result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id);
+        if (result != TextToSpeech.SUCCESS) {
+            main.post(() -> finishSpeech(id, false));
+            return false;
+        }
+        main.postDelayed(speechTimeout, 45_000);
+        return true;
+    }
+
+    private void finishSpeech(String id, boolean success) {
+        if (!id.equals(activeUtterance)) return;
+        Runnable callback = success ? afterSpeech : speechFailed;
+        clearSpeechCompletion();
+        if (!closed && callback != null) callback.run();
+    }
+
+    private void clearSpeechCompletion() {
+        if (speechTimeout != null) main.removeCallbacks(speechTimeout);
+        speechTimeout = null;
+        activeUtterance = null;
+        afterSpeech = null;
+        speechFailed = null;
+    }
+
+    public void stop() {
+        pendingSpeech = null;
+        clearSpeechCompletion();
+        tts.stop();
+    }
     public boolean isOfflineVoiceReady() { return ready && !closed; }
 
     public boolean isOfflineRecognitionAvailable() {

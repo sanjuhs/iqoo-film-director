@@ -69,13 +69,18 @@ Java_dev_minifilm_director_LocalPlanner_nativeLoad(JNIEnv * env, jclass, jstring
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_dev_minifilm_director_LocalPlanner_nativeGenerate(JNIEnv * env, jclass, jlong handle, jbyteArray input, jint max_tokens) {
+Java_dev_minifilm_director_LocalPlanner_nativeGenerate(JNIEnv * env, jclass, jlong handle, jbyteArray input, jbyteArray grammar_input, jint max_tokens) {
     auto * state = reinterpret_cast<DirectorModel *>(handle);
     if (!state || !state->context) { fail(env, "Local model is unavailable."); return nullptr; }
     state->cancelled.store(false);
     state->deadline = std::chrono::steady_clock::now() + std::chrono::seconds(100);
     std::string prompt(env->GetArrayLength(input), '\0');
     env->GetByteArrayRegion(input, 0, prompt.size(), reinterpret_cast<jbyte *>(prompt.data()));
+    const auto grammar_length = grammar_input ? env->GetArrayLength(grammar_input) : 0;
+    if (grammar_length <= 0 || grammar_length > 16384) { fail(env, "Local shot schema is unavailable."); return nullptr; }
+    std::string grammar(grammar_length, '\0');
+    env->GetByteArrayRegion(grammar_input, 0, grammar.size(), reinterpret_cast<jbyte *>(grammar.data()));
+    if (env->ExceptionCheck()) return nullptr;
     const auto * vocab = llama_model_get_vocab(state->model);
     int count = -llama_tokenize(vocab, prompt.data(), prompt.size(), nullptr, 0, true, true);
     if (count <= 0 || count > 900) { fail(env, "Brief is too long for the local planner."); return nullptr; }
@@ -94,23 +99,15 @@ Java_dev_minifilm_director_LocalPlanner_nativeGenerate(JNIEnv * env, jclass, jlo
     phase("prompt_complete");
     auto sp = llama_sampler_chain_default_params();
     auto * sampler = llama_sampler_chain_init(sp);
-    // Grammar constrains syntax and duration only; creative quality still needs review.
-    const char * grammar = R"GRAMMAR(
-root ::= "[" ws shot "," ws shot "," ws shot "," ws shot "," ws shot "]" ws
-shot ::= "{" ws "\"title\"" ws ":" ws title "," ws "\"instruction\"" ws ":" ws instruction "," ws "\"caption\"" ws ":" ws short "," ws "\"duration_ms\"" ws ":" ws duration "}" ws
-title ::= "\"" char{1,24} "\"" ws
-short ::= "\"" char{1,30} "\"" ws
-instruction ::= "\"" char{1,90} "\"" ws
-char ::= [^"\\\x7F\x00-\x1F] | "\\" (["\\bfnrt] | "u" [0-9a-fA-F]{4})
-duration ::= ("3000" | "4000" | "5000" | "6000" | "7000" | "8000") ws
-ws ::= [ \t\n\r]*
-)GRAMMAR";
-    auto * constrained = llama_sampler_init_grammar(vocab, grammar, "root");
+    // Java constants constrain ordered roles, imperative prefixes, lengths and durations.
+    // Grammar cannot prove semantic grounding or useful creative advice; creator review remains necessary.
+    auto * constrained = llama_sampler_init_grammar(vocab, grammar.c_str(), "root");
     if (!constrained) { llama_sampler_free(sampler); fail(env, "Local shot schema could not initialize."); return nullptr; }
     llama_sampler_chain_add(sampler, constrained);
     llama_sampler_chain_add(sampler, llama_sampler_init_top_k(20));
     llama_sampler_chain_add(sampler, llama_sampler_init_top_p(.9f, 1));
-    llama_sampler_chain_add(sampler, llama_sampler_init_temp(.65f));
+    // Lower sampling temperature for concise, fact-grounded drafts; not an accuracy guarantee.
+    llama_sampler_chain_add(sampler, llama_sampler_init_temp(.25f));
     llama_sampler_chain_add(sampler, llama_sampler_init_dist(42));
     std::string output;
     bool aborted = false;

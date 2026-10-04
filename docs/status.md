@@ -355,3 +355,173 @@ The phone is left on Brief with a saved editable local-AI draft and three clearl
 synthetic takes/finished reel in Assemble. Camera and microphone are inactive.
 Goal/quiet hourly continuation remains active through the requested evening;
 no attended live capture, AirPods or iQOO result is inferred from this checkpoint.
+
+## Continuing quality work — 4 October 2026 afternoon IST
+
+The user asked to keep working while away through the evening. Camera/microphone
+remain inactive during unattended work; all media is public or synthetic.
+Vertical shared preview/capture/analysis cropping, visible-crop pose normalization,
+persisted selected lens, speech-completion-gated sequence countdown and selected
+length display repairs are integrated. Fresh build/install passed. Three geometry,
+two silent speech completion and four UI checks passed together: **9 tests in
+14.110 seconds**. This proves geometry, callback cancellation and inactive UI
+behavior; it does not establish live camera, earbud audio or quiet take recording.
+
+Ordered local planner regression first failed (2 tests / 121.536 s / 1 failure),
+with a test missing legitimate “Face” plus observed camera-operator cues. Grammar
+and performer prompt were refined, with conservative fashion device-word rejection;
+fresh generation is being checked. Long typography now fits fully or rejects
+clearly, with new actual-output/rejection tests awaiting the next build.
+Export restart recovery and portable selected-originals/edit ZIP are underway;
+neither is claimed tested yet. See [completion audit](completion-audit.md).
+
+Second planner run: 2 methods / three actual generations passed in **95.745 s**;
+unspecified jacket 28.875 s, yellow raincoat 33.463 s, mug 33.284 s. Direct review
+still found awkward fashion eyeline language and invented mug component colors/finish/use,
+which the narrow prior assertion missed. These are observed remaining failures;
+stronger mug regressions and concrete product/voice-scene prompt examples are
+being added. No general director-quality claim follows from a green test result.
+
+Full-caption tests (including actual 199-character rendered output), all five
+portable-package fixtures and four UI tests passed in the combined 20-test /
+21.065-second runner; one export-recovery test failed in cleanup after deleting
+its expected unfinished row. Existence-checked fixture cleanup was corrected;
+the recovery-only rerun passed **5 tests / 0.775 s**. Recovery uses scoped durable
+journals and exact owned outputs; staged tests do not imply a killed-live-export
+result. [Export](export-evidence.md) and [portable edit package](portable-edit-evidence.md)
+record exact behavior and limits.
+
+The new voice/product model runner took **129.037 s**, 3 methods with 2 failures:
+introduction omitted coffee and named an unsupplied rim; product still invented
+glossy/blue-handle/texture/benefit details. Talking-story assertions passed but
+review found duration-unit captions and an unavailable empty-train-car cutaway.
+Targeted assertions and prompts are being strengthened; story/model execution
+is established, useful grounded direction across modes is not yet established.
+
+Source audit also found product/object shots receiving face-framing advice,
+background package completion attempting to open Files, activity recreation
+losing a ready package, and blocked provider reads delaying a cancelled job.
+Root has repaired object-shot pose gating, visible-only picker launch, ready-cache
+pointer persistence and partial-document cancellation feedback; stream cancellation
+repair and integration checks remain underway. Camera/audio remain inactive.
+
+
+### Automatic balance, package cancellation and lock-screen boundary
+
+Six portable-package tests passed on the phone, including actual stream-close
+cancellation of a blocked provider read, suppression of a late-open read, real
+local MP4 MIME detection, byte/hash preservation and portable timeline mapping.
+The standard Files ZIP save and vendor Office Kit receipt are still pending.
+
+Five AutoColorBalance tests and two actual AutoColorExport tests passed after
+the test encoder fixture was corrected from unsupported 96×128 to the existing
+360×640/24-fps profile, with explicit capability checks. The production algorithm
+was unchanged by that fixture repair. Three measured samples per cut produced
+bounded RGB gains; actual decoded exported video reduced a mild neutral color
+cast spread from **12.1742 to 1.5267**, and lifted the dim neutral fixture by
+**6.0603 luma units**. Intentional flat color remains unchanged; stale/mismatched
+measurements are rejected before outputs, and original hashes stay unchanged.
+This is an opt-in, conservative deterministic heuristic, not learned AI grading.
+HDR, saturated/uncertain frames and unsuitable samples abstain.
+
+The combined rerun had 14 tests / five UI failures: all seven color tests passed,
+while screen-dependent UI cases ran behind the phone's secure keyguard. Read-only
+power/keyguard checks confirmed a locked, initially dozing phone. Only screen
+wake was requested; no unlock credential, permission bypass or lock dismissal
+was attempted. New UI-test preconditions require an unlocked phone. Native
+planning and media tests can continue; actual screen workflow awaits the user.
+
+The next few-shot planner runner took **140.584 s**, three methods / one failure.
+Product generation avoided the previously observed glossy/blue-handle/grip
+inventions. Introduction used a legitimate “feature of your work” reference to
+its preceding ceramic-bowls shot, which the detail assertion was too strict to
+accept. Review still found invented door/opened/past-event instructions in the
+talking story, and an unsupplied raincoat pattern plus incomplete captions in
+fashion. Regressions now target those observed errors. The final refinement
+lowers sampling temperature from 0.65 to 0.25 and clarifies short captions and
+creator-chosen visible detail/future-decision wording; its fresh five-plan check
+is underway. A lower temperature or a narrow passing test cannot establish
+general scene grounding or creative usefulness.
+
+
+Final lower-temperature check passed **4 methods / five actual plans in
+142.074 seconds**: talking story25.733s, introduction25.563s, unspecified
+jacket31.666s, yellow raincoat31.580s and blue mug27.203s. Direct output review
+found the targeted observed inventions/fragments absent. Talking retained the
+missed-train/walk-home events and future early-departure decision, with an
+available creator-chosen cutaway. Introduction retained Rae/ceramic bowls/coffee.
+Fashion used concise complete captions and creator-chosen detail; product
+retained actual-use/own-opinion prompts without the earlier finish/grip/component
+inventions. All five plans kept exact role order and bounded performer cues.
+The installed no-Internet assertion passed. These are narrow synthetic fixtures
+with handwritten scaffolding; unseen brief quality and creator benefit remain
+unverified, and all drafts still require review. Evidence: ignored
+`private/evidence/final-planner-test.log` and `final-planner-metrics.log`.
+
+
+Integrated retained-demo check first failed before export because its helper
+assumed six seconds of synthesized speech; the actual known source is 5.746 s.
+The fixture now uses its full measured duration, making the timeline 11.746 s.
+The next run exported a real 720×1280 H.264/AAC video and decoded speech/captions,
+then failed portable packaging: AAC decoded PCM duration exceeded container
+duration by about 12 ms, leaving an ASR endpoint outside the source clip. This
+is a real integration defect; transcription is being bounded to the container,
+with the existing media test tightened to reject any endpoint overrun.
+Source review also found two-decimal time fields rounding 5.746 to 5.75 and
+rejecting default review/trim saving. Exact millisecond-preserving decimal
+format/parsing is being integrated. No package success is claimed for these
+failed runs; only synthetic outputs were generated, all originals preserved.
+
+The prepared six-page pitch was refreshed with the final 26–32 s planner fixture
+range, actual automatic-balance/package checks and remaining hardware/event
+limits. All six rendered pages were visually inspected, text/provenance checked,
+and the 247,292-byte PDF remains under the portal 25 MB limit. It is a review draft
+with no attestation or external submission.
+
+
+### Retained synthetic delivery and timestamp fixes — completed checks
+
+The final runner passed **six tests in 20.578 s**: four exact-time parsing/format
+regressions, strict source-bounded speech-to-export captions, and integrated
+retained reel plus portable package. ClipTranscriber now caps source-offset
+ASR endpoints to actual container duration, so codec padding cannot create a
+draft beyond the clip. Trim/subtitle fields preserve three-decimal seconds;
+5.746s round-trips to 5746 ms and default review no longer rounds beyond source.
+Invalid/nonfinite/overflow decimal input is rejected. Visible dialog behavior
+still awaits normal unlock; these headless checks establish the exact conversion.
+
+The actual retained reel is **11.795737 s / 720×1280 / H.264 + AAC**, versus the
+reviewed 11746 ms timeline. Three visual cuts precede the full known 5.746 s
+synthetic English clip. Actual decoded frames verified caption white-pixel counts
+3955 inside first cue, 0 in the gap and 2864 inside second cue. CPU transcription
+of source and completed output retained jacket/green in three segments each
+(4.039s source and 4.707 s output in this run). No audio was played or recorded.
+
+The 252,326-byte portable ZIP resolves four unchanged originals totaling 246,497
+bytes, relative paths, reviewed order/trims and source-to-timeline subtitle
+ranges. Copies under ignored `output/demo/` matched phone SHA-256 values on the
+laptop; ffprobe independently confirmed codecs, dimensions and duration.
+Reel SHA-256: 20ebb74737cc2e782f3afaf478475ff84e81f63eb6a447c732df0677e4bf2540.
+ZIP SHA-256: 0668a39bf8f36542f5cd3f25f9eaee17165e4b40b8032d3d88b1b29e9f31ba78.
+See `output/demo/README.txt` and `metrics.json` for synthetic provenance.
+
+The failed delivery's exact owned synthetic output was cleaned only after
+ID/title/source/MediaStore ownership proof; original fixtures and saved shoot
+preferences stayed intact. Successful test-only journal markers are removed
+after durable delivery copies so later startup does not replace the saved
+project's output pointer. A separate media-test marker was locally archived
+and removed after verifying its exact known synthetic source; its MP4/JSON stay
+intact. Future media checks use callback-scoped fixture-marker cleanup.
+Normal Files ZIP saving, Office Kit receipt, attended capture/AirPods, actual
+iQOO and organizer-compliant event code/submission remain unverified.
+
+
+Final fixture-marker cleanup rerun passed one strict speech/export test in
+4.749s and left no test journals. Fresh APK and test APK are installed; the
+normal MainActivity launch intent was accepted behind the existing secure lock.
+Camera and microphone runtime permissions are still denied, with no unattended
+capture. Standalone ignored APK SHA-256:
+8222a70a206dafb82d36aca451498c2d46ce74685aca1c0160e6eb16682b8f4a.
+The current accounted estimate is about 6.42 GB, including target phone files/cache
+and historical archive/cache reserves; this remains a qualified estimate, not
+a complete machine inventory. No further model/SDK/JDK download occurred.

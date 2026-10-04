@@ -6,12 +6,12 @@ Updated 4 October 2026 (IST). Official references:
 [tracks](https://iqoo.reskilll.com/problems),
 [terms](https://iqoo.reskilll.com/terms).
 
-The preserved research records report Bengaluru Grand Finale **9–11 October
-2026**, a 48-hour event, and a signed-in Phase 1 idea deadline of **5 October**.
-Exact cutoff/timezone, admission and the current dashboard remain unverified
-for this pivot. The earlier Productivity draft describes the archived project;
-it is not a submitted Mini Film Director application. No dashboard change is
-implied by repository migration.
+The official guide confirms Bengaluru Grand Finale **9–11 October 2026** and
+the signed-in Phase 1 dashboard confirms **5 October** for idea submission. The
+4 October countdown supports approximately **23:59 IST on 5 October**, with
+timezone inferred rather than separately labelled; see the verification below.
+The new Mini Film Director draft/PDF is prepared locally, with no accepted
+submission or admission claimed.
 
 Competition code must be event-written unless organizers explicitly approve
 reuse. This workspace contains preparation and dated prototypes under

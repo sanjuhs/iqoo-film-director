@@ -88,3 +88,14 @@ Root integration owns final current storage measurements and phone transfers.
 - [Android MediaCodec](https://developer.android.com/reference/android/media/MediaCodec)
 
 These verify API/license contracts, separately from the device acceptance gates.
+
+
+Container-bound caption repair: integrated synthetic delivery revealed AAC
+codec padding making decoded PCM about 12 ms longer than the video container.
+Draft source endpoints now apply the audio offset and clamp to actual container
+duration. The existing speech test now requires every endpoint ≤ source duration
+without its former 100 ms allowance; it passed in the six-test 20.578 s runner.
+The assembled 11.795737 s reel independently transcribed the known jacket/green
+words, with 3 segments in 4.707 s. Subtitle/trim fields preserve exact milliseconds
+using three-decimal seconds; input 5746 ms displays 5.746 rather than 5.75. No
+private speech, microphone or audio playback was used.

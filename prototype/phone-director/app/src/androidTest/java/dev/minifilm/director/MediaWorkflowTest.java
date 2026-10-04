@@ -3,10 +3,13 @@ package dev.minifilm.director;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
+import android.text.StaticLayout;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -24,6 +27,7 @@ import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.*;
 
 /** Real phone tests with locally generated fixtures; no camera/microphone input. */
@@ -117,7 +121,7 @@ public final class MediaWorkflowTest {
             StringBuilder words = new StringBuilder();
             for (SubtitleCue cue : cues.get()) {
                 assertTrue(cue.startMs >= 0); assertTrue(cue.endMs > cue.startMs);
-                assertTrue("Cue beyond source duration", cue.endMs <= sourceDuration + 100);
+                assertTrue("Default draft must fit the actual source container", cue.endMs <= sourceDuration);
                 words.append(cue.text).append(' ');
             }
             String transcript = words.toString().toLowerCase(Locale.US);
@@ -177,6 +181,90 @@ public final class MediaWorkflowTest {
         Log.i("MiniFilmMediaTest", "CANCEL_PASS originalFilesIntact=true newTemporaryVideos=0");
     }
 
+    @Test(timeout = 120_000) public void overflowingManualAndAsrCaptionsRejectBeforeCreatingOutput() throws Exception {
+        Take take = generate().get(0);
+        String fiveLines = "First caption line\nSecond caption line\nThird caption line\nFourth caption line\nFifth caption line";
+        StringBuilder huge = new StringBuilder();
+        for (int i = 0; i < 1001; i++) huge.append('x');
+        for (String text : new String[] { fiveLines, huge.toString() }) {
+            take.subtitles.clear(); take.caption = text;
+            assertRejectedBeforeOutput(take, "Synthetic title", "Caption");
+            take.caption = ""; take.subtitles.add(new SubtitleCue(500, 2500, text));
+            assertRejectedBeforeOutput(take, "Synthetic title", "Caption");
+        }
+        take.subtitles.clear(); take.caption = "A valid caption";
+        StringBuilder heading = new StringBuilder();
+        for (int i = 0; i < 121; i++) heading.append('i');
+        assertRejectedBeforeOutput(take, heading.toString(), "Reel title");
+        heading.setLength(0);
+        for (int i = 0; i < 141; i++) heading.append('i');
+        take.title = heading.toString();
+        assertRejectedBeforeOutput(take, "Synthetic title", "Take title");
+        Log.i("MiniFilmMediaTest", "TEXT_REJECTION_PASS manualAndAsr=true titleBounds=true originalsIntact=true newOutputs=0 transformerNotStarted=true");
+    }
+
+    @Test(timeout = 180_000) public void multilineCaptionPreservesFullTextBeyondOldTruncationLimit() throws Exception {
+        String line = "Show your jacket and walk slowly toward the light.";
+        String caption = line + "\n" + line + "\n" + line + "\n" + line;
+        assertTrue("Fixture must expose the old 180-character truncation", caption.length() > 180);
+        StaticLayout layout = ReelExporter.captionLayout(caption);
+        assertEquals(caption, layout.getText().toString());
+        assertEquals(4, layout.getLineCount());
+        assertEquals("Every final character must be laid out", caption.length(), layout.getLineEnd(3));
+        assertTrue("Long full caption must shrink rather than lose words", layout.getPaint().getTextSize() < 35);
+        assertTrue(layout.getPaint().getTextSize() >= 24);
+        Take take = generate().get(0); take.caption = caption;
+        Exported exported = export(java.util.Collections.singletonList(take), "Clean");
+        assertEquals(caption, json(exported.edit).getJSONArray("cuts").getJSONObject(0).getString("caption"));
+        MediaMetadataRetriever video = new MediaMetadataRetriever();
+        try {
+            video.setDataSource(context, exported.video);
+            Bitmap actual = frame(video, 750_000);
+            assertTrue("Full multiline caption must render in actual encoded output", captionWhitePixels(actual) > 20);
+            actual.recycle();
+        } finally { video.release(); }
+        assertTrue(new File(take.uri.getPath()).isFile());
+        Log.i("MiniFilmMediaTest", "FULL_CAPTION_PASS characters=" + caption.length() + " lines="
+                + layout.getLineCount() + " fontSize=" + layout.getPaint().getTextSize()
+                + " completeLayout=true actualEncodedCaption=true");
+    }
+
+    private void assertRejectedBeforeOutput(Take take, String title, String expected) throws Exception {
+        java.util.Set<String> before = cacheVideos(), edits = editFiles();
+        int galleries = galleryOutputs();
+        CountDownLatch done = new CountDownLatch(1);
+        AtomicReference<String> error = new AtomicReference<>(); AtomicInteger progress = new AtomicInteger();
+        ReelExporter exporter = new ReelExporter(context);
+        main.post(() -> exporter.export(java.util.Collections.singletonList(take), title, "Clean", new ReelExporter.Listener() {
+            public void onProgress(int percent) { progress.incrementAndGet(); }
+            public void onComplete(Uri video, Uri edit) { error.set("Unexpected export completion"); done.countDown(); }
+            public void onError(String message) { error.set(message); done.countDown(); }
+        }));
+        assertTrue("Validation timed out", done.await(10, TimeUnit.SECONDS));
+        assertNotNull(error.get()); assertTrue(error.get(), error.get().contains(expected));
+        assertTrue("Error must explain creator action", error.get().toLowerCase(Locale.US).contains("shorten"));
+        assertEquals("Transformer must not start for invalid text", 0, progress.get());
+        assertEquals("Validation created temporary MP4", before, cacheVideos());
+        assertEquals("Validation created editable output", edits, editFiles());
+        assertEquals("Validation created gallery output", galleries, galleryOutputs());
+        assertTrue("Validation changed original source", new File(take.uri.getPath()).isFile());
+    }
+
+    private java.util.Set<String> editFiles() {
+        java.util.Set<String> names = new java.util.HashSet<>();
+        File[] files = new File(context.getFilesDir(), "exports").listFiles();
+        if (files != null) for (File file : files) names.add(file.getName());
+        return names;
+    }
+
+    private int galleryOutputs() {
+        try (Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                new String[] { MediaStore.Video.Media._ID }, MediaStore.Video.Media.DISPLAY_NAME + " LIKE ?",
+                new String[] { "MiniFilm-%" }, null)) {
+            assertNotNull("Own gallery outputs must be queryable", cursor); return cursor.getCount();
+        }
+    }
+
     private java.util.Set<String> cacheVideos() {
         java.util.Set<String> names = new java.util.HashSet<>();
         File[] files = context.getCacheDir().listFiles();
@@ -206,7 +294,19 @@ public final class MediaWorkflowTest {
         }));
         try {
             assertTrue("Video export timed out", done.await(90, TimeUnit.SECONDS));
-            assertNull(error.get(), error.get()); assertNotNull(result.get()); return result.get();
+            assertNull(error.get(), error.get()); assertNotNull(result.get());
+            // Keep completed fixture media, but do not hydrate it into the creator's saved
+            // project on a later activity launch. This is only this callback's journal.
+            JSONObject proof = json(result.get().edit);
+            assertEquals("Synthetic media verification", proof.getString("title"));
+            assertTrue(proof.getBoolean("preEventResearch"));
+            String id = proof.getString("exportId");
+            assertTrue(id.matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"));
+            JSONArray verifiedCuts = proof.getJSONArray("cuts"); assertEquals(takes.size(), verifiedCuts.length());
+            for (int i = 0; i < takes.size(); i++)
+                assertEquals(takes.get(i).uri.toString(), verifiedCuts.getJSONObject(i).getString("sourceUri"));
+            new android.util.AtomicFile(new File(new File(context.getFilesDir(), "export-journal"), id + ".json")).delete();
+            return result.get();
         } finally { main.post(exporter::cancel); }
     }
 

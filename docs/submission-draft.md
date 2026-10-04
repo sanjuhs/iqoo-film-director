@@ -4,8 +4,8 @@ Prepared 4 October 2026 (IST). Ready for creator review; this document has not
 been submitted. Use the portal's actual field limits, keeping the evidence and
 preparation disclosure intact. Team context: solo; proposed track: Productivity.
 The signed-in dashboard was reviewed by the parent agent and shows a Phase 1
-date of 5 October 2026. Its observed countdown points to the end of that day;
-exact displayed cutoff/timezone still needs confirmation. No submission receipt
+date of 5 October 2026. Its observed countdown supports approximately 23:59 IST on 5 October; the visible
+date label does not separately state timezone. No submission receipt
 exists in this draft.
 
 ## Title
@@ -91,8 +91,11 @@ planner. They do not identify a trend, garment, narrative or creative style.
 Whisper tiny.en through whisper.cpp runs locally on CPU to create editable
 English subtitle drafts from selected clip audio. Media3 assembles reviewed
 trims with timed text, typography and deterministic color presets, preserving
-original takes and exporting an editable cut list with the MP4. Adaptive AI
-color matching and word-level karaoke timing remain future work.
+original takes and exporting an editable cut list with the MP4. An opt-in
+conservative neutral/exposure heuristic has passed actual synthetic-video tests;
+learned creative grading and word-level karaoke timing remain future work. A
+portable ZIP includes selected originals, relative media paths, hashes and the
+reviewed timeline; actual Office Kit transfer is a separate gate.
 
 Android's dedicated on-device recognizer is used only when available; otherwise
 the creator types the brief. A non-network Android TTS voice synthesizes cues.
@@ -111,20 +114,21 @@ attributed public documentation image; no private shoot was captured. See
 
 | Component | Verified preparation result | Remaining limit |
 | --- | --- | --- |
-| Shot planning | Qwen3.5 0.8B CPU: five-shot fashion draft in **52.553 s**, product draft in **46.473 s**, with brief-specific terms | Slow for continuous direction; observed role drift and invented product details require review; no creativity/accuracy claim |
+| Shot planning | Qwen3.5 0.8B CPU: five fresh fashion/product/talking/intro plans in **25.563–31.666 s** each; four-method runner passed in 142.074 s | Narrow synthetic scaffolds; earlier invented details prompted repairs, unseen creative quality still requires review |
 | Pose inference | **33 landmarks in 388 ms** on Google's annotated public pose image; synthetic black input returned zero landmarks | This is image-model execution, not useful live-camera coaching or held-out evaluation |
 | Cue synthesis | Offline-voice synthetic cue produced audio bytes in **511 ms** | Synthesis only: no audible playback, AirPods route or Bluetooth microphone result |
 | English subtitles | CPU tiny.en produced **three draft segments in 3.458 s** from one labelled synthetic spoken clip | End-to-end decoding/load/transcription time; expected words checked, not general ASR accuracy |
 | Reel assembly | Actual **720×1280 H.264/AAC MP4**, **6.060 s** long, correct three-scene order and decoded subtitle visibility | Synthetic inputs; real camera audio, crop quality, HDR and multicamera synchronization remain untested |
-| Media correctness | **Four device tests passed in 13.743 s**: cuts/order, clipped/timeline subtitle visibility, spoken-fixture captions and cancellation preserving sources | Final heading cosmetic change requires its own visual recheck; the suite time is not an export benchmark |
+| Media correctness | **Six media tests passed**, including actual 199-character full captions and overflow rejection; staged recovery five tests passed | Fixture media, not an attended shoot; test-suite time is not an export benchmark |
+| Auto balance / portable ZIP | Seven analyzer/export checks reduced mild neutral RGB cast spread 12.1742→1.5267 and dim-luma +6.0603; six package checks preserved original bytes/hashes and portable timing | Deterministic heuristic, synthetic inputs; real grading, normal Files ZIP save and Office Kit remain unverified |
 | Reference inspection | **Three device tests passed in 4.883 s**: flat-color negative, two synthetic change boundaries and web-URI rejection | Sparse heuristics only; no semantic trend recognition or general cut-detection accuracy |
 | Phone capture | Explicit foreground implementation is present | Real preview/recorded audio/video, background stop and creator review |
 | Required hardware/integrations | Phone development evidence is available | iQOO, NPU, AirPods, Office Kit and DJI connection/control remain unverified |
 
 The measured local LLM, pose, transcription and media pipeline are real device
 execution. Rules are not a trained taste model, and CPU results are not NPU
-results. A generated shot instruction remains a proposal: the product draft
-invented a handle detail absent from the brief. Caption timing/text remain
+results. A generated shot instruction remains a proposal. Earlier drafts invented details;
+targeted refinements passed the tested fixtures without establishing general accuracy. Caption timing/text remain
 editable. No creator-benefit or end-to-end solo-shoot result is claimed yet.
 
 ## Event build and feasibility

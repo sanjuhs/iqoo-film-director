@@ -130,7 +130,7 @@ public final class LocalAITest {
         } finally { tts.shutdown(); }
     }
 
-    @Test public void freshLocalPlannerAdaptsTwoSyntheticBriefsWithoutInternetPermission() throws Exception {
+    @Test(timeout = 320_000) public void freshLocalPlannerAdaptsTwoSyntheticBriefsWithoutInternetPermission() throws Exception {
         PackageInfo info = context().getPackageManager().getPackageInfo(context().getPackageName(), android.content.pm.PackageManager.GET_PERMISSIONS);
         if (info.requestedPermissions != null) for (String permission : info.requestedPermissions)
             assertNotEquals("Target app must not have network permission", "android.permission.INTERNET", permission);
@@ -139,20 +139,98 @@ public final class LocalAITest {
         try {
             List<Shot> fashion = generate(planner, "Create a five-shot fashion reel for a bright yellow raincoat. Emphasize the raincoat and yellow color.", "Fashion");
             List<Shot> product = generate(planner, "Create a five-shot product reel for a blue ceramic coffee mug. Emphasize the coffee mug and its handle.", "Product reveal");
+            assertOrderedPerformerShots(fashion, "Hero pose", "Movement", "Detail", "Side pose", "Closing");
+            assertOrderedPerformerShots(product, "Hero", "Reveal", "Detail", "In use", "Verdict");
             assertNotEquals("Different scene briefs should produce different drafts", signature(fashion), signature(product));
             String fashionText = signature(fashion).toLowerCase(Locale.ROOT);
             String productText = signature(product).toLowerCase(Locale.ROOT);
             assertTrue("Fashion draft should reference the supplied raincoat or yellow color", fashionText.contains("raincoat") || fashionText.contains("yellow"));
+            assertNoWords("Yellow raincoat fixture must not acquire unsupplied black/red colors", fashionText, "black", "red");
+            assertNoWords("Yellow raincoat fixture supplies no pattern", fashionText, "pattern", "patterned");
+            for (Shot shot : fashion) {
+                String caption = shot.caption == null ? "" : shot.caption.trim().toLowerCase(Locale.ROOT);
+                assertFalse("Caption must not end with the observed incomplete bare 'is' fragment: " + shot.caption,
+                        caption.matches("(?s).*\\bis\\.?$"));
+            }
             assertFalse("Fashion shots must not turn a worn-outfit shoot into tabletop preparation", fashionText.contains("flat surface") || fashionText.contains("tabletop"));
             int performanceCues = 0;
             for (Shot shot : fashion) {
                 String instruction = shot.instruction.toLowerCase(Locale.ROOT);
-                if (instruction.matches(".*\\b(stand|pose|step|steps|walk|turn|look|hold)\\b.*")) performanceCues++;
+                if (instruction.matches(".*\\b(stand|pose|step|steps|walk|turn|look|hold|face)\\b.*")) performanceCues++;
             }
             assertTrue("At least three fashion takes should direct the person's performance", performanceCues >= 3);
             assertTrue("Product draft should reference the supplied mug or coffee", productText.contains("mug") || productText.contains("coffee"));
-            Log.i("MiniFilmLocalAITest", "adaptive_plans pass=true cases=2 shots_each=5 brief_specific=true network_permission=false");
+            assertNoWords("The ceramic mug fixture supplies no finish, grip texture, bowl or cap details", productText,
+                    "cap", "capped", "ridged", "grip", "glossy", "finish", "texture", "bowl");
+            // The brief explicitly supplies a handle, but the mug's overall blue color
+            // does not establish that handle's color. Keep 'hold the blue mug by its handle' valid.
+            assertFalse("Do not propagate whole-mug color into an invented blue handle",
+                    productText.matches("(?s).*\\bblue(?:[- ]colou?red)?\\s+(?:ceramic\\s+)?handle\\b.*")
+                            || productText.matches("(?s).*\\bhandle\\s+(?:is\\s+|looks\\s+)?blue\\b.*"));
+            Log.i("MiniFilmLocalAITest", "adaptive_plans pass=true cases=2 shots_each=5 brief_specific=true"
+                    + " exact_role_order=true imperative_prefixes=true targeted_fixture_errors_absent=true network_permission=false");
         } finally { planner.close(); }
+    }
+
+    @Test(timeout = 180_000) public void unknownColorJacketProducesOrderedPerformerCuesWithoutInventingNamedColors() throws Exception {
+        LocalPlanner planner = new LocalPlanner(context());
+        assertTrue("Root must first install files/director-model.gguf", planner.isModelAvailable());
+        try {
+            List<Shot> plan = generate(planner,
+                    "Help me perform a five-shot reel while wearing my jacket. I have not supplied its color, "
+                            + "material, pattern, or fasteners. Give direct performer instructions without adding those details.",
+                    "Fashion");
+            assertOrderedPerformerShots(plan, "Hero pose", "Movement", "Detail", "Side pose", "Closing");
+            String text = signature(plan).toLowerCase(Locale.ROOT);
+            assertTrue("The draft should stay connected to the supplied jacket", text.contains("jacket"));
+            assertNoWords("Unknown-color fixture must not invent a named garment/background color", text,
+                    "white", "black", "red", "green", "blue", "yellow", "pink", "purple", "orange",
+                    "brown", "grey", "gray", "navy", "beige", "maroon", "teal", "cyan", "magenta",
+                    "silver", "gold", "golden", "cream", "tan", "ivory", "turquoise", "burgundy",
+                    "lavender", "khaki");
+            assertFalse("Worn-jacket fixture should direct a person rather than tabletop preparation",
+                    text.contains("tabletop") || text.contains("flat surface"));
+            for (Shot shot : plan) {
+                // Conservative solo-performer boundary: lens eyeline is fine, equipment handling is not.
+                // These actual-output checks cover the previously observed 'hold the camera steady'
+                // and 'standing with camera'; they do not call the production validity guard.
+                assertNoWords("A stationary-phone shoot must not ask the creator to operate filming equipment",
+                        shot.instruction, "camera", "phone", "screen", "tripod");
+            }
+            assertTrue("Hero should give a body/eyeline pose, not recording setup",
+                    plan.get(0).instruction.matches("(?:Stand|Pose|Face|Look|Smile) \\S.*"));
+            assertTrue("Movement should direct a physical performer action",
+                    plan.get(1).instruction.matches("(?:Take|Turn|Walk|Move) \\S.*"));
+            assertTrue("The detail take should show the supplied garment rather than operate equipment",
+                    plan.get(2).instruction.toLowerCase(Locale.ROOT)
+                            .matches(".*\\b(jacket|garment|outfit|detail)\\b.*"));
+            assertTrue("Side view should direct the person's stance or orientation",
+                    plan.get(3).instruction.matches("(?:Turn|Stand|Pose|Face) \\S.*"));
+            assertTrue("Closing should direct an expression, eyeline or pose",
+                    plan.get(4).instruction.matches("(?:Look|Smile|Pose|Stand|Wave) \\S.*"));
+            Log.i("MiniFilmLocalAITest", "unknown_jacket_fixture pass=true shots=5 exact_role_order=true"
+                    + " imperative_prefixes=true instructions_max_chars=90 invented_named_colors=false"
+                    + " solo_performer_role_actions=true filming_equipment_instructions=false synthetic_input=true");
+        } finally { planner.close(); }
+    }
+
+    private void assertOrderedPerformerShots(List<Shot> shots, String... expectedTitles) {
+        assertEquals(expectedTitles.length, shots.size());
+        final String verbs = "Stand|Pose|Take|Turn|Show|Hold|Look|Walk|Say|Tell|Explain|Share|Introduce|Welcome|Give|"
+                + "Move|Lift|Face|Point|Bring|Keep|Smile|Wave|Tilt|Pause";
+        for (int i = 0; i < shots.size(); i++) {
+            Shot shot = shots.get(i);
+            assertEquals("Shot " + (i + 1) + " must preserve its reviewed story role", expectedTitles[i], shot.title);
+            assertTrue("Shot " + (i + 1) + " must begin with a direct command: " + shot.instruction,
+                    shot.instruction.matches("(?:" + verbs + ") \\S.*"));
+            assertTrue("Direction must fit the concise earbud cue limit", shot.instruction.length() <= 90);
+        }
+    }
+
+    private void assertNoWords(String message, String text, String... words) {
+        for (String word : words) assertFalse(message + ": " + word,
+                java.util.regex.Pattern.compile("\\b" + java.util.regex.Pattern.quote(word) + "\\b",
+                        java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).find());
     }
 
     private List<Shot> generate(LocalPlanner planner, String brief, String style) throws Exception {

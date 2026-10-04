@@ -5,6 +5,7 @@ import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -71,8 +72,12 @@ public final class ClipTranscriber {
                     long start = Math.max(0, Math.min(duration, segment.getLong("startMs")));
                     long end = Math.max(start, Math.min(duration, segment.getLong("endMs")));
                     String text = segment.getString("text").trim();
-                    if (!text.isEmpty() && end > start) cues.add(new SubtitleCue(
-                            start + audio.offsetMs, end + audio.offsetMs, text));
+                    // Codec padding can exceed the container; apply source offset before
+                    // capping so every default draft is valid in the clip's review/export UI.
+                    long sourceStart = Math.min(audio.containerDurationMs, start + audio.offsetMs);
+                    long sourceEnd = Math.min(audio.containerDurationMs, end + audio.offsetMs);
+                    if (!text.isEmpty() && sourceEnd > sourceStart)
+                        cues.add(new SubtitleCue(sourceStart, sourceEnd, text));
                 }
                 long elapsed = SystemClock.elapsedRealtime() - started;
                 Log.i("MiniFilmASR", "ASR_OK backend=CPU model=tiny.en samples=" + audio.samples.length
@@ -93,6 +98,7 @@ public final class ClipTranscriber {
     }
 
     private DecodedAudio decode(Uri uri) throws Exception {
+        long containerDurationMs = containerDuration(uri);
         MediaExtractor extractor = new MediaExtractor();
         MediaCodec decoder = null; boolean decoderStarted = false;
         try {
@@ -164,16 +170,29 @@ public final class ClipTranscriber {
                 }
             }
             if (samples.size < 1600) throw new IllegalArgumentException("The audio is too short to transcribe.");
-            return new DecodedAudio(Arrays.copyOf(samples.data, samples.size), Math.max(0, offsetMs));
+            return new DecodedAudio(Arrays.copyOf(samples.data, samples.size), Math.max(0, offsetMs), containerDurationMs);
         } finally {
             if (decoder != null) { if (decoderStarted) try { decoder.stop(); } catch (Exception ignored) {} decoder.release(); }
             extractor.release();
         }
     }
 
+    private long containerDuration(Uri uri) throws Exception {
+        MediaMetadataRetriever metadata = new MediaMetadataRetriever();
+        try {
+            metadata.setDataSource(context, uri);
+            long durationMs = Long.parseLong(metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            if (durationMs <= 0) throw new IllegalArgumentException("This clip has no usable duration.");
+            if (durationMs > 180_000) throw new IllegalArgumentException("Transcribe clips up to three minutes long.");
+            return durationMs;
+        } finally { metadata.release(); }
+    }
+
     private static final class DecodedAudio {
-        final float[] samples; final long offsetMs;
-        DecodedAudio(float[] samples, long offsetMs) { this.samples = samples; this.offsetMs = offsetMs; }
+        final float[] samples; final long offsetMs, containerDurationMs;
+        DecodedAudio(float[] samples, long offsetMs, long containerDurationMs) {
+            this.samples = samples; this.offsetMs = offsetMs; this.containerDurationMs = containerDurationMs;
+        }
     }
     private static final class Resampler {
         float[] data = new float[16_000 * 10]; int size;

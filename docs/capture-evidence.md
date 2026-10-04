@@ -59,3 +59,44 @@ copy was performed by this capture work. Actual camera preview, recording,
 audio route, analysis concurrency, saved playback and iQOO execution are not
 yet evidenced by this file. Bluetooth AirPods recording route is not asserted;
 CameraX uses the Android recording audio source, requiring actual route testing.
+
+## Vertical framing and selected-lens correction
+
+The preview now has a centered 9:16 visible viewfinder. CaptureController binds
+Preview, VideoCapture and ImageAnalysis through a shared 9:16 CameraX ViewPort
+(including the preview/video-only fallback). PoseCoach uses the image cropRect
+mapped into rotated ML Kit coordinates, excludes hidden landmarks and normalizes
+head/shoulder positions against the visible crop. These are source repairs;
+actual camera crop alignment and framing usefulness still need an attended shoot.
+
+Three Android geometry tests passed for asymmetric crops at all four rotations,
+portrait crop exclusion, normalized positions and invalid inputs. Four real UI
+tests passed, including 9:16 preview layout and back-lens persistence across Next
+and activity recreation without opening capture. Combined with two silent speech
+callback tests, the runner passed **9 tests in 14.110 seconds**. Camera/microphone
+permissions remained denied. This establishes geometry/inactive selection, not
+front/back hardware capture or live lens rebinding. Log:
+`private/evidence/framing-speech-ui-test.log` (ignored).
+
+Spoken directions now wait for matching utterance completion before the
+8-second pose break. Each audible countdown number also waits for completion;
+errors/timeouts pause before recording. Stop cancels callbacks and generation
+guards prevent stale completion from starting a take. Real offline TTS engine
+synthesis-to-file checks passed matching/unrelated/stopped ID behavior on the UI
+thread; they never played sound, invoked live camera or proved Bluetooth buffering
+or quiet recorded speech. Full attended AirPods sequencing remains pending.
+
+Official contracts rechecked: [CameraX configuration/crop rectangles](https://developer.android.com/media/camera/camerax/configuration)
+describes shared ViewPort crop areas, and [UtteranceProgressListener](https://developer.android.com/reference/android/speech/tts/UtteranceProgressListener)
+describes completion/error/stop callbacks. Those API contracts support the design;
+they do not replace the pending attended hardware tests.
+
+
+Object/detail shots now suppress full-person pose coaching: all Product reveal
+shots and named detail/cutaway/texture/fabric shots use the creator's scene cue.
+Planning stops active speech/listening before generation and freezes editable
+inputs while busy. These source fixes prevent mismatched brief/results and
+object scenes receiving shoulder/face advice. The latest expanded seven-case
+UI rerun encountered secure keyguard and its five screen-dependent failures
+cannot verify these changes. An explicit unlocked-phone test precondition was
+added; repeat those UI checks and the attended sequence after normal unlock.

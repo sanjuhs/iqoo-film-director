@@ -23,8 +23,7 @@ implementation is copied into the new app.
 - `PoseCoach`: bundled ML Kit pose detection followed by framing rules, not
   an LLM or a trained taste/pose-quality model. CPU preference, 750 ms sampling,
   one outstanding image, confidence/coordinate checks, 2-second latency
-  rejection and cue throttling. Coordinates are normalized in the rotated
-  image's dimensions. It cannot infer obstacle clearance or reliable distance.
+  rejection and cue throttling. Coordinates are normalized in the visible CameraX crop after rotation. It cannot infer obstacle clearance or reliable distance.
 - `SpeechCoach`: explicit call to Android's on-device recognizer only when
   its availability check succeeds. No cloud/default-recognizer fallback.
   An offline English TTS voice is chosen only when installed; unavailable
@@ -159,7 +158,8 @@ local **203,546-byte WAV in 511 ms**. Neither test opened a camera/microphone
 or played audio.
 
 Pending integrator evidence: live offline speech recognition, audible cue/earbuds playback, quality/latency under camera
-load, memory/thermal use, iQOO testing and automatic transcription. Storage
+load, memory/thermal use and iQOO testing. Clip transcription has separate passed
+synthetic evidence; live spoken-brief recognition remains unverified. Storage
 accounting must include the 214 MB upstream checkout, native build output,
 563 MB model copy if retained locally, and shared dependency-cache growth.
 
@@ -189,3 +189,77 @@ and synthesizes a public synthetic cue to an app-private WAV. It checks actual
 audio bytes and completion. It never plays sound or opens a microphone. This
 test passed with the measurements above; audible quality, AirPods playback
 and an airplane-mode test remain distinct and unverified.
+
+## Role-constrained solo-performer revision
+
+An initial ordered-role regression ran two tests in **121.536 seconds** with one
+failure: the known fashion performer-count assertion missed the valid verb
+“Face”; actual output also instructed holding/focusing the camera, a real solo
+shoot usability failure. The unknown-jacket fixture avoided named colors but
+still included camera-operator language. These observations are retained rather
+than counted as a passed director-quality run.
+
+LocalPlanner now supplies exact per-scene titles to a bounded native grammar,
+with role-specific opening verbs for fashion/product and parser checks for exact
+order, imperative action and full field limits. The prompt assumes a mounted,
+stationary phone and asks the creator to perform. A conservative fashion-only
+wording guard rejects camera/phone/screen/tripod while allowing lens eyeline.
+It also rejects benign camera wording and does not prove semantic understanding;
+product scenes may legitimately feature a phone/camera and are exempt. The
+unknown-jacket test now checks performer roles/garment detail and rejects device
+wording. Revised actual generation is running; no general accuracy claim follows
+from these constraints or fixtures.
+
+Two silent SpeechCoach completion/cancellation tests passed as part of the
+**9-test / 14.110-second** framing/speech/UI run. Real offline English synthesis
+was used, but no audio playback/microphone/camera occurred. Matching completions
+execute on the main thread once; unrelated/stopped IDs cannot complete the next
+gate. Actual spoken sequence and AirPods listening still require attendance.
+
+The second role/performer regression passed **2 methods / three actual plans in
+95.745 seconds**: unspecified jacket **28.875 s**, yellow raincoat **33.463 s**,
+blue ceramic mug **33.284 s**. Jacket cues obeyed ordered performer roles without
+named-color inventions or filming-equipment language. Raincoat cues remained
+awkward (“check your path with the lens”, “hold your pose against the lens”).
+The mug still invented a blue-handle color, glossy finish/grip texture and a hand-to-bowl
+use. The old targeted test prohibited cap/ridged errors only and therefore passed
+while missing these real quality failures. Its new regression is being strengthened
+and product scaffolding refined. This passing runner establishes execution and
+its asserted constraints; it does not establish grounded product direction.
+
+
+### Grounding regressions across story modes
+
+The talking/introduction/product runner took **129.037 s**, three methods with
+two failures: missing coffee, invented ceramic rim and repeated product finish/
+component/benefit inventions. Talking passed the old assertions but produced
+duration-unit captions and an unavailable empty train car. A concrete per-mode
+five-shot example improved the next product fixture; that runner took
+**140.584 s** with one overstrict introduction-detail assertion. “Feature of
+your work” is now accepted only when the preceding Work shot still names the
+supplied ceramic bowls; Name and coffee checks remain, and observed rim/rims
+inventions are explicitly rejected. Review found new talking door/opened and
+past-event drift plus fashion pattern/incomplete-caption errors, now added to
+the fixture regressions rather than hidden behind the green portions.
+
+Final sampling temperature is **0.25** (previously 0.65); top-k 20, top-p 0.9 and
+seed 42 remain. Prompts request short complete fashion captions, creator-chosen
+visible detail, and future lessons rather than invented past events. These are
+handwritten prompt/decoding constraints, not new training or proof of grounding.
+Five fresh actual plans are being checked; general creative accuracy, unseen
+briefs, latency under camera load and usefulness remain unverified.
+
+
+Final lower-temperature check passed **4 methods / five actual plans in
+142.074 seconds**: talking story25.733s, introduction25.563s, unspecified
+jacket31.666s, yellow raincoat31.580s and blue mug27.203s. Direct output review
+found the targeted observed inventions/fragments absent. Talking retained the
+missed-train/walk-home events and future early-departure decision, with an
+available creator-chosen cutaway. Introduction retained Rae/ceramic bowls/coffee.
+Fashion used concise complete captions and creator-chosen detail; product
+retained actual-use/own-opinion prompts without the earlier finish/grip/component
+inventions. All five plans kept exact role order and bounded performer cues.
+The installed no-Internet assertion passed. These are narrow synthetic fixtures
+with handwritten scaffolding; unseen brief quality and creator benefit remain
+unverified, and all drafts still require review. Evidence: ignored
+`private/evidence/final-planner-test.log` and `final-planner-metrics.log`.
