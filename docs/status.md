@@ -623,7 +623,7 @@ brief/notes are shortened by the creator rather than silently losing notes.
 One prior read-only~1s memory sample run collected25usable/3missing samples over
 28.184s: max sampled PSS1,547,793KiB, RSS1,652,760KiB, nativeheapPSS954,096KiB.
 These are sampled maxima, not certified peaks; no camera concurrency benchmark.
-The accounted conversion peak estimate was9.344GB, below10GBaim/15GBlimit,
+The accounted conversion peak estimate was9.344GB, below10GBaim/15 GBlimit,
 including both projector copies, isolated converter dependencies and historical
 archive/cache reserves. After re-verifying both SHA values, only the newly
 fetched1,746,942,600-byte conversion source shard was removed. Runtime weights,
@@ -944,3 +944,42 @@ Notices remain identical; separate weights are absent; no network permission.
 Normal launch requested successfully. Last qualified storage was9.280GB before
 these small source/test changes; no SDK/JDK/model download was added. Real capture,
 AirPods, eligible event code and accepted submission remain open; goal stays active.
+
+### Local spoken-brief alternative — 4 October, 16:46 IST
+
+Because Android's English recognition model is absent, Brief now includes an
+explicit local Record → Stop & review words → corrected draft → Use this brief
+flow using the installed Whisper model. Normal permission approval requires a
+fresh Record tap. No automatic application, planning or filming. Cancel/background
+discard recording and suppress stale drafts. Recorder output is configured for
+AAC/MPEG4 mono 16 kHz/64 kbps with encoder/main 45-second limits; limit paths discard.
+Native release failure retains protection and refuses another recorder until
+cleanup succeeds. Four owned slots, safe resource hooks and exact once-per-process
+orphan reconciliation preserve active readers and unrelated files.
+
+The combined runner executed 24 methods /3.720s: **23 passed, one audio-remux
+fixture failed before inference**. Fourteen fake-recorder checks, eight native/
+request/resource checks and unchanged trim cancellation passed. The remux EOF
+helper incorrectly skipped valid negative priming PTS; corrected fixture-only
+code then passed **one method /3.823s**. It preserved all 412 AAC packets/hash,
+rebased 21,333µs, and measured actual audio-only 8789ms separately from source 8759ms.
+Real CPU Whisper returned three bounded cues /3,553ms with expected synthetic
+words, main callback, unchanged source and cleanup after worker termination.
+Padded-video regression also returned three cues /3,310ms. Thus 24 methods passed
+across these runs; the failed report is retained. [Voice evidence](voice-input-readiness.md)
+records exact cases and limits. Three new review-dialog UI checks are compiled,
+unrun behind keyguard. Fake recording/remux do not establish actual MediaRecorder
+capture, permission UX, microphone/earbud routing or live speech accuracy.
+
+Both builds and installations succeeded. Final saved/independently hashed
+installed app:52,838,059 bytes, SHA256
+**15eafa4b54a1e15c578971a304d7577303f49aedf6f8abec385109fafdf6c18c**.
+Publisher notices remain 31,635 bytes/SHA02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68;
+separate Qwen/Whisper weights remain absent from Git/APK and no network permission.
+Normal launch succeeded behind showing keyguard/sleeping screen; camera and
+microphone remain denied. No private capture/audio playback/upload, aircraft
+action, permission bypass or outgoing submission ran. Qualified storage is
+**9.282GB**, under 10 GB aim/15 GB limit with retained missing-archive/cache/oat
+inventory limitations. No model/SDK/JDK download, backup removal or credential
+change occurred. Full attended creator workflow, AirPods, iQOO/NPU/Office Kit,
+eligible competition code and accepted submission remain open; goal stays active.

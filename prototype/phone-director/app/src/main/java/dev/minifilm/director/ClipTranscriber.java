@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,6 +57,9 @@ public final class ClipTranscriber {
     private final AtomicInteger callbackGeneration = new AtomicInteger();
     private final Object lifecycle = new Object();
     private long activeRequest;
+    private final List<Runnable> resourceCleanups = new ArrayList<>();
+    private final IdentityHashMap<Runnable, Boolean> registeredCleanups = new IdentityHashMap<>();
+    private boolean cleanupRunning;
     private volatile boolean closed;
 
     public ClipTranscriber(Context context) {
@@ -156,23 +160,74 @@ public final class ClipTranscriber {
             Log.w("MiniFilmASR", "transcription_failed category=local_audio");
             main.post(() -> { if (!closed) completion.error("Could not transcribe this local clip. Check file access and use encoded audio up to three minutes, or add manual text."); });
         } finally {
+            List<Runnable> cleanup;
             synchronized (lifecycle) {
                 nativeFreeRequest(request);
                 if (activeRequest == request) activeRequest = 0;
                 busy.set(false);
+                cleanup = takeIdleCleanupsLocked();
             }
+            runResourceCleanups(cleanup);
         }
     }
 
     public void close() {
+        List<Runnable> cleanup;
         synchronized (lifecycle) {
-            if (closed) return;
-            closed = true;
-            callbackGeneration.incrementAndGet();
-            if (activeRequest != 0) nativeCancelRequest(activeRequest);
-            // Drain queued work so its finally releases the registered request; shutdownNow
-            // would discard that cleanup. Closed work checks its flag before decoding/inference.
-            worker.shutdown();
+            closeLocked();
+            cleanup = takeIdleCleanupsLocked();
+        }
+        runResourceCleanups(cleanup);
+    }
+
+    /** Resource-only hook, not a UI callback. It may run immediately on the caller or on the
+     * finishing worker; capture an immutable owned file, never views. Hooks execute in attachment
+     * order, once per Runnable identity, and can attach after close while its request unwinds. */
+    void closeWhenIdle(Runnable resourceCleanup) {
+        if (resourceCleanup == null) throw new NullPointerException("Resource cleanup is required");
+        List<Runnable> cleanup;
+        synchronized (lifecycle) {
+            if (!registeredCleanups.containsKey(resourceCleanup)) {
+                registeredCleanups.put(resourceCleanup, Boolean.TRUE);
+                resourceCleanups.add(resourceCleanup);
+            }
+            closeLocked();
+            cleanup = takeIdleCleanupsLocked();
+        }
+        runResourceCleanups(cleanup);
+    }
+
+    private void closeLocked() {
+        if (closed) return;
+        closed = true;
+        callbackGeneration.incrementAndGet();
+        if (activeRequest != 0) nativeCancelRequest(activeRequest);
+        // Drain queued work so its finally releases the registered request; shutdownNow
+        // would discard that cleanup. Closed work checks its flag before decoding/inference.
+        worker.shutdown();
+    }
+
+    private List<Runnable> takeIdleCleanupsLocked() {
+        if (!closed || activeRequest != 0 || cleanupRunning || resourceCleanups.isEmpty()) return java.util.Collections.emptyList();
+        cleanupRunning = true;
+        List<Runnable> cleanup = new ArrayList<>(resourceCleanups);
+        resourceCleanups.clear();
+        return cleanup;
+    }
+
+    private void runResourceCleanups(List<Runnable> cleanup) {
+        while (!cleanup.isEmpty()) {
+            for (Runnable action : cleanup) {
+                try { action.run(); }
+                catch (RuntimeException failure) {
+                    // Resource/provider errors can include private paths; never log raw failures.
+                    Log.w("MiniFilmASR", "resource_cleanup_failed category=closed_resource");
+                }
+            }
+            synchronized (lifecycle) {
+                cleanupRunning = false;
+                cleanup = takeIdleCleanupsLocked(); // Concurrent/reentrant attachments retain ordering.
+            }
         }
     }
 

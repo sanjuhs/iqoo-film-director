@@ -34,6 +34,13 @@ public class MainActivity extends ComponentActivity {
     private ReferenceBoardInspection boardInspection; private ReferenceBoard pendingReferenceBoard, reviewedReferenceBoard; private long referenceDurationMs; private AlertDialog referenceBoardDialog;
     private boolean waitQuietPause=false, recordingTimedStop=false, recordingQuietStop=false; private QuietTailStopPolicy quietStopPolicy;
     private boolean spokenPreparationPaused; private Shot recordingShot; private int countdownGeneration=0; private boolean reviewAfterSave=false; private TextView framingView;
+    private LocalBriefRecorder briefRecorder;
+    private Button finishVoiceBriefButton;
+    private File processingVoiceBrief;
+    private ClipTranscriber voiceBriefReader;
+    private int voiceBriefGeneration;
+    private AlertDialog voiceBriefReview;
+    private boolean destroying;
     @Override public void onCreate(Bundle state){super.onCreate(state);speech=new SpeechCoach(this);speech.setAudioInterruptionListener(this::pauseSpokenPreparation);exporter=new ReelExporter(this);packager=new ProjectPackager(this);documentCopier=new DocumentCopier(this);autoColor=new AutoColorBalance(this);planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);restore();recoverTakes();ExportRecovery.Result recovered=ExportRecovery.reconcile(this);if(recovered.videoUri!=null){lastVideo=recovered.videoUri;lastEdit=recovered.editListUri;save();}if(shots.isEmpty())shots.addAll(DirectorEngine.plan(brief,style));render();if(!recovered.warning.isEmpty())status.setText(recovered.warning);else if(recovered.cleaned>0)status.setText("Interrupted export cleared. Original clips are safe.");}
     private int dp(float v){return (int)(v*getResources().getDisplayMetrics().density+.5f);}
     private TextView text(String s,int size,int color){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);t.setPadding(0,dp(5),0,dp(5));return t;}
@@ -43,7 +50,7 @@ public class MainActivity extends ComponentActivity {
     private Button button(String s,boolean primary,Runnable action){Button b=new Button(this);b.setText(s);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(primary?BG:FG);b.setBackground(bg(primary?LIME:0xff303338));b.setMinHeight(dp(50));b.setPadding(dp(12),dp(8),dp(12),dp(8));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(52));p.topMargin=dp(8);p.bottomMargin=dp(4);b.setLayoutParams(p);b.setOnClickListener(v->{if(busy){toast("Local processing is running. You can cancel it above.");return;}action.run();});return b;}
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
-        speech.stopListening();stopVoiceInputButton=null;
+        cancelVoiceBrief();speech.stopListening();stopVoiceInputButton=null;finishVoiceBriefButton=null;
         clearQuietStopPolicy();
         if(capture!=null){desiredLens=capture.getLensFacing();capture.stopPreview();capture.close();capture=null;}if(pose!=null){pose.close();pose=null;}live=false;
         root=column();root.setBackgroundColor(BG);root.setPadding(dp(22),dp(22),dp(22),dp(10));androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root,(v,insets)->{androidx.core.graphics.Insets bars=insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars());v.setPadding(dp(22)+bars.left,dp(16)+bars.top,dp(22)+bars.right,dp(10)+bars.bottom);return insets;});
@@ -53,9 +60,9 @@ public class MainActivity extends ComponentActivity {
         nav=new LinearLayout(this);String[] labels={"01  Brief","02  Direct","03  Assemble"};for(int i=0;i<3;i++){final int n=i;Button b=button(labels[i],tab==i,()->switchTab(n));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(48),1);p.setMargins(dp(3),0,dp(3),0);b.setLayoutParams(p);b.setTextSize(12);nav.addView(b);}root.addView(nav);setContentView(root);
         if(tab==0)briefPage();else if(tab==1){directPage();LinearLayout controls=new LinearLayout(this);Button record=button("Start camera",true,()->{if(live)startCountdown();else startShoot();}),stop=button("Stop take",false,()->stopTake());captureAction=record;stop.setTextColor(0xffff9e9e);for(Button b:new Button[]{record,stop}){LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(50),1);lp.setMargins(dp(3),dp(4),dp(3),dp(8));b.setLayoutParams(lp);controls.addView(b);}root.addView(controls,root.getChildCount()-1);}else editPage();
     }
-    private void setBusy(boolean value){if(value)stopVoiceInput();busy=value;if(cancelProcessingButton!=null)cancelProcessingButton.setVisibility(value?View.VISIBLE:View.GONE);setEditorsEnabled(root,!value);}
+    private void setBusy(boolean value){if(value)stopVoiceInput();busy=value;if(cancelProcessingButton!=null){cancelProcessingButton.setText(hasVoiceBriefWork()?"Cancel voice brief":"Cancel local processing");cancelProcessingButton.setVisibility(value?View.VISIBLE:View.GONE);}setEditorsEnabled(root,!value);}
     private void setEditorsEnabled(View view,boolean enabled){if(view==null)return;if(view instanceof EditText||view instanceof Spinner||view instanceof CheckBox||view instanceof Switch)view.setEnabled(enabled);if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)setEditorsEnabled(group.getChildAt(i),enabled);}}
-    private void cancelProcessing(){pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";pendingReferenceFrame=null;planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
+    private void cancelProcessing(){if(hasVoiceBriefWork()){cancelVoiceBrief();return;}pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";pendingReferenceFrame=null;planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
     private void switchTab(int n){if(busy){toast("Wait for the current operation to finish.");return;}if(countdown || capture!=null&&capture.isRecording()){toast("Stop this take before changing screens.");return;}sequenceActive=false;cancelCountdown();speech.stopListening();speech.stop();session=false;if(n!=0)releasePlannerForMedia();tab=n;save();render();}
     // close() queues native cleanup after any work; it never blocks the UI or frees an active core directly.
     private void releasePlannerForMedia(){planner.close();planner=new LocalPlanner(this);}
@@ -64,7 +71,13 @@ public class MainActivity extends ComponentActivity {
         headline("Make something\nworth watching.","One idea. A few good takes. Your reel, made here.");
         LinearLayout c=card();c.addView(text("WHAT ARE WE MAKING?",11,LIME));briefField=input(brief,"Describe your reel, outfit, story or reference trend");briefField.setMinLines(3);briefField.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int count,int after){}public void onTextChanged(CharSequence s,int st,int before,int count){if(speech.isListening())stopVoiceInput();brief=s.toString();}public void afterTextChanged(android.text.Editable e){}});c.addView(briefField);c.addView(text("Describe a trend's beats or import your own reference clips. Automatic trend analysis is still research.",12,MUTED));
         Spinner modes=spinner(new String[]{"Fashion","Talking head","Product reveal","Introduction"},style,s->{style=s;save();});c.addView(modes);
-        c.addView(button("Speak my brief",false,()->listenBrief()));
+        c.addView(button("Record a local voice brief",false,this::recordVoiceBrief));
+        c.addView(text("Up to 45 seconds. Stop to review an English draft made on this phone. Audio is temporary; words need your review.",12,MUTED));
+        finishVoiceBriefButton=button("Stop & review words",false,()->{});
+        finishVoiceBriefButton.setOnClickListener(v->{if(briefRecorder!=null&&briefRecorder.isRecording())briefRecorder.finish();});
+        c.addView(finishVoiceBriefButton);updateVoiceBriefControls();
+        c.addView(button("Use phone dictation",false,()->listenBrief()));
+        c.addView(text("Phone dictation needs Android's offline English speech model. If unavailable, use the local voice brief above or type.",12,MUTED));
         stopVoiceInputButton=button("Stop voice input",false,this::stopVoiceInput);c.addView(stopVoiceInputButton);updateVoiceInputControls();
         c.addView(button("Build my shot plan",true,()->generatePlan()));c.addView(button("Choose a reference reel",false,()->pickReference()));if(referenceVideoUri!=null){c.addView(button("Review three reference moments",false,()->chooseReferenceMoments()));c.addView(button("Describe a reference frame locally",false,()->chooseReferenceFrame()));}if(pendingReferenceBoard!=null)c.addView(button("Review reference moments draft",false,()->reviewReferenceBoard(pendingReferenceBoard)));else if(reviewedReferenceBoard!=null)c.addView(button("Edit reviewed reference moments",false,()->reviewReferenceBoard(reviewedReferenceBoard)));if(!pendingReferenceNotes.isEmpty())c.addView(button("Review reference frame notes",false,()->reviewReferenceNotes()));if(!referenceSummary.isEmpty()){c.addView(text("Reference notes: "+referenceSummary,12,MUTED));c.addView(button("Clear reference observations",false,()->{referenceSummary="";clearReferenceBoards();save();render();}));}content.addView(c);
         content.addView(text(planSource+" · "+shots.size()+" shots",12,LIME));
@@ -76,6 +89,117 @@ public class MainActivity extends ComponentActivity {
     private Spinner spinner(String[] values,String selected,java.util.function.Consumer<String> action){Spinner s=new Spinner(this);ArrayAdapter<String> a=new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,values){@Override public View getView(int p,View c,android.view.ViewGroup g){TextView v=(TextView)super.getView(p,c,g);v.setTextColor(FG);v.setPadding(dp(12),dp(12),dp(12),dp(12));return v;}};s.setAdapter(a);s.setSelection(Math.max(0,Arrays.asList(values).indexOf(selected)));s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onNothingSelected(AdapterView<?> p){}public void onItemSelected(AdapterView<?> p,View v,int n,long id){action.accept(values[n]);}});return s;}
     private void generatePlan(){stopVoiceInput();brief=briefField.getText().toString().trim();if(brief.isEmpty()){toast("Add a brief first.");return;}if(takes.size()>0){new AlertDialog.Builder(this).setTitle("Replace shot plan?").setMessage("Your existing takes stay in Assemble. The new plan starts from shot one.").setPositiveButton("Replace plan",(d,w)->runPlanner()).setNegativeButton("Keep plan",null).show();}else runPlanner();}
     private void runPlanner(){if(VisionReference.isRunning()){toast("The earlier frame review is still stopping. Try again in a moment.");return;}String planBrief=brief+(referenceSummary.isEmpty()?"":(reviewedReferenceBoard!=null?"\nCreator-reviewed reference moments: ":"\nReference notes (reviewed when visual AI is used; approximate): ")+referenceSummary);if(!referenceSummary.isEmpty()&&planBrief.length()>500){toast("Shorten your brief or reference notes to keep them together in the plan.");return;}speech.stopListening();speech.stop();save();if(!planner.isModelAvailable()){shots.clear();shots.addAll(DirectorEngine.plan(brief,style));planSource="Editable template · local LLM not installed";shotIndex=0;save();render();return;}setBusy(true);status.setText("Local model is creating your shot plan…");planner.generate(planBrief,style,new LocalPlanner.Listener(){public void onPlan(List<Shot> p,long ms,String model){setBusy(false);shots.clear();shots.addAll(p);shotIndex=0;planSource="Local AI · "+model+" · "+String.format(Locale.US,"%.1fs",ms/1000.0);save();render();}public void onError(String error){setBusy(false);toast(error);status.setText("Plan was not applied. Review your brief and confirmed reference notes.");if(!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;new AlertDialog.Builder(MainActivity.this).setTitle("Keep creating").setMessage(error).setPositiveButton("Use starter plan",(d,w)->{shots.clear();shots.addAll(DirectorEngine.plan(brief,style));planSource="Editable template · AI failed";save();render();}).setNegativeButton("Keep current",null).show();}});}
+    private boolean hasVoiceBriefWork() {
+        return processingVoiceBrief != null || briefRecorder != null && briefRecorder.isRecording();
+    }
+    private void updateVoiceBriefControls() {
+        if (finishVoiceBriefButton != null) {
+            boolean recording = briefRecorder != null && briefRecorder.isRecording();
+            finishVoiceBriefButton.setEnabled(recording);
+            finishVoiceBriefButton.setVisibility(recording ? View.VISIBLE : View.GONE);
+        }
+    }
+    private void recordVoiceBrief() {
+        if (busy || tab != 0 || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return;
+        if (briefRecorder != null) {
+            briefRecorder.close();
+            if (briefRecorder.hasUnreleasedResources()) { status.setText("Voice recorder release could not be confirmed. Close the app and check Android's microphone indicator before retrying."); return; }
+        }
+        if (!transcriber.isModelAvailable()) { status.setText("The local English speech model is unavailable. Type your brief instead."); return; }
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},44); return;
+        }
+        stopVoiceInput(); speech.stop();
+        final int generation = ++voiceBriefGeneration;
+        briefRecorder = new LocalBriefRecorder(this, new LocalBriefRecorder.Listener() {
+            public void onStarted() {
+                if (generation != voiceBriefGeneration) return;
+                setBusy(true); updateVoiceBriefControls();
+                status.setText("● Voice brief recording · tap Stop & review words · 45-second limit");
+            }
+            public void onReady(File file) {
+                updateVoiceBriefControls();
+                if (generation != voiceBriefGeneration || tab != 0 || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                    LocalBriefRecorder.discard(file); return;
+                }
+                transcribeVoiceBrief(file, generation);
+            }
+            public void onError(String message) {
+                if (generation != voiceBriefGeneration) return;
+                setBusy(false); updateVoiceBriefControls(); status.setText(message);
+            }
+            public void onCanceled() {
+                if (generation != voiceBriefGeneration) return;
+                setBusy(false); updateVoiceBriefControls(); status.setText("Voice brief canceled. Your typed brief is kept.");
+            }
+        });
+        briefRecorder.start();
+    }
+    private void transcribeVoiceBrief(final File file, final int generation) {
+        processingVoiceBrief = file; voiceBriefReader = transcriber;
+        setBusy(true); status.setText("Making an English draft locally… review it before using it");
+        transcriber.transcribe(Uri.fromFile(file), new ClipTranscriber.Listener() {
+            private boolean releaseAndCurrent() {
+                // These callbacks follow decoder release. Cancellation uses the old worker's
+                // resource hook instead, since close suppresses its creator callbacks.
+                LocalBriefRecorder.discard(file);
+                if (processingVoiceBrief == file) { processingVoiceBrief = null; voiceBriefReader = null; }
+                return generation == voiceBriefGeneration && !destroying && tab == 0
+                        && getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED);
+            }
+            public void onComplete(List<SubtitleCue> cues, long elapsedMs) {
+                if (!releaseAndCurrent()) return;
+                setBusy(false);
+                StringBuilder words = new StringBuilder();
+                for (SubtitleCue cue : cues) {
+                    if (words.length() > 0) words.append(' ');
+                    words.append(cue.text.trim());
+                }
+                String draft = words.toString().trim();
+                if (draft.isEmpty()) { status.setText("No words were recognized. Record a clearer brief or type it."); return; }
+                reviewVoiceBrief(draft, generation);
+            }
+            public void onError(String message) {
+                if (!releaseAndCurrent()) return;
+                setBusy(false); status.setText(message);
+            }
+        });
+    }
+    private void reviewVoiceBrief(String draft, int generation) {
+        EditText words = input(draft,"Correct the words before using this brief"); words.setMinLines(3);
+        if (draft.length() > 500) words.setError("Shorten this draft to 500 characters before using it.");
+        LinearLayout form = column(); form.setPadding(dp(20),dp(10),dp(20),dp(10));
+        form.addView(text("English speech draft · check the words and keep it within 500 characters. Using it does not start planning or filming.",13,MUTED)); form.addView(words);
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Review your voice brief").setView(form)
+                .setPositiveButton("Use this brief",null).setNegativeButton("Keep typed brief",null).create();
+        voiceBriefReview = dialog;
+        dialog.setOnDismissListener(d -> { if (voiceBriefReview == dialog) voiceBriefReview = null; });
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String edited = words.getText().toString().trim();
+            if (edited.isEmpty() || edited.length() > 500) { words.setError("Use 1–500 characters."); return; }
+            if (generation != voiceBriefGeneration || destroying || tab != 0 || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) { dialog.dismiss(); return; }
+            brief = edited; if (briefField != null) briefField.setText(edited); save();
+            status.setText("Voice brief applied. Review it, then build your shot plan."); dialog.dismiss();
+        }));
+        status.setText("Review the English draft before applying it"); dialog.show();
+    }
+    private void cancelVoiceBrief() {
+        boolean hadWork = hasVoiceBriefWork(); ++voiceBriefGeneration;
+        if (voiceBriefReview != null) { voiceBriefReview.dismiss(); voiceBriefReview = null; }
+        if (briefRecorder != null) briefRecorder.cancel();
+        final File file = processingVoiceBrief;
+        final ClipTranscriber reader = voiceBriefReader;
+        processingVoiceBrief = null; voiceBriefReader = null;
+        if (file != null && reader != null) {
+            reader.closeWhenIdle(() -> LocalBriefRecorder.discard(file));
+            if (transcriber == reader && !destroying) transcriber = new ClipTranscriber(this);
+        }
+        if (hadWork) setBusy(false);
+        if (briefRecorder != null && briefRecorder.hasUnreleasedResources()) {
+            if (status != null) status.setText("Voice recorder release could not be confirmed. Close the app and check Android's microphone indicator before retrying.");
+        } else if (hadWork && status != null) status.setText("Voice brief canceled. Your typed brief is kept.");
+        updateVoiceBriefControls();
+    }
     private void updateVoiceInputControls(){if(stopVoiceInputButton!=null)stopVoiceInputButton.setEnabled(speech.isListening());}
     private void stopVoiceInput(){boolean wasListening=speech.isListening();speech.stopListening();updateVoiceInputControls();if(wasListening&&tab==0&&status!=null)status.setText("Voice input stopped. Your typed brief is kept.");}
     private void listenBrief(){
@@ -354,9 +478,9 @@ public class MainActivity extends ComponentActivity {
     private void previewVideo(Uri u,Long startMs,Long endMs){Uri safe=u;if("file".equals(u.getScheme()))safe=FileProvider.getUriForFile(this,"dev.minifilm.director.files",new File(u.getPath()));Intent i=new Intent(this,PreviewActivity.class).setData(safe).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);if(startMs!=null&&endMs!=null)i.putExtra(PreviewActivity.EXTRA_START_MS,startMs.longValue()).putExtra(PreviewActivity.EXTRA_END_MS,endMs.longValue());try{startActivity(i);}catch(Exception e){toast("This video could not be opened.");}}
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
-    @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Speak my brief when you're ready.");}
-    @Override protected void onStop(){super.onStop();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
-    @Override protected void onDestroy(){pendingReferenceFrame=null;++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
+    @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
+    @Override protected void onStop(){super.onStop();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
+    @Override protected void onDestroy(){destroying=true;cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();pendingReferenceFrame=null;++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
     private JSONArray serializeTakes() throws JSONException{JSONArray tt=new JSONArray();for(Take t:takes){JSONArray subs=new JSONArray();for(SubtitleCue cue:t.subtitles)subs.put(new JSONObject().put("start",cue.startMs).put("end",cue.endMs).put("text",cue.text));tt.put(new JSONObject().put("subtitles",subs).put("captionOrigin",t.captionOrigin).put("uri",t.uri.toString()).put("id",t.shotId).put("title",t.title).put("caption",t.caption).put("duration",t.durationMs).put("in",t.inMs).put("out",t.outMs).put("selected",t.selected));}return tt;}
     private String packSnapshot(JSONArray serialized) throws JSONException{return new JSONObject().put("reelTitle",reelTitle).put("look",look).put("takes",serialized).toString();}
     private String packSnapshot(){try{return packSnapshot(serializeTakes());}catch(JSONException impossible){return "";}}

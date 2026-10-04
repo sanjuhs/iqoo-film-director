@@ -12,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,6 +20,7 @@ import java.security.MessageDigest;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -197,6 +199,69 @@ public final class TranscriberCancellationTest {
         } finally { transcriber.close(); assertTrue(worker(transcriber).awaitTermination(10, TimeUnit.SECONDS)); }
         assertEquals(baseline, requestCount());
         Log.i(TAG, "ACTUAL_SYNTHETIC_ASR_OK knownWords=jacket,green,outfit sourceUnchanged=true registryReleased=true microphone=false playback=false");
+    }
+
+    @Test(timeout = 20_000) public void resourceCleanupWaitsForQueuedClosedWorkerAndContinuesAfterSafeFailure() throws Exception {
+        ClipTranscriber transcriber = new ClipTranscriber(context()); assertTrue(transcriber.isModelAvailable());
+        int baseline = requestCount(); ExecutorService worker = worker(transcriber);
+        CountDownLatch held = new CountDownLatch(1), release = new CountDownLatch(1), cleaned = new CountDownLatch(2);
+        AtomicInteger callbacks = new AtomicInteger(); AtomicBoolean deleted = new AtomicBoolean(), afterFree = new AtomicBoolean();
+        AtomicReference<Throwable> checkFailure = new AtomicReference<>(); List<String> events = new CopyOnWriteArrayList<>();
+        File owned = File.createTempFile("asr-owned-cleanup-", ".txt", context().getCacheDir());
+        try (FileOutputStream output = new FileOutputStream(owned)) { output.write(new byte[]{1, 2, 3}); }
+        worker.execute(() -> holdWorker(held, release));
+        Runnable first = () -> {
+            try { afterFree.set(activeRequest(transcriber) == 0 && requestCount() == baseline); }
+            catch (Exception failure) { checkFailure.set(failure); }
+            events.add("first"); deleted.set(owned.delete()); cleaned.countDown();
+        };
+        Runnable failing = () -> {
+            events.add("failure"); throw new IllegalStateException("synthetic-private-cleanup-message-must-not-be-logged");
+        };
+        Runnable second = () -> { events.add("second"); cleaned.countDown(); };
+        try {
+            assertTrue(held.await(3, TimeUnit.SECONDS));
+            onMain(() -> transcriber.transcribe(Uri.fromFile(owned), countingListener(callbacks)));
+            assertNotEquals(0, activeRequest(transcriber));
+            transcriber.close(); // Attach after close while the queued native request still exists.
+            transcriber.closeWhenIdle(first); transcriber.closeWhenIdle(first);
+            transcriber.closeWhenIdle(failing); transcriber.closeWhenIdle(second); transcriber.close();
+            assertTrue("An owned source must remain until its old queued reader has unwound", owned.isFile());
+            assertTrue(events.isEmpty()); assertEquals(2, cleaned.getCount());
+            release.countDown(); assertTrue(worker.awaitTermination(5, TimeUnit.SECONDS));
+            assertTrue(cleaned.await(3, TimeUnit.SECONDS)); drainMain();
+            assertNull(checkFailure.get()); assertTrue(afterFree.get()); assertTrue(deleted.get()); assertFalse(owned.exists());
+            assertEquals(java.util.Arrays.asList("first", "failure", "second"), events);
+            assertEquals(0, callbacks.get()); assertEquals(baseline, requestCount());
+            transcriber.close(); transcriber.closeWhenIdle(first);
+            assertEquals("Repeated closure/hook identity must not rerun cleanup", 3, events.size());
+            Log.i(TAG, "RESOURCE_CLEANUP_QUEUED_OK afterRequestFree=true sourceKeptUntilCleanup=true distinctHooks=3 failureIsolated=true sameHookOnce=true");
+        } finally { transcriber.close(); release.countDown(); worker.awaitTermination(5, TimeUnit.SECONDS); owned.delete(); }
+    }
+
+    @Test(timeout = 10_000) public void alreadyClosedIdleCleanupRunsOutsideLockAndOrdersReentrantAttachments() throws Exception {
+        ClipTranscriber transcriber = new ClipTranscriber(context()); int baseline = requestCount();
+        List<String> events = new CopyOnWriteArrayList<>(); Thread caller = Thread.currentThread();
+        AtomicReference<Thread> cleanupThread = new AtomicReference<>();
+        Object lifecycle = field("lifecycle").get(transcriber); AtomicBoolean lockAvailable = new AtomicBoolean();
+        Runnable second = () -> events.add("second");
+        Runnable first = () -> {
+            cleanupThread.set(Thread.currentThread()); events.add("first-start");
+            CountDownLatch acquired = new CountDownLatch(1);
+            Thread probe = new Thread(() -> { synchronized (lifecycle) { acquired.countDown(); } });
+            probe.start();
+            try { lockAvailable.set(acquired.await(2, TimeUnit.SECONDS)); }
+            catch (InterruptedException failure) { Thread.currentThread().interrupt(); }
+            transcriber.closeWhenIdle(second); // Queue after the current hook; never recurse before first-end.
+            events.add("first-end");
+        };
+        transcriber.close(); transcriber.closeWhenIdle(first);
+        assertEquals(caller, cleanupThread.get());
+        assertTrue("Another thread must acquire lifecycle while the resource hook is running", lockAvailable.get());
+        assertEquals(java.util.Arrays.asList("first-start", "first-end", "second"), events);
+        transcriber.close(); transcriber.closeWhenIdle(first); transcriber.closeWhenIdle(second);
+        assertEquals(3, events.size()); assertEquals(baseline, requestCount()); assertEquals(0, activeRequest(transcriber));
+        Log.i(TAG, "RESOURCE_CLEANUP_IDLE_OK immediateCaller=true reentrantAttachmentOrdered=true hookIdentityOnce=true");
     }
 
     private ClipTranscriber.Listener countingListener(AtomicInteger count) {

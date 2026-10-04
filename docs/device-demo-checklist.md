@@ -33,6 +33,16 @@ that fallback a generated result. Setup/provenance is in the
 
 ## 1. Pose: review a fashion plan
 
+Optional voice brief: in Brief, tap **Record a local voice brief**. Allow the
+normal microphone prompt, then tap Record again when ready. Speak a short English
+brief and use **Stop & review words** before 45seconds. Correct the full draft,
+keep it within 500characters, then explicitly choose **Use this brief**. Keep
+typed brief leaves your words unchanged. Cancel or leaving the app discards
+recording; it never starts planning/filming. **Use phone dictation** separately
+requires Android's offline English model, currently not installed on this phone.
+Local audio-only transcription and synthetic control checks passed, but actual
+microphone capture and these visible controls still need attended acceptance.
+
 1. In **01 Brief**, select **Fashion** and describe only the garment details you
    know: for example, “A short reel wearing my jacket; relaxed poses in one
    location.” Tap **Build my shot plan**. Allow about a minute for local planning;

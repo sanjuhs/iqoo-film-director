@@ -28,6 +28,18 @@ The policy's synthetic tests do not validate microphone behavior or AirPods.
 
 ## Build and install
 
+Brief also offers **Record a local voice brief** → **Stop & review words** →
+explicit corrected-text application, using existing tiny.en weights. Permission
+approval never starts the microphone by itself. Cancel/background discard the
+recording; the 45-second limit discards rather than handing partial audio to ASR.
+Full drafts remain editable, with 1–500 characters accepted. Four temporary-file
+slots and deferred cleanup protect active readers. Actual audio-only AAC
+transcription and synthetic recorder/resource tests passed; MediaRecorder/mic,
+review controls and earbud routing still need an attended unlocked check.
+Optional **Use phone dictation** uses Android's dedicated on-device service;
+exact en-US metadata on this phone says its model is not installed.
+See [voice evidence](../../docs/voice-input-readiness.md).
+
 Reuse the installed Android SDK, NDK 28.2.13676358, CMake 3.22.1, JDK 17 and cached Gradle 8.14. No provider credential is required. `tools/build.sh` uses the existing Homebrew JDK if JAVA_HOME is unset.
 
 Fetch the two ignored official source dependencies at the revisions checked by CMake:
@@ -50,7 +62,7 @@ Install the test APK; prepare only the labelled synthetic/public fixtures specif
 
 ```sh
 adb -d install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-adb -d shell am instrument -w -e class dev.minifilm.director.LocalAITest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
+adb -d shell am instrument -w -e class dev.minifilm.director.LocalAiTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.MediaWorkflowTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.ReferenceAnalyzerTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.ReferenceBoardTest,dev.minifilm.director.QuietTailStopPolicyTest,dev.minifilm.director.CaptureFinalizationTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
@@ -61,6 +73,12 @@ adb -d shell am instrument -w -e class dev.minifilm.director.ProjectPackagerTest
 # Unlock the phone normally before UI tests; the runner explicitly requires it.
 adb -d shell am instrument -w -e class dev.minifilm.director.UiWorkflowTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 ```
+
+The new headless voice checks are LocalBriefRecorderTest,
+TranscriberCancellationTest and VoiceBriefAudioTest (existing labelled padded
+synthetic speech fixture and verified tiny.en required). VoiceBriefUiTest is
+unlocked-only and remains unrun. Fixture failure/repair reports are preserved;
+passed remux decoding is not microphone-recording acceptance.
 
 Recent CPU plans have taken roughly 25–53 seconds per five-shot draft on the connected Phone (3a); wording/grammar changes mean timings are not a controlled performance comparison. Six media checks passed, including real decoded subtitle visibility after trims, synthetic speech transcription, vertical clip assembly and safe cancellation. Reference and pose checks establish execution on fixtures, not accuracy on unseen creators. [Current status](../../docs/status.md) contains the complete measured ledger and failures.
 

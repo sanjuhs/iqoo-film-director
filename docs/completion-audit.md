@@ -34,6 +34,15 @@ runner reports and direct synthetic-output review.
 
 ## Current source repairs
 
+Latest local voice-brief source provides explicit record/stop/cancel, English
+Whisper draft review and explicit 1–500-character application. Android en-US
+metadata reported not installed, so optional phone dictation is not assumed
+ready. Fourteen fake-recorder checks and eight request/cleanup checks passed;
+the audio-only AAC fixture initially failed its EOF helper, then its corrected
+focused run passed with three real Whisper cues. Three visible review checks are
+compiled, unrun while locked. See [voice readiness](voice-input-readiness.md)
+for complete counts/failure and the microphone/MediaRecorder/AirPods limits.
+
 Read-only inspection of MainActivity confirms these repairs. Passing hardware/UI
 checks are stated separately rather than assumed from the code.
 
@@ -140,7 +149,7 @@ event gates above remain open.
 
 Eighteen trim/actual-export/paused-cut-preview/reference-decoder/container tests
 passed in18.560 s, preserving known synthetic speech, reviewed subtitles and
-source SHA while shortening the padded source8759 ms to an encoded6263 ms.
+source SHA while shortening the padded source 8759 ms to an encoded6263 ms.
 Two additional held-out native planner briefs passed at32.378 and40.002 s; this
 adds fixture coverage, not broad grounding evidence.
 
