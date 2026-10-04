@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
+import android.graphics.Rect;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -160,6 +162,82 @@ public final class ShotFramingUiTest {
                 assertEquals(250L,take.inMs);assertEquals(3750L,take.outMs);assertNoMediaWork(a);review.getButton(-1).performClick();});idle();assertRecycled(current);
         }finally{blocked.release.countDown();}
     }
+
+    @Test(timeout=45_000) public void actualNonzeroBriefPositionSurvivesShotSaveAndNextShotCancel() throws Exception{
+        AtomicInteger savedY=new AtomicInteger(),cancelY=new AtomicInteger();AtomicReference<Shot> second=new AtomicReference<>();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{fiveShortShots(a);});idle();
+            scenario.onActivity(a->{Button edit=editButtons(a).get(0);scrollToButton(a,edit);savedY.set(((ScrollView)field(a,"pageScroll")).getScrollY());assertTrue(savedY.get()>0);});idle();
+            scenario.onActivity(a->{clickVisible(editButtons(a).get(0));});idle();
+            scenario.onActivity(a->{assertTrue(hasExactText(dialog(a).getWindow().getDecorView(),"Title"));assertTrue(hasExactText(dialog(a).getWindow().getDecorView(),"Direction"));
+                assertTrue(hasExactText(dialog(a).getWindow().getDecorView(),"On-screen caption"));assertTrue(hasExactText(dialog(a).getWindow().getDecorView(),"Length (seconds)"));
+                assertTrue(hasText(dialog(a).getWindow().getDecorView(),"does not rewrite your direction or caption"));
+                target(dialog(a)).setSelection(2);edit(dialog(a),"Title").setText("Pose A1");edit(dialog(a),"Direction").setText("Look toward the lens.");dialog(a).getButton(-1).performClick();});
+            awaitScroll(scenario,savedY.get());
+            scenario.onActivity(a->{assertEquals(FramingTarget.FACE_SHOULDERS,shots(a).get(0).framingTarget);assertEquals("Pose A1",shots(a).get(0).title);
+                assertEquals("Look toward the lens.",shots(a).get(0).instruction);Button next=editButtons(a).get(1);scrollToButton(a,next);cancelY.set(((ScrollView)field(a,"pageScroll")).getScrollY());second.set(shots(a).get(1));assertTrue(cancelY.get()>0);});idle();
+            scenario.onActivity(a->clickVisible(editButtons(a).get(1)));idle();
+            scenario.onActivity(a->{target(dialog(a)).setSelection(4);edit(dialog(a),"Title").setText("Canceled edit");dialog(a).getButton(-2).performClick();});idle();
+            scenario.onActivity(a->{assertSame(second.get(),shots(a).get(1));assertEquals("Pose 02",shots(a).get(1).title);assertEquals(FramingTarget.FULL_OUTFIT,shots(a).get(1).framingTarget);
+                assertEquals(cancelY.get(),((ScrollView)field(a,"pageScroll")).getScrollY());assertNoMediaWork(a);});
+        }
+    }
+
+    @Test(timeout=45_000) public void queuedScrollRestorationIsInertAfterTabReplacementRenderAndActualBackground(){
+        AtomicReference<Runnable> held=new AtomicReference<>();AtomicReference<MainActivity> identity=new AtomicReference<>();AtomicInteger stoppedY=new AtomicInteger();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{identity.set(a);fiveShortShots(a);});idle();
+            scenario.onActivity(a->{ScrollView old=(ScrollView)field(a,"pageScroll");held.set((Runnable)invoke(a,"restorePageScroll",new Class<?>[]{ScrollView.class,int.class,int.class},old,300,0));
+                invoke(a,"switchTab",new Class<?>[]{int.class},1);ScrollView direct=(ScrollView)field(a,"pageScroll");int current=direct.getScrollY();held.get().run();assertEquals(current,direct.getScrollY());
+                assertEquals(1,field(a,"tab"));assertNoMediaWork(a);invoke(a,"switchTab",new Class<?>[]{int.class},0);});idle();
+            scenario.onActivity(a->{ScrollView old=(ScrollView)field(a,"pageScroll");held.set((Runnable)invoke(a,"restorePageScroll",new Class<?>[]{ScrollView.class,int.class,int.class},old,450,0));
+                invoke(a,"render");ScrollView fresh=(ScrollView)field(a,"pageScroll");int current=fresh.getScrollY();held.get().run();assertEquals(current,fresh.getScrollY());});idle();
+            scenario.onActivity(a->{ScrollView page=(ScrollView)field(a,"pageScroll");page.scrollTo(0,200);assertTrue(page.getScrollY()>0);
+                held.set((Runnable)invoke(a,"restorePageScroll",new Class<?>[]{ScrollView.class,int.class,int.class},page,200,0));});idle();
+            scenario.onActivity(a->{ScrollView page=(ScrollView)field(a,"pageScroll");page.scrollTo(0,100);stoppedY.set(page.getScrollY());assertTrue(stoppedY.get()>0);});
+            scenario.moveToState(Lifecycle.State.CREATED);assertEquals(Lifecycle.State.CREATED,scenario.getState());
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{held.get().run();assertEquals(stoppedY.get(),((ScrollView)field(identity.get(),"pageScroll")).getScrollY());});
+            scenario.moveToState(Lifecycle.State.RESUMED);scenario.onActivity(a->{held.get().run();assertEquals(stoppedY.get(),((ScrollView)field(a,"pageScroll")).getScrollY());assertNoMediaWork(a);});
+        }
+    }
+
+    @Test(timeout=45_000) public void invalidDurationKeepsAllEditsUnappliedAndCacheIntactUntilWholeSecondBoundarySave() throws Exception{
+        File pointer=File.createTempFile("shot-duration-ui-pointer-",".zip",context().getCacheDir());owned.add(pointer);
+        try(FileOutputStream out=new FileOutputStream(pointer)){out.write(new byte[]{4,5,6});}
+        AtomicReference<Shot> originalShot=new AtomicReference<>();AtomicReference<String> originalState=new AtomicReference<>();AtomicInteger position=new AtomicInteger();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{fiveShortShots(a);});idle();
+            scenario.onActivity(a->{scrollToButton(a,editButtons(a).get(0));position.set(((ScrollView)field(a,"pageScroll")).getScrollY());
+                set(a,"pendingPack",pointer);set(a,"pendingPackSnapshot",invoke(a,"packSnapshot"));originalShot.set(shots(a).get(0));clickVisible(editButtons(a).get(0));});idle();
+            scenario.onActivity(a->{originalState.set(preferences.getString("state",""));target(dialog(a)).setSelection(4);edit(dialog(a),"Title").setText("Pending title");
+                edit(dialog(a),"Direction").setText("Pending direction");edit(dialog(a),"Manual caption").setText("Pending caption");
+                for(String invalid:new String[]{"","   ","not a number","999999999999999999999999","1","61","2.5"}){
+                    edit(dialog(a),"Seconds").setText(invalid);dialog(a).getButton(-1).performClick();assertTrue(dialog(a).isShowing());
+                    assertEquals("Use whole seconds from 2 to 60",edit(dialog(a),"Seconds").getError().toString());assertSame(originalShot.get(),shots(a).get(0));
+                    assertEquals(4000,shots(a).get(0).targetDurationMs);assertEquals(FramingTarget.FULL_OUTFIT,shots(a).get(0).framingTarget);
+                    assertEquals(originalState.get(),preferences.getString("state",""));assertSame(pointer,field(a,"pendingPack"));assertTrue(pointer.isFile());
+                    assertEquals(position.get(),((ScrollView)field(a,"pageScroll")).getScrollY());
+                }
+                edit(dialog(a),"Seconds").setText(" 2 ");dialog(a).getButton(-1).performClick();});awaitScroll(scenario,position.get());
+            scenario.onActivity(a->{assertEquals(2000,shots(a).get(0).targetDurationMs);assertEquals("Pending title",shots(a).get(0).title);
+                assertEquals("Pending direction",shots(a).get(0).instruction);assertEquals("Pending caption",shots(a).get(0).caption);
+                assertEquals(FramingTarget.MANUAL,shots(a).get(0).framingTarget);assertNull(field(a,"pendingPack"));assertFalse(pointer.exists());open(a);});idle();
+            scenario.onActivity(a->{edit(dialog(a),"Seconds").setText("60");dialog(a).getButton(-1).performClick();});idle();
+            scenario.onActivity(a->{assertEquals(60000,shots(a).get(0).targetDurationMs);assertEquals(FramingTarget.MANUAL,shots(a).get(0).framingTarget);assertNoMediaWork(a);});
+        }
+    }
+
+    private static void fiveShortShots(MainActivity a){shots(a).clear();for(int i=0;i<5;i++)shots(a).add(new Shot("scroll-shot-"+i,String.format(Locale.US,"Pose %02d",i+1),"Stand wearing this outfit.","My outfit",4000,FramingTarget.FULL_OUTFIT));set(a,"tab",0);invoke(a,"render");}
+    private static List<Button> editButtons(MainActivity a){List<Button> buttons=new ArrayList<>();collectButtons((View)field(a,"root"),"Edit shot",buttons);assertEquals(5,buttons.size());return buttons;}
+    private static void collectButtons(View view,String label,List<Button> buttons){if(view instanceof Button&&label.contentEquals(((Button)view).getText()))buttons.add((Button)view);
+        if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)collectButtons(((ViewGroup)view).getChildAt(i),label,buttons);}
+    private static void scrollToButton(MainActivity a,Button button){ScrollView scroll=(ScrollView)field(a,"pageScroll");int[] at=new int[2],top=new int[2];button.getLocationOnScreen(at);scroll.getLocationOnScreen(top);
+        scroll.scrollTo(0,Math.max(0,scroll.getScrollY()+at[1]-top[1]-24));}
+    private static void clickVisible(Button button){Rect visible=new Rect();assertTrue(button.getGlobalVisibleRect(visible));assertTrue("Use the visible actual button",visible.height()>=button.getHeight()-2);assertTrue(button.performClick());}
+    private static boolean hasExactText(View view,String value){if(view instanceof TextView&&value.contentEquals(((TextView)view).getText()))return true;
+        if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)if(hasExactText(((ViewGroup)view).getChildAt(i),value))return true;return false;}
+    private static void awaitScroll(ActivityScenario<MainActivity> scenario,int expected)throws Exception{long deadline=android.os.SystemClock.elapsedRealtime()+5000;boolean[] matches={false};
+        while(android.os.SystemClock.elapsedRealtime()<deadline){idle();scenario.onActivity(a->matches[0]=((ScrollView)field(a,"pageScroll")).getScrollY()==expected);if(matches[0])return;Thread.sleep(20);}fail("Brief scroll was not restored after the actual Save");}
 
     private static final class FakeInspector implements TakeFramingReview.Inspector{
         final CountDownLatch started=new CountDownLatch(1),finished=new CountDownLatch(1),release;volatile TakeFramingReview.Result result;

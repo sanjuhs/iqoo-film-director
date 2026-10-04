@@ -100,8 +100,9 @@ retrying and inspect Android's microphone indicator.
    In **Edit shot**, set **Framing target** for each planned shot: Full outfit,
    Face & shoulders, Object / detail or Manual preview only. Scene default is
    only a suggestion. Save the choice and keep direction/caption consistent;
-   target changes do not rewrite them. Cancel preserves the shot. Save currently
-   returns Brief to the top; scroll back to continue editing the plan.
+   target changes do not rewrite them. Cancel preserves the shot. Save keeps your
+   previous position. Use whole lengths from2 to60 seconds; invalid entries
+   stay open for correction without applying any fields.
 4. Tap **Let's direct this reel →**, then **Start camera**. Check the live preview
    and written pose cue. “Review needed” means insufficient landmark evidence;
    use your own framing judgment. Detail/object shots may disable person advice.
@@ -331,3 +332,15 @@ the phone's later edits cannot change an already saved copy. Read
 `shoot-notes.txt` alongside `project.json`, then check the actual clips yourself.
 This portable handoff remains separate from Office Kit transfer or a native
 desktop-editor project. [Plan context and tested limits](shot-plan-export-evidence.md).
+
+## Keep another moment from a take
+
+In **Edit & review take**, choose **Use another moment**, set Start/End seconds
+within the original video and give the cut a useful title. Save adds it directly
+beside the original, unselected. Preview/review the words, then check it if it
+belongs in the reel and reorder as wanted. You can keep an introduction and a
+closing line while leaving the middle out. The source video stays intact; both
+cuts can be edited independently and the laptop ZIP copies that original once.
+Timed words retain source times, so review which words are visible in each cut.
+If existing subtitle timestamps overlap, correct them before opening the cut
+editor. Cancel applies nothing. [Tested cases and limits](another-moment-editor-evidence.md).

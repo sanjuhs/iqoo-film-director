@@ -48,6 +48,13 @@ completion and cleanup, even after caller cancellation. Controlled and actual
 public-fixture tests verify admission and reuse.
 [Ownership evidence](framing-task-ownership-evidence.md).
 
+Independent cut editing now retains multiple moments from one original, with
+new cuts unselected and metadata independent. Shot/cut saves restore position;
+strict shot-duration correction preserves unapplied edits. Final focused UI34/
+61.489s and physical7/2.034s passed after fixing one retained Cancel ownership
+race. Actual two-cut native reel and deduplicated ZIP preserve the original.
+[Editor evidence](another-moment-editor-evidence.md). Attended filming remains open.
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |

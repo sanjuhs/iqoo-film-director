@@ -120,3 +120,8 @@ Each shot now has an explicit creator-selected framing target. Face framing
 omits outfit shoe advice, and saved-cut hints use a qualified current target or
 manual review. Choices persist into editable exports. [Target evidence](docs/shot-framing-target-evidence.md)
 records actual editor and original-byte ZIP checks; live usefulness remains open.
+
+**Use another moment** now keeps independent ranges from one original, with the
+new cut unselected until review. Shot/cut saves preserve your list position and
+invalid shot lengths ask for correction. [Editor evidence](docs/another-moment-editor-evidence.md)
+includes actual repeated-source reel and original-deduplicating ZIP checks.

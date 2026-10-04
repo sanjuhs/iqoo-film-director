@@ -24,7 +24,7 @@ import java.util.*;
 public class MainActivity extends ComponentActivity {
     private final int BG=0xff101113, CARD=0xff1d1f22, FG=0xfff5f5ef, MUTED=0xffa8aaa4, LIME=0xffd9ff70;
     private final Handler handler=new Handler(Looper.getMainLooper());
-    private LinearLayout root,content,nav; private ScrollView pageScroll; private String reelTitle=""; private TextView status,cueView,timerView; private Button cancelProcessingButton, stopVoiceInputButton; private EditText briefField;
+    private LinearLayout root,content,nav; private ScrollView pageScroll; private int pageRenderGeneration; private String reelTitle=""; private TextView status,cueView,timerView; private Button cancelProcessingButton, stopVoiceInputButton; private EditText briefField;
     private volatile int saveGeneration=0; private int demoGeneration=0; private int desiredLens=CameraSelector.LENS_FACING_FRONT; private TextView selectionSummary; private Button assemblyExportButton; private Button captureAction; private TextView cameraPlaceholder; private boolean guideSequence=false, sequenceActive=false; private PreviewView preview; private CaptureController capture; private PoseCoach pose; private SpeechCoach speech; private ReelExporter exporter;
     private AutoColorBalance autoColor; private ProjectPackager packager; private File pendingPack; private String pendingPackSnapshot=""; private Button packageSaveButton; private DocumentCopier documentCopier; private boolean savingDocument; private LocalPlanner planner; private ClipTranscriber transcriber; private ReferenceAnalyzer references; private String referenceSummary=""; private boolean busy=false, session=false, voice=true, autoStop=true, countdown=false, live=false;
     private long recordStart=0,lastCue=0; private int tab=0,shotIndex=0; private String brief="20-second streetwear reel. Show my jacket, a confident walk and the details.", style="Fashion", look="Clean", planSource="Editable starter plan";
@@ -56,7 +56,7 @@ public class MainActivity extends ComponentActivity {
     private TakeFramingReview takeFramingReview, activeTakeFramingReview;
     private int takeFramingGeneration;
     private boolean takeFramingOwnsBusy;
-    private AlertDialog takeFramingDialog, takeToolsDialog;
+    private AlertDialog takeFramingDialog, takeToolsDialog,takeCutDialog;
     private CaptureTakeStore captureTakeStore;
     private boolean destroying;
     @Override public void onCreate(Bundle state){super.onCreate(state);speech=new SpeechCoach(this);speech.setAudioInterruptionListener(this::pauseSpokenPreparation);exporter=new ReelExporter(this);packager=new ProjectPackager(this);documentCopier=new DocumentCopier(this);autoColor=new AutoColorBalance(this);planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);captureTakeStore=new CaptureTakeStore(this);restore();recoverSavedTakes(false);ExportRecovery.Result recovered=ExportRecovery.reconcile(this);if(recovered.videoUri!=null){lastVideo=recovered.videoUri;lastEdit=recovered.editListUri;save();}if(shots.isEmpty()){shots.addAll(ShotCoverage.freshPlan(DirectorEngine.plan(brief,style)));save();}render();if(!recovered.warning.isEmpty())status.setText(recovered.warning);else if(recovered.cleaned>0)status.setText("Interrupted export cleared. Original clips are safe.");}
@@ -68,7 +68,8 @@ public class MainActivity extends ComponentActivity {
     private Button button(String s,boolean primary,Runnable action){Button b=new Button(this);b.setText(s);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(primary?BG:FG);b.setBackground(bg(primary?LIME:0xff303338));b.setMinHeight(dp(50));b.setPadding(dp(12),dp(8),dp(12),dp(8));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(52));p.topMargin=dp(8);p.bottomMargin=dp(4);b.setLayoutParams(p);b.setOnClickListener(v->{if(referenceSpeechReader!=null&&!busy){toast("Reference speech is still stopping. Try again in a moment.");return;}if(busy){toast("Local processing is running. You can cancel it above.");return;}action.run();});return b;}
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
-        clearAssemblyFooter();clearPoseBreak();dismissShotEdit();
+        ++pageRenderGeneration;
+        clearAssemblyFooter();clearPoseBreak();dismissShotEdit();dismissTakeCut();
         ++shootPoseGeneration;
         cancelTakeFraming(false);dismissTakeTools();
         dismissShotAssignments();coverageSummary=null;coverageRows=null;nextMissingShotButton=null;
@@ -254,28 +255,40 @@ public class MainActivity extends ComponentActivity {
     private void editShot(Shot shot){
         if(busy||destroying||tab!=0||!shots.contains(shot)
                 ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
-        dismissShotEdit();LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));
+        dismissShotEdit();final int previousScrollY=pageScroll==null?0:pageScroll.getScrollY();LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));
         EditText name=input(shot.title,"Title"),cue=input(shot.instruction,"Direction"),caption=input(shot.caption,"Manual caption"),duration=input(""+(shot.targetDurationMs/1000),"Seconds");
-        duration.setInputType(2);form.addView(name);form.addView(cue);form.addView(caption);form.addView(duration);
+        duration.setInputType(2);
+        form.addView(text("Title",13,LIME));form.addView(name);form.addView(text("Direction",13,LIME));form.addView(cue);
+        form.addView(text("On-screen caption",13,LIME));form.addView(caption);form.addView(text("Length (seconds)",13,LIME));form.addView(duration);
         String[] targets={FramingTarget.SCENE_DEFAULT,FramingTarget.FULL_OUTFIT,FramingTarget.FACE_SHOULDERS,FramingTarget.OBJECT_DETAIL,FramingTarget.MANUAL};
         String[] labels={"Scene default (suggested)","Full outfit","Face & shoulders","Object / detail","Manual preview only"};
         int selected=Arrays.asList(targets).indexOf(FramingTarget.normalize(shot.framingTarget));
         form.addView(text("Framing target · your choice",13,LIME));
         Spinner framing=spinner(labels,labels[Math.max(0,selected)],value->{});framing.setContentDescription("Framing target");form.addView(framing);
-        form.addView(text("Choose the framing you want. This is a creator setting, not a learned framing decision or a check of shot quality.",12,MUTED));
+        form.addView(text("Choose the framing you want. This is a creator setting, not a learned framing decision or a check of shot quality. Changing the target does not rewrite your direction or caption; review them together.",12,MUTED));
         ScrollView scroll=new ScrollView(this);scroll.addView(form);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Your shot").setView(scroll).setPositiveButton("Save",null).setNegativeButton("Cancel",null).create();
         shotEditDialog=dialog;dialog.setOnDismissListener(d->{if(shotEditDialog==dialog)shotEditDialog=null;});
         dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
             if(shotEditDialog!=dialog||!dialog.isShowing()||busy||destroying||tab!=0||!shots.contains(shot)
                     ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
-            long seconds=6;try{seconds=Long.parseLong(duration.getText().toString());}catch(Exception ignored){}
-            int index=shots.indexOf(shot);String target=targets[framing.getSelectedItemPosition()];
-            shots.set(index,new Shot(shot.id,name.getText().toString(),cue.getText().toString(),caption.getText().toString(),Math.max(2,Math.min(60,seconds))*1000,target));
-            save();dialog.dismiss();render();
+            long seconds;
+            try{seconds=Long.parseLong(duration.getText().toString().trim());if(seconds<2||seconds>60)throw new IllegalArgumentException();}
+            catch(Exception invalid){duration.setError("Use whole seconds from 2 to 60");return;}
+            duration.setError(null);int index=shots.indexOf(shot);String target=targets[framing.getSelectedItemPosition()];
+            shots.set(index,new Shot(shot.id,name.getText().toString(),cue.getText().toString(),caption.getText().toString(),seconds*1000,target));
+            save();dialog.dismiss();render();restorePageScroll(pageScroll,previousScrollY,0);
         }));dialog.show();
     }
     private void dismissShotEdit(){if(shotEditDialog!=null){AlertDialog dialog=shotEditDialog;shotEditDialog=null;dialog.dismiss();}}
+    private Runnable restorePageScroll(ScrollView scroll,int previousY,int expectedTab){
+        final int generation=pageRenderGeneration;
+        Runnable restoration=()->{
+            if(pageScroll==scroll&&generation==pageRenderGeneration&&tab==expectedTab&&!destroying
+                    &&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))scroll.scrollTo(0,Math.max(0,previousY));
+        };
+        scroll.post(restoration);return restoration;
+    }
     private void directPage(){
         shotIndex=Math.min(shotIndex,Math.max(0,shots.size()-1));Shot shot=shots.get(shotIndex);
         headline("Your next good shot.",String.format(Locale.US,"SHOT %02d OF %02d  ·  %s",shotIndex+1,shots.size(),shot.title));
@@ -460,6 +473,7 @@ public class MainActivity extends ComponentActivity {
         takeToolsDialog=dialog;
         addTakeTool(form,dialog,take,"Assign take to plan shots",index->reviewShotAssignments(take));
         addTakeTool(form,dialog,take,"Trim & typography",this::editTake);
+        addTakeTool(form,dialog,take,"Use another moment",index->useAnotherMoment(take));
         addTakeTool(form,dialog,take,"Generate offline subtitles",this::transcribeTake);
         addTakeTool(form,dialog,take,pendingSpeechTrimTake==take&&pendingSpeechTrim!=null?"Review suggested speech cut":"Suggest a tighter talking cut",
                 index->{if(pendingSpeechTrimTake==take&&pendingSpeechTrim!=null)reviewSpeechTrim(take,pendingSpeechTrim);else suggestSpeechTrim(take);});
@@ -989,8 +1003,7 @@ public class MainActivity extends ComponentActivity {
             render();
             if(pendingReview)status.setText(pendingSpeechTrim!=null?"Your speech trim suggestion is ready to review.":"Your previously prepared edit package is ready to save.");
             else{
-                ScrollView resumedScroll=pageScroll;
-                resumedScroll.post(()->{if(pageScroll==resumedScroll&&tab==2&&!destroying)resumedScroll.scrollTo(0,previousScrollY);});
+                restorePageScroll(pageScroll,previousScrollY,2);
             }
         }
     }
@@ -1025,7 +1038,40 @@ public class MainActivity extends ComponentActivity {
     }
     private void pickClips(){Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);startActivityForResult(i,51);}
     @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==54){if(result==RESULT_OK&&data!=null&&data.getData()!=null)copyProjectPack(data.getData());else{save();if(status!=null)status.setText(pendingPack!=null&&pendingPack.isFile()?"Edit package is ready. Choose Save ready edit package when you want to retry.":"Choose Save clips + edits to create a current package.");}return;}if(request==53&&result==RESULT_OK&&data!=null&&data.getData()!=null){copyEditDocument(data.getData());return;}if(request==52&&result==RESULT_OK&&data!=null&&data.getData()!=null){analyzeReference(data.getData());return;}if(request!=51||result!=RESULT_OK||data==null)return;ArrayList<Uri> uris=new ArrayList<>();if(data.getClipData()!=null){for(int i=0;i<data.getClipData().getItemCount();i++)uris.add(data.getClipData().getItemAt(i).getUri());}else if(data.getData()!=null)uris.add(data.getData());for(Uri u:uris){try{getContentResolver().takePersistableUriPermission(u,Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(Exception ignored){}MediaMetadataRetriever m=new MediaMetadataRetriever();try{m.setDataSource(this,u);long duration=Long.parseLong(m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));if(duration<=0||m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)==null)throw new IllegalArgumentException();takes.add(new Take(u,"import","Imported take "+(takes.size()+1),"",duration));}catch(Exception e){toast("That clip could not be read. Try a local MP4.");}finally{try{m.release();}catch(Exception ignored){}}}releasePlannerForMedia();tab=2;save();render();}
-    private void editTake(int i){Take t=takes.get(i);LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));EditText start=input(SubtitleTime.format(t.inMs),"In point / seconds"),end=input(SubtitleTime.format(t.outMs),"Out point / seconds"),caption=input(t.caption,"Typography (used when no subtitles)"),title=input(t.title,"Take title");start.setInputType(8194);end.setInputType(8194);form.addView(text("In / out in seconds · total "+SubtitleTime.format(t.durationMs)+"s",12,MUTED));form.addView(start);form.addView(end);form.addView(title);form.addView(caption);form.addView(text("Keep typography to 4 short lines. Longer text must be shortened before export. Take headings fit one line; omit the reel title for caption-only output.",12,MUTED));ScrollView scroll=new ScrollView(this);scroll.addView(form);AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Make this cut yours").setView(scroll).setPositiveButton("Save",null).setNegativeButton("Cancel",null).create();dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{try{long in=SubtitleTime.parse(start.getText().toString()),out=SubtitleTime.parse(end.getText().toString());if(in<0||out<=in||out>t.durationMs||out-in<250)throw new IllegalArgumentException();t.inMs=in;t.outMs=out;t.title=title.getText().toString();t.caption=caption.getText().toString();save();dialog.dismiss();render();}catch(Exception e){toast("Use a valid cut at least 0.25 sec long within this take.");}}));dialog.show();}
+    private void editTake(int i){if(i>=0&&i<takes.size())showTakeCut(takes.get(i),false);}
+    private void useAnotherMoment(Take take){showTakeCut(take,true);}
+    private void showTakeCut(Take take,boolean anotherMoment){
+        if(busy||destroying||tab!=2||referenceSpeechReader!=null||!takes.contains(take)
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        final TakeCutDraft draft;
+        try{draft=TakeCutDraft.capture(take);}catch(IllegalArgumentException invalid){toast(invalid.getMessage());return;}
+        dismissTakeCut();final int previousScrollY=pageScroll==null?0:pageScroll.getScrollY();
+        LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));
+        EditText start=input(SubtitleTime.format(draft.inMs),"In point / seconds"),end=input(SubtitleTime.format(draft.outMs),"Out point / seconds"),caption=input(draft.caption,"Typography (used when no subtitles)"),title=input(draft.title,"Take title");
+        start.setInputType(8194);end.setInputType(8194);
+        form.addView(text("In / out in seconds · total "+SubtitleTime.format(draft.durationMs)+"s",12,MUTED));
+        form.addView(text("Start (seconds)",13,LIME));form.addView(start);form.addView(text("End (seconds)",13,LIME));form.addView(end);
+        form.addView(text("Take title",13,LIME));form.addView(title);form.addView(text("On-screen caption",13,LIME));form.addView(caption);
+        if(anotherMoment)form.addView(text("Save adds an independent cut beside this take, using the same original video. The new cut stays unselected. Its edits and subtitle words can be reviewed separately; no original video is copied or replaced.",12,MUTED));
+        form.addView(text("Timed subtitle words stay in source time and need review for this range. Typography is used only when there are no timed subtitles. Keep it to 4 short lines; longer text must be shortened before export.",12,MUTED));
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle(anotherMoment?"Use another moment":"Make this cut yours").setView(scroll).setPositiveButton("Save",null).setNegativeButton("Cancel",null).create();
+        takeCutDialog=dialog;dialog.setOnDismissListener(d->{if(takeCutDialog==dialog)takeCutDialog=null;});
+        dialog.setOnShowListener(d->{
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{if(takeCutDialog==dialog)dismissTakeCut();});
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
+            if(takeCutDialog!=dialog||!dialog.isShowing()||dialog.getWindow()==null||!dialog.getWindow().getDecorView().isShown()||dialog.getWindow().getDecorView().getWindowToken()==null||busy||destroying||tab!=2||!takes.contains(take)||!draft.matches(take)
+                    ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+            try{
+                long in=SubtitleTime.parse(start.getText().toString()),out=SubtitleTime.parse(end.getText().toString());
+                Take candidate=draft.create(in,out,title.getText().toString(),caption.getText().toString());
+                if(anotherMoment)takes.add(takes.indexOf(take)+1,candidate);
+                else{take.inMs=candidate.inMs;take.outMs=candidate.outMs;take.title=candidate.title;take.caption=candidate.caption;take.captionOrigin=candidate.captionOrigin;}
+                save();dialog.dismiss();render();restorePageScroll(pageScroll,previousScrollY,2);
+            }catch(IllegalArgumentException invalid){end.setError("Use a valid cut at least 0.25 sec long within this take.");}
+        });});dialog.show();
+    }
+    private void dismissTakeCut(){if(takeCutDialog!=null){AlertDialog dialog=takeCutDialog;takeCutDialog=null;dialog.dismiss();}}
     private void export(){if(busy)return;if(takes.stream().noneMatch(t->t.selected)){toast("Select at least one take.");return;}setBusy(true);if("Auto balance".equals(look)){status.setText("Inspecting local color samples… keep the app open");autoColor.analyze(takes,new AutoColorBalance.Listener(){public void onComplete(List<AutoColorBalance.Balance> balances,long elapsed){startReelExport(balances);}public void onError(String error){setBusy(false);status.setText(error);toast(error);}});}else startReelExport(Collections.emptyList());}
     private void startReelExport(List<AutoColorBalance.Balance> balances){final ShotPlanSnapshot shotPlan;try{shotPlan=ShotPlanSnapshot.capture(shots,planSource);}catch(IllegalArgumentException invalid){planExportError(invalid);return;}status.setText("Exporting on your phone… keep the app open");exporter.export(takes,reelTitle,look,balances,shotPlan,new ReelExporter.Listener(){public void onProgress(int p){status.setText("Exporting locally · "+p+"%");}public void onComplete(Uri v,Uri e){setBusy(false);lastVideo=v;lastEdit=e;save();render();status.setText("Your reel is ready · saved to Movies / MiniFilm");}public void onError(String e){setBusy(false);status.setText(e);toast(e);}});}
     private void loadDemo(){if(busy)return;releasePlannerForMedia();int generation=++demoGeneration;setBusy(true);status.setText("Creating synthetic demo clips locally…");DemoAssets.create(this,new DemoAssets.Listener(){public void onReady(List<Take> t){if(generation!=demoGeneration)return;setBusy(false);takes.addAll(t);tab=2;save();render();status.setText("Synthetic demo · no camera or microphone was used");}public void onError(String e){if(generation!=demoGeneration)return;setBusy(false);toast(e);status.setText(e);}});}
@@ -1034,8 +1080,8 @@ public class MainActivity extends ComponentActivity {
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
-    @Override protected void onStop(){++shootPoseGeneration;clearAssemblyFooter();dismissShotEdit();super.onStop();cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
-    @Override protected void onDestroy(){++shootPoseGeneration;destroying=true;clearAssemblyFooter();dismissShotEdit();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
+    @Override protected void onStop(){++pageRenderGeneration;++shootPoseGeneration;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();super.onStop();cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
+    @Override protected void onDestroy(){++pageRenderGeneration;++shootPoseGeneration;destroying=true;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
     private void planExportError(IllegalArgumentException invalid){setBusy(false);String message=invalid.getMessage();if(message==null||message.isEmpty())message="Review your shot plan fields and lengths before exporting.";status.setText(message);toast(message);}
     private JSONArray serializeShots() throws JSONException{JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs).put("framingTarget",FramingTarget.normalize(s.framingTarget)));return ss;}
     private JSONArray serializeTakes() throws JSONException{JSONArray tt=new JSONArray();for(Take t:takes){JSONArray subs=new JSONArray();for(SubtitleCue cue:t.subtitles)subs.put(new JSONObject().put("start",cue.startMs).put("end",cue.endMs).put("text",cue.text));tt.put(new JSONObject() .put("subtitles",subs).put("reviewedShotIds",new JSONArray(t.reviewedShotIds==null?Collections.emptyList():t.reviewedShotIds)).put("captionOrigin",t.captionOrigin).put("uri",t.uri.toString()).put("id",t.shotId).put("title",t.title).put("caption",t.caption).put("duration",t.durationMs).put("in",t.inMs).put("out",t.outMs).put("selected",t.selected));}return tt;}

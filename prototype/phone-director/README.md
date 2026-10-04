@@ -267,3 +267,11 @@ require manual review. Immutable export context includes target keys and readabl
 notes. [Target evidence](../../docs/shot-framing-target-evidence.md) records19
 physical and35 emulator passes. This is creator policy, not learned shot quality;
 changing target does not rewrite the direction/caption.
+
+**Use another moment** adds an independent, unselected cut beside its source;
+choose another range without importing/copying the video again. Review its words
+and select it yourself. Existing trim/new-cut dialogs reject canceled, changed
+or background actions. Shot/cut saves keep the previous page position, with
+labelled fields and strict2–60-second shot lengths. [Editor checks](../../docs/another-moment-editor-evidence.md)
+record34 final UI methods and seven physical methods including actual two-cut
+encoding and one-original portable packaging. Synthetic only.

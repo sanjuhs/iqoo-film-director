@@ -1693,3 +1693,32 @@ Only own AVD/reg removed; otheruntouched. Qualified peak10643047341B,
 finaladjacent9327293357B with existing inventory/reserve
 limits. No new downloads, private upload/recording or aircraft action. Goal
 active; attended/device/usefulness/event acceptance gates remain open.
+
+### 21:31 IST — independent moments and editor position
+
+**Use another moment** adds an adjacent, unselected independent cut using the
+same original. Source-time cues/mappings are deeply copied and reviewed before
+selection; no source media is copied by the editor. Existing/new trim dialogs
+reject stale source facts/identity/background, and Cancel clears ownership
+immediately. Shot/cut Save preserves page position; labelled shot fields reject
+invalid2–60-second lengths without applying any edits. [Full evidence](another-moment-editor-evidence.md).
+
+Physical7/2.034s passed: four core plus serializer/real ZIP/actual encoding.
+Strict existing59313B synthetic source unchanged. Two disjoint cuts produced
+H264720×1280/AAC nominal2000ms/encoded2136ms (host2.136236s),54127B; both
+timed-caption frames visually checked, ZIP copied the original once. No new ASR
+or model execution follows. Initial emulator33/34 failed immediate Cancel→old
+Save; fixed synchronous ownership dismissal retained/strengthened the assertion.
+Final34/61.489s passed. Ordinary labelled shot form/Save position and DemoAssets
+new2600–3000ms unchecked adjacent cut were visually/prefs verified. Initial host
+prefs read used wrong filename and was excluded/corrected; no app failure there.
+
+Initial/final builds1s; normal installs. Built/saved/independently read installed
+APK52838059B SHA25627698963957b026d93beb86f9bc27f2687d48a57b73fd529ae1c895d67b097d5.
+Source-identical notices, separate weights excluded, noInternet. Gallery1/0.331s:
+29owned/0pending/8373323B including new synthetic reel. Normal Main launch
+requested behind secure keyguard; capture permissions denied, no unlock/grant
+or private upload/capture/audible playback/aircraft action. Own AVD/registration
+removed after process terminal; other untouched. Qualified peak11130327920B,
+finaladjacent9328042864B; historic inventory/reserve limits remain. No new
+downloads. Goal active, attended/device/competition acceptance gates unchanged.
