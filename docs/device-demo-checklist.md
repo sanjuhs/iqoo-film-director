@@ -181,16 +181,30 @@ check it with **Preview take**. [Recovery evidence](capture-take-recovery-eviden
    vertical MP4 is saved under **Movies / MiniFilm**; inspect it before sharing.
 5. Tap **Save clips + edits for my laptop** and choose a writable local folder in
    Android Files. The ZIP contains selected **whole originals**, hashes, relative
-   media paths and reviewed edits/subtitles; up to 512 MB of originals. It is a
+   media paths and reviewed edits/subtitles; up to 512 MB of originals. Current
+   plan IDs, order, names, directions, captions, durations and source label are
+   copied at dispatch into the edit documents. With a nonempty plan, the ZIP
+   includes readable `shoot-notes.txt` showing directions and selected-cut
+   assignments with source-relative times. Exact current IDs resolve to names;
+   unknown/earlier-plan IDs stay unresolved. This is saved context, not approval
+   of AI directions or a judgment of the footage. It is a
    portable edit package, not a proven desktop-editor importer. **Save ready edit
    package** retries a prepared package. Folder errors, cancellation and leaving
    the picker keep it available; choose a new name if a partial document exists.
-   Changing cuts, selection, captions, title or look invalidates that cached
-   package so the next save rebuilds your current edits. **Save last exported cut list to Files** saves
+   Changing cuts, selection, captions, title, look or the plan's text/order/source
+   invalidates that cached package so the next save rebuilds your current edits.
+   A package that finishes after its dispatch state changes is also rejected;
+   follow **Create a fresh edit package** when asked. **Save last exported cut list to Files** saves
    the smaller JSON separately; that ordinary cut list refers to phone sources
    and the last export. Re-export after edits to update the reel/cut list.
    Actual emulator Files saving passed with generated clips and exact ZIP/source
    verification. Physical Files/providers and Office Kit still need an attended check.
+   The plan-context increment passed 26 physical-phone checks (7.049s) and
+   22 fresh-emulator checks (85.366s), including four new lifecycle methods.
+   A real synthetic 720×1280 export with frozen plan/mappings measured 1043ms
+   from a 1000ms nominal cut and yielded an independently decoded frame. These
+   checks do not prove a creator recording, audible AirPods or desktop-editor
+   compatibility. See [plan export evidence](shot-plan-export-evidence.md).
 
 ## If something stalls or disagrees
 
@@ -267,3 +281,10 @@ Replacing the plan keeps old takes/assignments but they do not satisfy the new
 plan; review and remap them if wanted. Save/Clear is explicit, Cancel keeps the
 previous assignment, and the portable edit document retains confirmed mappings.
 [Verified research checks and limits](shot-assignment-evidence.md).
+
+After editing or reordering the plan, rebuild the reel/package before transferring
+it. The laptop copy keeps the plan and source label captured for that export;
+the phone's later edits cannot change an already saved copy. Read
+`shoot-notes.txt` alongside `project.json`, then check the actual clips yourself.
+This portable handoff remains separate from Office Kit transfer or a native
+desktop-editor project. [Plan context and tested limits](shot-plan-export-evidence.md).

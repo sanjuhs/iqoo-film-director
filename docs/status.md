@@ -1468,3 +1468,39 @@ aim/below15GB cap; final adjacent **9,294,561,939B**, below both. No new models,
 SDK/JDK/images/dependencies downloaded. Existing archive/cache qualifications
 persist. Goal active: attended creator capture/AirPods, learned semantic review,
 iQOO/NPU, Office Kit, eligible event source and accepted submission unfinished.
+
+## 4 October, 19:38 IST — editable plan context and readable shoot notes
+
+Current plan IDs/order/names/directions/captions/target durations/source label now
+freeze at export dispatch and accompany device/portable JSON. Nonempty portable
+context adds human `shoot-notes.txt`, exact current-ID assignment names and an
+unresolved label for unknown/earlier IDs. Per-cut original shotId/sourceUri fields
+stay omitted; explicit mappings/current plan IDs remain intentionally included.
+Copied original media retains embedded metadata. Plans are metadata, not inferred
+visual quality, semantic coverage or creator approval.
+
+Plan edits/order/source invalidate cached packages. Real completed ZIP is bound
+to dispatch state; edits during worker execution remove the now-stale ZIP. Invalid
+bounded context fails before work without rewriting edits. [Full measured evidence](shot-plan-export-evidence.md).
+
+Physical headless checks passed26/7.049s, fresh own emulator interface checks22/
+85.366s. Targeted verified synthetic ZIP retention passed1/0.165s. Actual encoder
+published720×1280 H264/AAC nominal1000ms/encoded1043ms, independently decoded and
+host duration1.043356s; frozen context/mappings/captions and original SHA verified.
+Portable synthetic ZIP has4entries,2cuts/4000ms,2plan shots/one original with exact
+hash/readable notes. Saved MP4/deviceJSON and ZIP are separate labelled fixtures.
+No attended camera/microphone/AirPods or useful learned direction claim follows.
+
+Final app/test build1s; retention test-only build793ms; normal installs passed.
+APK52,838,059B/SHA904c9c01e60283c8c05826f5463900cb05c89c5fa0ec337615c65def1d75e869
+built/saved/independently read installed match. Notices31,635B/source-identical;
+separate Qwen/Whisper weights excluded, bundled MLKit assets remain. No Internet
+permission. Gallery metadata25owned/0pending/7,954,004B. Only exact verified retained
+synthetic test cache/marker removed after durable host copy; own AVD/registration
+removed, other AVD untouched. No new model/SDK/JDK/system-image downloads.
+Qualified temporary peak10,514,539,385B, above10GB aim/below15GB cap; final adjacent
+9,295,612,529B, belowboth. Existing archive/cache/inventory qualifications remain.
+Normal Main launch requested behind secure keyguard; final read-only verification
+confirmed camera/mic denied and no Internet permission. No unlock or grant.
+Goal active: attended creator capture/AirPods, useful learned semantic direction,
+iQOO/NPU, Office Kit, eligible event code and accepted submission remain open.

@@ -23,6 +23,14 @@ emulator methods passed after correcting one retained lifecycle fixture failure.
 This is metadata review, not semantic coverage or useful real-footage judgment.
 [Assignment evidence](shot-assignment-evidence.md).
 
+Local exports now include an immutable snapshot of the current plan's existing
+IDs, order, names, directions, captions, durations and source label. Nonempty
+portable plan context also supplies readable `shoot-notes.txt`. Exact-ID mapping
+keeps unknown/earlier assignments unresolved; it does not approve model guidance
+or assess the footage. Plan edits/order/source invalidate an older prepared ZIP,
+and completion uses the dispatch fingerprint to reject a package made stale
+while processing. [Plan export evidence](shot-plan-export-evidence.md).
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |
@@ -36,7 +44,7 @@ This is metadata review, not semantic coverage or useful real-footage judgment.
 | Start, stop and trim | Explicit CameraX start/stop, actual-container source bounds, editable cuts and reviewed local speech-edge suggestions; actual synthetic cuts exported in order. | Attended capture/finalization and semantic selection of the best performance moments. |
 | Color correction | Local presets plus heuristic Auto balance have actual analyzer/export evidence below. | Real footage, creative suitability and shot matching. This is not learned AI grading. |
 | Subtitles and typography | Local English drafts, reviewed words/times, real burned-in captions and fit-or-reject handling passed. One-action selected missing-subtitle batching now passed six lifecycle/six UI methods and a real serial two-source CPU → three-draft → 20.387-second reel/JSON test, preserving existing words/originals. [Batch evidence](subtitle-batch-evidence.md). | Attended speech accuracy and longer real text. No karaoke, generated music or semantic caption polishing. |
-| Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths and hashes. | Real creator reel, attended sound review, physical Files/provider saving, desktop-editor compatibility and actual Office Kit transfer. Actual emulator DocumentsUI ZIP/source validation passed. |
+| Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths, hashes, immutable current-plan context and readable plan notes. Exact IDs resolve creator mappings; stale packages are invalidated. | Real creator reel, attended sound review, physical Files/provider saving, desktop-editor compatibility and actual Office Kit transfer. Actual emulator DocumentsUI ZIP/source validation passed. |
 | Recovery | Five staged tests, genuine ENCODING interruption and real READY/pending interruption under a test-controlled main-queue barrier passed fresh-process recovery on synthetic media; originals and prior completed pair stayed unchanged.  Late-saved private take recovery now preserves surviving shot facts and existing edits, adds takes unselected and passed a staged synthetic fresh-process check. [Take recovery](capture-take-recovery-evidence.md). | Natural publication timing, kill after publication before COMPLETE, revoked/missing real inputs and live recording. Ready-package UI lifecycle passed under valid fresh-emulator visible conditions. |
 | Drone demo | Imported clips can join the edit; no aircraft action or connection occurred. | Separate supported Mini 4 Pro propellers-off read-only probe, then documented pilot-approved capture/control gates. Neo 2/Fly and Action 4 remain research. |
 | Hackathon completion | Signed-in idea deadline date is 5 October; countdown implies about 23:59 IST. Idea/pitch assets prepared. | Human attestation/self-report and accepted receipt. Finale is 9–11 October; competition code must be event-written unless organizers approve reuse. |
@@ -80,6 +88,11 @@ checks are stated separately rather than assumed from the code.
   stays ready for an explicit save after returning. Cancelled saves disclose
   possible partial destination documents. The ready-package visible/recreation
   path still needs a valid unlocked UI rerun.
+- **Current plan in exports:** dispatch captures bounded immutable plan metadata
+  without changing IDs or claiming approval. Package identity includes plan
+  contents, order and source label as well as cuts/title/look. Save invalidates
+  an outdated ready ZIP; a late completion cannot mark an older dispatch current.
+  Four new model-free lifecycle methods passed on the fresh emulator below.
 - **Lens/crop:** selected lens persists and shared 9:16 ViewPort geometry is
   applied to preview/video/analysis. Three rotation/crop geometry tests and an
   earlier inactive lens-selection check passed; live lens rebinding is pending.
@@ -349,3 +362,26 @@ Latest verified APK is installed, normal launch requested behind keyguard,
 camera/mic denied. Own temporary emulator removed; qualified storage9.293GB.
 These repairs improve the existing prototype without establishing attended
 recording/AirPods, general direction quality, event eligibility or accepted submission.
+
+### Current-plan export context and lifecycle verification
+
+The focused physical-phone runner passed **26 checks in 7.049s**. The fresh
+project emulator passed **22 checks in 85.366s**, including four new package
+lifecycle methods. Current plan and reviewed mapping snapshots stayed isolated
+from later edits; plan changes invalidated prepared or late-completing packages.
+A real six-argument export encoded a **720×1280 MP4**, with **1000ms nominal /
+1043ms actual container duration**, frozen plan/mapping context and an
+independently decoded output frame. These are synthetic metadata/media and
+interface checks, not a creator shoot or useful AI direction measurement.
+
+The portable ZIP includes current-plan JSON and readable shoot notes when the
+plan context is nonempty, alongside selected whole originals, reviewed cuts and
+captions. It omits device source URI fields and per-cut capture provenance IDs;
+copied originals can still contain their own embedded metadata. Resolving an
+exact current ID supplies its saved name/direction; unknown earlier-plan IDs
+remain unknown. Empty-context callers remain supported. See
+[plan export evidence](shot-plan-export-evidence.md) for the exact tests and limits.
+
+Attended Pose → Perform → Assemble, real sound/AirPods, iQOO/NPU, Office Kit,
+desktop-editor import, useful learned direction and organizer-compliant accepted
+submission remain open. No full project completion is claimed.

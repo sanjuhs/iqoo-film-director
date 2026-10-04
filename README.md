@@ -30,6 +30,13 @@ see selected assignment counts and open the next missing direction. This is a
 [reviewed metadata checklist](docs/shot-assignment-evidence.md); visual coverage
 and shot quality still require creator review and learned evaluation evidence.
 
+Device edit documents and portable ZIPs now include an immutable current shot
+plan. A nonempty portable plan also has readable `shoot-notes.txt`; exact reviewed
+assignments resolve against current IDs, while earlier IDs remain unresolved.
+Changing the plan invalidates a prepared ZIP, including a package that finishes
+after those edits. See [shot-plan export evidence](docs/shot-plan-export-evidence.md)
+and [portable package evidence](docs/portable-edit-evidence.md).
+
 For the separate aircraft research path, prove a **propellers-off Mini 4 Pro connection** from an Android phone through a
 supported RC-N2/RC-N3 remote: SDK registration, aircraft identification,
 read-only telemetry and camera preview. No motor start, takeoff, autonomous flight,
@@ -66,6 +73,12 @@ registered for the probe's actual package before hardware testing can pass.
 Private footage, captures, hardware identifiers, evidence, models, downloads and
 build caches stay outside Git. Shared Android/JDK installations remain available.
 The new phone app contains no provider keys and no Internet permission. There is no installed DJI app from this repository and no proven drone, iQOO NPU or Office Kit execution yet.
+
+Portable packages omit per-cut original `shotId` and device `sourceUri` fields,
+but intentionally include explicit reviewed mapping IDs and current plan IDs
+(which can equal an original ID). Copied clips retain embedded metadata and
+footage outside trims. Saving or sharing a package is the creator’s choice;
+separate Qwen/Whisper weight files are excluded from these edit packages.
 
 ## First product demonstration
 

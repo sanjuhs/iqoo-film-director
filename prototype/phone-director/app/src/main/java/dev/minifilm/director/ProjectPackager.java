@@ -105,12 +105,19 @@ public final class ProjectPackager implements AutoCloseable {
 
     /** List order is the reviewed timeline order. This snapshots mutable Take/caption fields. */
     public void export(List<Take> takes, String title, String look, Listener listener) {
+        export(takes, title, look, ShotPlanSnapshot.empty(), listener);
+    }
+
+    /** The plan is already immutable; cuts and mappings are isolated at the same dispatch. */
+    public void export(List<Take> takes, String title, String look,
+            ShotPlanSnapshot shotPlan, Listener listener) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            main.post(() -> export(takes, title, look, listener)); return;
+            main.post(() -> export(takes, title, look, shotPlan, listener)); return;
         }
         if (closed) { listener.onError("Package exporter is closed."); return; }
         if (active != null) { listener.onError("A package is already being prepared. Cancel it first."); return; }
         try {
+            if (shotPlan == null) throw new IllegalArgumentException("The current shot plan is missing. Review it before packaging.");
             List<Take> cuts = snapshot(takes);
             String safeTitle = text(title, 120, "Project title");
             String safeLook = text(look, 100, "Look");
@@ -119,7 +126,7 @@ public final class ProjectPackager implements AutoCloseable {
             Run run = new Run(++generation, listener);
             run.partial = File.createTempFile("minifilm-pack-", ".partial", context.getCacheDir());
             active = run;
-            worker.execute(() -> build(run, cuts, safeTitle, safeLook));
+            worker.execute(() -> build(run, cuts, safeTitle, safeLook, shotPlan));
         } catch (Exception error) { listener.onError(message(error)); }
     }
 
@@ -147,7 +154,7 @@ public final class ProjectPackager implements AutoCloseable {
         closed = true; cancel(); worker.shutdown(); cancellationWorker.shutdown();
     }
 
-    private void build(Run run, List<Take> cuts, String title, String look) {
+    private void build(Run run, List<Take> cuts, String title, String look, ShotPlanSnapshot shotPlan) {
         File complete = null;
         try {
             LinkedHashMap<Uri, JSONObject> media = new LinkedHashMap<>();
@@ -198,8 +205,9 @@ public final class ProjectPackager implements AutoCloseable {
                     } finally { run.activeSource.set(null); }
                 }
                 check(run);
-                JSONObject project = project(cuts, media, title, look, total);
+                JSONObject project = project(cuts, media, title, look, total, shotPlan);
                 writeEntry(zip, "project.json", project.toString(2));
+                if (!shotPlan.isEmpty()) writeEntry(zip, "shoot-notes.txt", shotPlan.readableNotes(cuts));
                 writeEntry(zip, "README.txt", "Mini Film Director portable edit package — pre-event research\n"
                         + "Unzip locally. project.json uses only relative media paths. SHA-256 covers complete original clips.\n"
                         + "Cuts are in reviewed list order; in/out timestamps are source milliseconds.\n"
@@ -277,7 +285,7 @@ public final class ProjectPackager implements AutoCloseable {
     }
 
     private static JSONObject project(List<Take> cuts, Map<Uri, JSONObject> media,
-            String title, String look, long originalBytes) throws Exception {
+            String title, String look, long originalBytes, ShotPlanSnapshot shotPlan) throws Exception {
         JSONObject project = new JSONObject();
         project.put("schema", "minifilm.portable-edit.v1"); project.put("preEventResearch", true);
         project.put("title", title); project.put("look", look);
@@ -288,6 +296,7 @@ public final class ProjectPackager implements AutoCloseable {
         project.put("audio", "sequential original audio; no multi-camera synchronization");
         project.put("captionPolicy", "manual full-cut caption only when timed subtitle list is empty; ASR is an editable draft");
         project.put("shotMappingPolicy", "Explicit creator assignments only; stored IDs do not establish quality or a current plan match.");
+        project.put("shotPlan", shotPlan.toJson());
         JSONArray files = new JSONArray(); for (JSONObject item : media.values()) files.put(item);
         project.put("media", files);
         JSONArray list = new JSONArray(); long timeline = 0;

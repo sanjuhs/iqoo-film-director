@@ -79,13 +79,20 @@ public final class ReelExporter {
 
     public void export(List<Take> takes, String title, String look,
             List<AutoColorBalance.Balance> balances, Listener listener) {
+        export(takes, title, look, balances, ShotPlanSnapshot.empty(), listener);
+    }
+
+    /** shotPlan is an immutable creator-visible metadata snapshot captured at dispatch. */
+    public void export(List<Take> takes, String title, String look,
+            List<AutoColorBalance.Balance> balances, ShotPlanSnapshot shotPlan, Listener listener) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            main.post(() -> export(takes, title, look, balances, listener));
+            main.post(() -> export(takes, title, look, balances, shotPlan, listener));
             return;
         }
         if (busy) { listener.onError("An export is already running. Cancel it before starting another."); return; }
         List<Take> cuts = new ArrayList<>();
         try {
+            if (shotPlan == null) throw new IllegalArgumentException("The current shot plan is missing. Review it before exporting.");
             final List<AutoColorBalance.Balance> measured = balances == null
                     ? Collections.emptyList() : Collections.unmodifiableList(new ArrayList<>(balances));
             boolean heading = title != null && !title.trim().isEmpty();
@@ -170,7 +177,7 @@ public final class ReelExporter {
                             if (run != generation) return;
                             main.removeCallbacks(progress); transformer = null;
                             listener.onProgress(95);
-                            new Thread(() -> publish(run, output, journal, cuts, title, look, measured, listener), "Reel-save").start();
+                            new Thread(() -> publish(run, output, journal, cuts, title, look, measured, shotPlan, listener), "Reel-save").start();
                         }
                         @Override public void onError(Composition composition, ExportResult result,
                                 ExportException exception) {
@@ -213,7 +220,8 @@ public final class ReelExporter {
     }
 
     private void publish(int run, File output, ExportRecovery.Journal journal, List<Take> cuts,
-            String title, String look, List<AutoColorBalance.Balance> measured, Listener listener) {
+            String title, String look, List<AutoColorBalance.Balance> measured,
+            ShotPlanSnapshot shotPlan, Listener listener) {
         Uri video = null;
         File edit = null;
         try {
@@ -223,7 +231,7 @@ public final class ReelExporter {
             File directory = new File(context.getFilesDir(), "exports");
             if (!directory.exists() && !directory.mkdirs()) throw new IllegalStateException("Edit folder unavailable.");
             edit = journal.edit();
-            JSONObject project = editDocument(journal.id, cuts, title, look, measured);
+            JSONObject project = editDocument(journal.id, cuts, title, look, measured, shotPlan);
             try (FileOutputStream stream = new FileOutputStream(edit)) {
                 stream.write(project.toString(2).getBytes(StandardCharsets.UTF_8));
                 stream.getFD().sync();
@@ -289,6 +297,12 @@ public final class ReelExporter {
     /** Pure edit-document serializer; inputs are the export's validated, isolated snapshots. */
     static JSONObject editDocument(String exportId, List<Take> cuts, String title, String look,
             List<AutoColorBalance.Balance> measured) throws Exception {
+        return editDocument(exportId, cuts, title, look, measured, ShotPlanSnapshot.empty());
+    }
+
+    static JSONObject editDocument(String exportId, List<Take> cuts, String title, String look,
+            List<AutoColorBalance.Balance> measured, ShotPlanSnapshot shotPlan) throws Exception {
+        if (shotPlan == null) throw new IllegalArgumentException("The current shot plan is missing. Review it before exporting.");
         JSONObject project = new JSONObject();
         project.put("schema", "minifilm.edit.v1"); project.put("preEventResearch", true);
         project.put("exportId", exportId);
@@ -298,6 +312,7 @@ public final class ReelExporter {
         project.put("captions", "manual captions or editable offline English ASR drafts; review text and timing");
         project.put("audio", "source audio per sequential cut; silent takes padded; no multi-camera sync");
         project.put("shotMappingPolicy", "Explicit creator assignments only; stored IDs do not establish quality or a current plan match.");
+        project.put("shotPlan", shotPlan.toJson());
         JSONArray list = new JSONArray(); long timeline = 0;
         for (Take cut : cuts) {
             JSONObject entry = new JSONObject();
