@@ -11,6 +11,9 @@ Watch the [one-minute synthetic app walkthrough](../output/demo/MiniFilm-synthet
 for the actual screens and a real local demo export. It is a silent emulator
 recording with an editable template and synthetic clips.
 
+Everything is also gathered in the [local review package](local-review-package.md),
+including the installed build and pitch documents.
+
 ## First short shoot
 
 1. Pair AirPods in Android settings, then open **02 Direct** and try **Hear the

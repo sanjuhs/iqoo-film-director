@@ -2056,3 +2056,21 @@ Normal Main launch requested again, verified secure keyguard with camera/mic
 denied and no Internet permission. No unlock/grants/aircraft action. Installed
 source unchanged; clean working tree before these evidence-only docs.
 Attended phone filming and paired earbud playback remain necessary.
+
+### 23:52 IST — one portable local creator-review package
+
+[Review ZIP](local-review-package.md) assembles the latest independently verified
+research APK, pitch PDF/PPT, actual silent UI walkthrough and its synthetic
+export, sanitized deadline/output proofs, portable first-shoot instructions,
+README and exact-hash manifest.10entries/28,011,118B; completedZIP CRC and every
+manifest payload SHA/size passed. Whitelisted artifacts, no recursive private
+workspace capture; separate weights/keys/IDs/logs/private footage excluded,
+bundledMLKit retained. Sources unchanged; no app build/test repeat/upload.
+README clearly states research/remaining gates/model setup, and ZIP exceeds
+portal25MBlimit: separately reviewed pitch documents are the potential idea
+attachment, not this archive. No declaration/receipt claimed.
+
+Adjacent qualified storage9,395,841,909B at23:52 includes the ZIP, previous assets
+and historic reserves/exclusions; below10GBaim/15GBcap. Latest installedAPK
+unchanged, normal launch requested behind secure keyguard. All attended/
+event-hardware/utility/eligibility/accepted-entry gates remain open.
