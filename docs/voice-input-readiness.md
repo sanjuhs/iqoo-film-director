@@ -93,3 +93,43 @@ remux check establishes decoding/inference, not microphone recording acceptance.
 Official [MediaRecorder](https://developer.android.com/media/platform/mediarecorder)
 and [File implementation](https://android.googlesource.com/platform/libcore/+/master/ojluni/src/main/java/java/io/File.java)
 contracts informed foreground/stop/release and exact orphan naming.
+
+## Exact requested AAC format and handoffs — 16:58 IST
+
+The focused **VoiceBriefCodecTest passed one method /6.498s** on the connected
+phone. It decoded the existing labelled synthetic padded speech into 140,279
+16kHz mono PCM samples, then used actual Android MediaCodec/Muxer to create a
+fresh AAC-only M4A. The extractor and AudioSpecificConfig confirmed AAC-LC,
+16kHz and mono; the encoder reported the requested 64,000bps. This is its
+reported target, not a measured average bitrate. All 139 packets began at
+nonnegative PTS without a timestamp shift. The actual container was 8896ms,
+measured separately from the 8759ms source video. Decode took1586ms, encode708ms.
+
+Actual local tiny.en transcription took **3974ms**, returned three cues with
+the expected synthetic jacket/green/outfit words, and kept every cue within
+the new container. Its single callback ran on main; encoded input and original
+source hashes remained unchanged. The exact test-owned AAC file was deleted
+only after the real worker terminated. Reports are ignored under
+private/evidence/voice-brief-codec-{build,test,metrics}.log. This used no
+microphone, MediaRecorder or playback and is not live-recording acceptance.
+Primary APIs: [MediaCodec](https://developer.android.com/reference/android/media/MediaCodec),
+[MediaMuxer](https://developer.android.com/reference/android/media/MediaMuxer)
+and [MediaFormat](https://developer.android.com/reference/android/media/MediaFormat).
+
+Main now requests asynchronous planner cleanup after model/permission preflight
+before recording a brief. This reuses its camera/media handoff; the fresh planner
+is empty, and prior native cleanup follows its worker. No instantaneous memory
+release or measured peak reduction is claimed. Matching, non-destroyed terminal
+voice callbacks clear busy before the foreground/tab gate; stale callbacks cannot
+clear newer work. This closes the paused-before-onStop seam without publishing a
+background review. All four microphone entry points refuse an active voice
+recorder without closing it, retry idle retained release, and refuse another
+microphone owner if native release remains unconfirmed.
+
+The build compiled **six VoiceBriefUiTest methods**, including three new helper-
+scoped checks for paused/stale/destroying completion, fake active/unreleased
+recorder refusal/retry, and planner replacement preserving editable state. They
+remain **unrun behind keyguard**. These helpers and injected fake bytes do not
+prove actual encoder/ASR callback timing, microphone collision recovery, loaded-
+model memory handoff, or the permission-gated recording UI. Attended MediaRecorder,
+microphone/AirPods, visible controls and live accuracy remain open.

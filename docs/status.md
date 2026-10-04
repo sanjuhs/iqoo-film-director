@@ -983,3 +983,44 @@ action, permission bypass or outgoing submission ran. Qualified storage is
 inventory limitations. No model/SDK/JDK download, backup removal or credential
 change occurred. Full attended creator workflow, AirPods, iQOO/NPU/Office Kit,
 eligible competition code and accepted submission remain open; goal stays active.
+
+### Exact AAC proof and recorder handoffs — 4 October, 16:59 IST
+
+The new focused VoiceBriefCodecTest passed **one method /6.498s**. Existing
+labelled synthetic speech decoded to 140,279 PCM samples and was actually encoded
+on the phone as AAC-LC/16kHz/mono; extractor/header checks confirmed that format,
+with encoder-reported target64kbps. Its 139 AAC packets produced an independently
+measured8896ms audio container. Actual local tiny.en returned three cues/3974ms,
+expected synthetic words, bounded timing and one main callback. Source/input
+hashes stayed unchanged, and its own test file was removed after worker exit.
+No microphone, MediaRecorder or playback ran. [Voice evidence](voice-input-readiness.md)
+records the exact requested-format result and separate actual-recording gate.
+
+Main requests asynchronous planner cleanup before a voice brief, clears only
+current-generation terminal busy state before foreground guards, and checks
+active/retained recorder ownership before all microphone starts. This prevents
+the reviewed paused-completion seam from leaving controls disabled and refuses
+new microphone ownership while release remains unconfirmed. These are compiled
+source repairs; no instant native-memory release or physical recovery is proven.
+Six unlocked-only voice UI methods are compiled, unrun, including three new
+helper/fake-backend checks. Actual callback race timing, loaded-planner memory
+handoff, live mic/earbud route and visible permission/Stop/Cancel need attendance.
+
+App and test builds/installations succeeded. Saved APK52,838,059 bytes; its
+independently measured installed SHA256 matches
+**1ab6cc3d804127113f21a9fd29fdce5360a0911351ccbd2df4ee3ec1a346231b**.
+Publisher notices remain unchanged; separate Qwen/Whisper weights are absent
+from the APK; no network permission. Normal launch was requested successfully
+behind showing keyguard, with CAMERA/RECORD_AUDIO still denied after the runner.
+Qualified storage **9,282,791,273 bytes (9.283GB)** remains below the10GB aim and
+15GB limit; it now also includes11,264 bytes of test-package private allocation.
+Missing-archive/shared-cache/oat inventory limits remain. No new model/SDK/JDK
+download, private capture/playback/upload, permission bypass, aircraft action,
+credential change or backup removal occurred.
+
+The in-app deadline refresh redirected to sign-in, so it supplied no new deadline
+evidence or form action. The earlier authenticated date/countdown observation
+remains authoritative for this ledger:5October, approximately23:59IST, timezone
+inferred. No attestation/submission/receipt. Full attended creator workflow,
+AirPods, iQOO/NPU/Office Kit and eligible event-written delivery remain open.
+This goal turn made implementation and real-codec progress; the goal stays active.

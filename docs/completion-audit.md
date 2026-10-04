@@ -39,8 +39,12 @@ Whisper draft review and explicit 1–500-character application. Android en-US
 metadata reported not installed, so optional phone dictation is not assumed
 ready. Fourteen fake-recorder checks and eight request/cleanup checks passed;
 the audio-only AAC fixture initially failed its EOF helper, then its corrected
-focused run passed with three real Whisper cues. Three visible review checks are
-compiled, unrun while locked. See [voice readiness](voice-input-readiness.md)
+focused run passed with three real Whisper cues. The additional exact-format
+AAC-LC/16kHz/mono encoder-to-Whisper check passed one method/6.498s, with three
+bounded cues/3974ms. Main now requests planner cleanup before voice recording,
+clears current-generation busy before foreground guards, and refuses overlapping
+microphone entry when recorder release is unconfirmed. Six visible/helper review
+checks are compiled, unrun while locked. See [voice readiness](voice-input-readiness.md)
 for complete counts/failure and the microphone/MediaRecorder/AirPods limits.
 
 Read-only inspection of MainActivity confirms these repairs. Passing hardware/UI

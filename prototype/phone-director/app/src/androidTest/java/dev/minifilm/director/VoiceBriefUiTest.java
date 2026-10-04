@@ -18,6 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,8 +32,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.*;
 
 /**
- * Future unlocked-device UI acceptance using synthetic text only, not recorded voice evidence.
- * Never clicks Record/Speak, creates a recorder, runs ASR/native inference, or grants permissions.
+ * Future unlocked-device UI acceptance using synthetic text and an injected fake recorder.
+ * Never creates a microphone backend, runs ASR/native inference, plays cues, or grants permissions.
  */
 @RunWith(AndroidJUnit4.class)
 public final class VoiceBriefUiTest {
@@ -155,6 +157,140 @@ public final class VoiceBriefUiTest {
         }
     }
 
+    @Test(timeout = 30_000)
+    public void pausedCurrentCompletionReenablesEditingButStaleAndDestroyingCompletionsDoNot() {
+        // This exercises the shared terminal helper, not encoder/ASR callback timing.
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.moveToState(Lifecycle.State.STARTED);
+            scenario.onActivity(activity -> {
+                assertEquals(Lifecycle.State.STARTED, activity.getLifecycle().getCurrentState());
+                int generation = (Integer) field(activity, "voiceBriefGeneration");
+                invoke(activity, "setBusy", new Class<?>[] {boolean.class}, true);
+                assertFalse(((EditText) field(activity, "briefField")).isEnabled());
+                assertEquals(true, call(activity, "completeVoiceBriefIfCurrent", new Class<?>[] {int.class}, generation));
+                assertEquals(false, field(activity, "busy"));
+                assertTrue("Paused completion must not leave the editor disabled",
+                        ((EditText) field(activity, "briefField")).isEnabled());
+                assertNull("Paused terminal helper must not publish a draft dialog", field(activity, "voiceBriefReview"));
+                assertBrief(activity, TYPED);
+
+                setField(activity, "voiceBriefGeneration", generation + 1);
+                invoke(activity, "setBusy", new Class<?>[] {boolean.class}, true);
+                assertEquals(false, call(activity, "completeVoiceBriefIfCurrent", new Class<?>[] {int.class}, generation));
+                assertEquals("Old completion must not clear the newer operation", true, field(activity, "busy"));
+                assertFalse(((EditText) field(activity, "briefField")).isEnabled());
+                assertEquals(true, call(activity, "completeVoiceBriefIfCurrent", new Class<?>[] {int.class}, generation + 1));
+                assertEquals(false, field(activity, "busy"));
+
+                invoke(activity, "setBusy", new Class<?>[] {boolean.class}, true);
+                setField(activity, "destroying", true);
+                try {
+                    assertEquals(false, call(activity, "completeVoiceBriefIfCurrent", new Class<?>[] {int.class}, generation + 1));
+                    assertEquals(true, field(activity, "busy"));
+                } finally {
+                    setField(activity, "destroying", false);
+                    invoke(activity, "setBusy", new Class<?>[] {boolean.class}, false);
+                }
+                assertBrief(activity, TYPED); assertNoCaptureOrProcessing(activity);
+            });
+            scenario.moveToState(Lifecycle.State.RESUMED);
+            scenario.onActivity(activity -> { assertBrief(activity, TYPED); assertNoCaptureOrProcessing(activity); });
+        }
+    }
+
+    @Test(timeout = 30_000)
+    public void activeAndRetainedFakeRecorderRefuseAllMicEntrypointsUntilReleaseRetrySucceeds() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                FakeBriefBackend backend = new FakeBriefBackend();
+                LocalBriefRecorder recorder = new LocalBriefRecorder(activity, silentRecorderListener(),
+                        (file, error, limit) -> { backend.file = file; return backend; }, () -> true, 45_000);
+                Object originalPlanner = field(activity, "planner");
+                setField(activity, "briefRecorder", recorder);
+                try {
+                    assertTrue(recorder.start()); assertTrue(recorder.isRecording());
+                    assertEquals(false, call(activity, "ensureVoiceRecorderReleased", new Class<?>[0]));
+                    assertMicEntrypointsRefused(activity);
+                    assertTrue("An active helper must be left for explicit finish/cancel", recorder.isRecording());
+                    assertEquals(0, backend.stops); assertEquals(0, backend.releases);
+
+                    backend.failRelease = true;
+                    recorder.close();
+                    assertFalse(recorder.isRecording()); assertTrue(recorder.hasUnreleasedResources());
+                    assertTrue("Unreleased backend still owns its synthetic temp file", backend.file.isFile());
+                    assertEquals(false, call(activity, "ensureVoiceRecorderReleased", new Class<?>[0]));
+                    assertMicEntrypointsRefused(activity);
+                    assertTrue(recorder.hasUnreleasedResources()); assertTrue(backend.file.isFile());
+                    assertEquals("Refused retries must not construct another backend", 1, backend.starts);
+                    assertSame("Refusal precedes planner release and permission request", originalPlanner, field(activity, "planner"));
+
+                    backend.failRelease = false;
+                    assertEquals("Already-closed retained helper can retry release", true,
+                            call(activity, "ensureVoiceRecorderReleased", new Class<?>[0]));
+                    assertFalse(recorder.hasUnreleasedResources()); assertFalse(backend.file.exists());
+                    assertBrief(activity, TYPED);
+                } finally {
+                    backend.failRelease = false; recorder.close(); setField(activity, "briefRecorder", null);
+                }
+                assertNoCaptureOrProcessing(activity);
+            });
+        }
+    }
+
+    @Test(timeout = 30_000)
+    public void plannerReleaseReplacesOnlyPlannerAndPreservesEditableShootWithoutLoadingModel() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                Object oldPlanner = field(activity, "planner");
+                List<?> shots = new ArrayList<>((List<?>) field(activity, "shots"));
+                List<?> takes = new ArrayList<>((List<?>) field(activity, "takes"));
+                Object source = field(activity, "planSource");
+                assertFalse(LocalModelLease.isHeld());
+                assertEquals(0L, ((Number) field(oldPlanner, "handle")).longValue());
+                // The real record path is permission-gated; call its resource helper directly.
+                invoke(activity, "releasePlannerForMedia", new Class<?>[0]);
+                Object replacement = field(activity, "planner");
+                assertNotSame(oldPlanner, replacement); assertEquals(true, field(oldPlanner, "closed"));
+                assertEquals(false, field(replacement, "closed"));
+                assertEquals(0L, ((Number) field(replacement, "handle")).longValue());
+                assertFalse("Replacing an idle planner must not acquire native model ownership", LocalModelLease.isHeld());
+                assertEquals(shots, field(activity, "shots")); assertEquals(takes, field(activity, "takes"));
+                assertEquals(source, field(activity, "planSource")); assertBrief(activity, TYPED);
+                assertNoCaptureOrProcessing(activity);
+            });
+        }
+    }
+
+    private static void assertMicEntrypointsRefused(MainActivity activity) {
+        for (String action : new String[] {"recordVoiceBrief", "listenBrief", "startShoot", "startCamera"}) {
+            invoke(activity, action, new Class<?>[0]);
+            assertDenied(activity); assertNull(field(activity, "capture")); assertNull(field(activity, "pose"));
+            assertNull(field(activity, "voiceBriefReview")); assertNull(field(activity, "processingVoiceBrief"));
+            assertFalse(((SpeechCoach) field(activity, "speech")).isListening());
+            assertEquals(false, field(activity, "session")); assertEquals(false, field(activity, "busy"));
+        }
+    }
+
+    private static LocalBriefRecorder.Listener silentRecorderListener() {
+        return new LocalBriefRecorder.Listener() {
+            public void onStarted() { }
+            public void onReady(File file) { LocalBriefRecorder.discard(file); }
+            public void onError(String message) { }
+            public void onCanceled() { }
+        };
+    }
+
+    /** Plain synthetic bytes only: no MediaRecorder, audio decoding, or device microphone. */
+    private static final class FakeBriefBackend implements LocalBriefRecorder.RecorderBackend {
+        File file; int starts, stops, releases; boolean failRelease;
+        public void start() throws Exception {
+            starts++;
+            try (FileOutputStream stream = new FileOutputStream(file)) { stream.write(new byte[] {1, 2, 3}); }
+        }
+        public void stop() { stops++; }
+        public void release() { releases++; if (failRelease) throw new IllegalStateException("Synthetic release failure"); }
+    }
+
     private static AlertDialog review(MainActivity activity, String draft) {
         invoke(activity, "reviewVoiceBrief", new Class<?>[] {String.class, int.class}, draft,
                 (Integer) field(activity, "voiceBriefGeneration"));
@@ -212,7 +348,16 @@ public final class VoiceBriefUiTest {
     }
 
     private static void invoke(Object target, String name, Class<?>[] parameters, Object... args) {
-        try { Method method = target.getClass().getDeclaredMethod(name, parameters); method.setAccessible(true); method.invoke(target, args); }
+        call(target, name, parameters, args);
+    }
+
+    private static Object call(Object target, String name, Class<?>[] parameters, Object... args) {
+        try { Method method = target.getClass().getDeclaredMethod(name, parameters); method.setAccessible(true); return method.invoke(target, args); }
         catch (Exception error) { throw new AssertionError("Synthetic UI action failed: " + name, error); }
+    }
+
+    private static void setField(Object target, String name, Object value) {
+        try { Field field = target.getClass().getDeclaredField(name); field.setAccessible(true); field.set(target, value); }
+        catch (Exception error) { throw new AssertionError("Missing UI test field: " + name, error); }
     }
 }

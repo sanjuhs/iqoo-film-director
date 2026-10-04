@@ -40,8 +40,12 @@ keep it within 500characters, then explicitly choose **Use this brief**. Keep
 typed brief leaves your words unchanged. Cancel or leaving the app discards
 recording; it never starts planning/filming. **Use phone dictation** separately
 requires Android's offline English model, currently not installed on this phone.
-Local audio-only transcription and synthetic control checks passed, but actual
+Local audio-only remux and AAC encoding/transcription checks passed, but actual
 microphone capture and these visible controls still need attended acceptance.
+Check that leaving the app during a brief or transcription restores editable
+controls after return and does not apply a draft. If recorder release cannot be
+confirmed, the app refuses a new microphone session; follow its status before
+retrying and inspect Android's microphone indicator.
 
 1. In **01 Brief**, select **Fashion** and describe only the garment details you
    know: for example, “A short reel wearing my jacket; relaxed poses in one

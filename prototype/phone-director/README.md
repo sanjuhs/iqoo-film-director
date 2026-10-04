@@ -75,10 +75,12 @@ adb -d shell am instrument -w -e class dev.minifilm.director.UiWorkflowTest dev.
 ```
 
 The new headless voice checks are LocalBriefRecorderTest,
-TranscriberCancellationTest and VoiceBriefAudioTest (existing labelled padded
+TranscriberCancellationTest, VoiceBriefAudioTest and VoiceBriefCodecTest (existing labelled padded
 synthetic speech fixture and verified tiny.en required). VoiceBriefUiTest is
-unlocked-only and remains unrun. Fixture failure/repair reports are preserved;
-passed remux decoding is not microphone-recording acceptance.
+unlocked-only; its six methods are compiled, unrun. Fixture failure/repair reports
+are preserved. The focused codec check passed with actual AAC-LC/16kHz/mono
+header verification and local Whisper transcription; remux/codec checks are not
+MediaRecorder or microphone-recording acceptance.
 
 Recent CPU plans have taken roughly 25–53 seconds per five-shot draft on the connected Phone (3a); wording/grammar changes mean timings are not a controlled performance comparison. Six media checks passed, including real decoded subtitle visibility after trims, synthetic speech transcription, vertical clip assembly and safe cancellation. Reference and pose checks establish execution on fixtures, not accuracy on unseen creators. [Current status](../../docs/status.md) contains the complete measured ledger and failures.
 
@@ -108,7 +110,7 @@ The grammar bounds JSON whitespace; a narrow English Fashion Movement filter
 rejects observed taking/walking-to-garment-part errors in generated drafts and
 reviewed named Movement cues. It is not semantic or safety validation and can
 miss other nonsensical actions. Directions/captions still require review.
-Leaving Brief for Direct/Assemble, starting the camera, or creating/importing
+Leaving Brief for Direct/Assemble, starting a local voice brief or the camera, or creating/importing
 editing media requests asynchronous planner cleanup. The fresh planner is empty;
 cleanup follows its prior worker safely. This does not prove zero momentary
 overlap with camera allocation or a lower live-shoot memory peak.

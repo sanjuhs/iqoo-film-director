@@ -99,17 +99,25 @@ public class MainActivity extends ComponentActivity {
             finishVoiceBriefButton.setVisibility(recording ? View.VISIBLE : View.GONE);
         }
     }
+    private boolean ensureVoiceRecorderReleased() {
+        if (briefRecorder == null) return true;
+        if (briefRecorder.isRecording()) { status.setText("Finish or cancel your voice brief before starting another microphone session."); return false; }
+        briefRecorder.close();
+        if (briefRecorder.hasUnreleasedResources()) { status.setText("Voice recorder release could not be confirmed. Close the app and check Android's microphone indicator before retrying."); return false; }
+        return true;
+    }
+    private boolean completeVoiceBriefIfCurrent(int generation) {
+        if (generation != voiceBriefGeneration || destroying) return false;
+        setBusy(false); return true;
+    }
     private void recordVoiceBrief() {
         if (busy || tab != 0 || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return;
-        if (briefRecorder != null) {
-            briefRecorder.close();
-            if (briefRecorder.hasUnreleasedResources()) { status.setText("Voice recorder release could not be confirmed. Close the app and check Android's microphone indicator before retrying."); return; }
-        }
+        if (!ensureVoiceRecorderReleased()) return;
         if (!transcriber.isModelAvailable()) { status.setText("The local English speech model is unavailable. Type your brief instead."); return; }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},44); return;
         }
-        stopVoiceInput(); speech.stop();
+        releasePlannerForMedia(); stopVoiceInput(); speech.stop();
         final int generation = ++voiceBriefGeneration;
         briefRecorder = new LocalBriefRecorder(this, new LocalBriefRecorder.Listener() {
             public void onStarted() {
@@ -119,7 +127,7 @@ public class MainActivity extends ComponentActivity {
             }
             public void onReady(File file) {
                 updateVoiceBriefControls();
-                if (generation != voiceBriefGeneration || tab != 0 || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                if (!completeVoiceBriefIfCurrent(generation) || tab != 0 || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
                     LocalBriefRecorder.discard(file); return;
                 }
                 transcribeVoiceBrief(file, generation);
@@ -144,12 +152,11 @@ public class MainActivity extends ComponentActivity {
                 // resource hook instead, since close suppresses its creator callbacks.
                 LocalBriefRecorder.discard(file);
                 if (processingVoiceBrief == file) { processingVoiceBrief = null; voiceBriefReader = null; }
-                return generation == voiceBriefGeneration && !destroying && tab == 0
+                return completeVoiceBriefIfCurrent(generation) && tab == 0
                         && getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED);
             }
             public void onComplete(List<SubtitleCue> cues, long elapsedMs) {
                 if (!releaseAndCurrent()) return;
-                setBusy(false);
                 StringBuilder words = new StringBuilder();
                 for (SubtitleCue cue : cues) {
                     if (words.length() > 0) words.append(' ');
@@ -161,7 +168,7 @@ public class MainActivity extends ComponentActivity {
             }
             public void onError(String message) {
                 if (!releaseAndCurrent()) return;
-                setBusy(false); status.setText(message);
+                status.setText(message);
             }
         });
     }
@@ -204,6 +211,7 @@ public class MainActivity extends ComponentActivity {
     private void stopVoiceInput(){boolean wasListening=speech.isListening();speech.stopListening();updateVoiceInputControls();if(wasListening&&tab==0&&status!=null)status.setText("Voice input stopped. Your typed brief is kept.");}
     private void listenBrief(){
         if(busy||tab!=0||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        if(!ensureVoiceRecorderReleased())return;
         stopVoiceInput();
         if(!speech.isOfflineRecognitionAvailable()){status.setText("On-device speech recognition isn't available. Type your brief instead.");return;}
         if(checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},42);return;}
@@ -233,8 +241,8 @@ public class MainActivity extends ComponentActivity {
         c.addView(button("Switch front / back",false,()->{if(countdown||capture!=null&&capture.isRecording()){toast("Stop this take first.");return;}if(capture!=null&&live){live=false;capture.switchCamera();}else{desiredLens=desiredLens==CameraSelector.LENS_FACING_FRONT?CameraSelector.LENS_FACING_BACK:CameraSelector.LENS_FACING_FRONT;save();status.setText((desiredLens==CameraSelector.LENS_FACING_BACK?"Back":"Front")+" camera selected · tap Start camera");}}));c.addView(button("Next shot →",false,()->{if(countdown||capture!=null&&capture.isRecording()){toast("Stop this take first.");return;}shotIndex=(shotIndex+1)%shots.size();boolean reopen=live;session=false;save();render();if(reopen){cameraPlaceholder.setVisibility(View.GONE);startCamera();}}));c.addView(button("End shoot & review",false,()->{stopTake();session=false;if(capture!=null)capture.stopPreview();if(capture==null||!capture.isRecording())switchTab(2);else{reviewAfterSave=true;status.setText("Saving your last take…");}}));content.addView(c);
         content.addView(text("Pose model observes only while this shoot is open. Camera and microphone stop when you leave the app. Drone clips can be imported; aircraft control is not connected.",12,MUTED));
     }
-    private void startShoot(){if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED||checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO},41);return;}cameraPlaceholder.setVisibility(View.GONE);startCamera();}
-    private void startCamera(){if(live)return;if(capture!=null&&capture.isRecording()){toast("The previous take is still saving. Try again in a moment.");return;}releasePlannerForMedia();if(capture!=null){capture.close();capture=null;}if(pose!=null){pose.close();pose=null;}session=true;speech.stopListening();pose=new PoseCoach((cue,count,latency)->runOnUiThread(()->{if(!session||tab!=1)return;if(capture!=null&&!capture.isRecording()&&!countdown){if(!spokenPreparationPaused)status.setText("On-device pose · "+count+" visible points · "+latency+" ms");framingView.setText(cue);if(voice&&!spokenPreparationPaused&&SystemClock.elapsedRealtime()-lastCue>12000){lastCue=SystemClock.elapsedRealtime();speech.speak(cue);}}}));pose.setMode(style);pose.setEnabled(isPoseShot());capture=new CaptureController(this,preview,new CaptureController.Listener(){public void onReady(){live=true;desiredLens=capture.getLensFacing();save();if(captureAction!=null)captureAction.setText("Record · 3 sec");status.setText("Shoot active · "+speech.describeAudioRoute());if(!capture.isAnalysisAvailable())framingView.setText("Live pose analysis unavailable on this camera. Follow your shot cue and check the preview.");else if(!isPoseShot())framingView.setText("Person-framing advice is off for this object shot. Follow your scene cue.");if(sequenceActive)prepareSequenceShot();}public void onRecordingStarted(){countdown=false;speech.stop();recordStart=SystemClock.elapsedRealtime();quietStopPolicy=recordingQuietStop?new QuietTailStopPolicy(capture.getGeneration(),capture.getRecordingId(),recordingShot.targetDurationMs,recordStart):null;timerView.setText("● Recording — cues quiet");handler.post(tick);}public void onAudioStatus(CaptureController.AudioStatus audio){if(quietStopPolicy!=null)quietStopPolicy.observe(audio.generation,audio.recordingId,audio.recordedMs,audio.receivedElapsedMs,audio.amplitude,audio.eligible);}
+    private void startShoot(){if(!ensureVoiceRecorderReleased())return;if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED||checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO},41);return;}cameraPlaceholder.setVisibility(View.GONE);startCamera();}
+    private void startCamera(){if(live)return;if(capture!=null&&capture.isRecording()){toast("The previous take is still saving. Try again in a moment.");return;}if(!ensureVoiceRecorderReleased())return;releasePlannerForMedia();if(capture!=null){capture.close();capture=null;}if(pose!=null){pose.close();pose=null;}session=true;speech.stopListening();pose=new PoseCoach((cue,count,latency)->runOnUiThread(()->{if(!session||tab!=1)return;if(capture!=null&&!capture.isRecording()&&!countdown){if(!spokenPreparationPaused)status.setText("On-device pose · "+count+" visible points · "+latency+" ms");framingView.setText(cue);if(voice&&!spokenPreparationPaused&&SystemClock.elapsedRealtime()-lastCue>12000){lastCue=SystemClock.elapsedRealtime();speech.speak(cue);}}}));pose.setMode(style);pose.setEnabled(isPoseShot());capture=new CaptureController(this,preview,new CaptureController.Listener(){public void onReady(){live=true;desiredLens=capture.getLensFacing();save();if(captureAction!=null)captureAction.setText("Record · 3 sec");status.setText("Shoot active · "+speech.describeAudioRoute());if(!capture.isAnalysisAvailable())framingView.setText("Live pose analysis unavailable on this camera. Follow your shot cue and check the preview.");else if(!isPoseShot())framingView.setText("Person-framing advice is off for this object shot. Follow your scene cue.");if(sequenceActive)prepareSequenceShot();}public void onRecordingStarted(){countdown=false;speech.stop();recordStart=SystemClock.elapsedRealtime();quietStopPolicy=recordingQuietStop?new QuietTailStopPolicy(capture.getGeneration(),capture.getRecordingId(),recordingShot.targetDurationMs,recordStart):null;timerView.setText("● Recording — cues quiet");handler.post(tick);}public void onAudioStatus(CaptureController.AudioStatus audio){if(quietStopPolicy!=null)quietStopPolicy.observe(audio.generation,audio.recordingId,audio.recordedMs,audio.receivedElapsedMs,audio.amplitude,audio.eligible);}
         public void onRecordingFinished(Uri uri,long duration){clearQuietStopPolicy();handler.removeCallbacks(tick);if(pose!=null)pose.setEnabled(session&&isPoseShot());if(duration>300){Shot s=recordingShot!=null?recordingShot:shots.get(shotIndex);takes.add(new Take(uri,s.id,s.title,s.caption,duration));save();}timerView.setText("Take saved · "+String.format(Locale.US,"%.1f",duration/1000.0)+" sec");status.setText("Review your take in Assemble");if(reviewAfterSave){reviewAfterSave=false;switchTab(2);}else if(sequenceActive){if(shotIndex+1<shots.size()){shotIndex++;save();render();cameraPlaceholder.setVisibility(View.GONE);startCamera();}else{sequenceActive=false;session=false;switchTab(2);status.setText("Your shot sequence is ready to review.");}}}public void onError(String e){clearQuietStopPolicy();sequenceActive=false;countdown=false;handler.removeCallbacks(tick);live=false;if(captureAction!=null)captureAction.setText("Start camera");toast(e);status.setText(e);if(pose!=null)pose.setEnabled(session&&isPoseShot());if(reviewAfterSave){reviewAfterSave=false;switchTab(2);}}});capture.setLensFacing(desiredLens);capture.setAnalyzer(pose);capture.startPreview();}
     private void clearQuietStopPolicy(){if(quietStopPolicy!=null){quietStopPolicy.cancel();quietStopPolicy=null;}}
     private final Runnable tick=new Runnable(){public void run(){
