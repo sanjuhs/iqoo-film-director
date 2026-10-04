@@ -1,5 +1,12 @@
 # Mini Film Director — project objectives
 
+Current implementation evidence is maintained in [status](status.md) and the
+[completion audit](completion-audit.md). The design/proposal statements below
+retain their original planning context: a phone research prototype and synthetic
+local model/media checks now exist, while the full attended multicamera, trained
+director and event-hardware vision remains unverified.
+
+
 Updated 4 October 2026 (IST) from the user's supplied ChatGPT research and request
 to broaden the project. These are product objectives and research gates, not
 completed capabilities. [Source checks](multicamera-research.md) distinguish

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class ReferenceAnalyzer implements AutoCloseable {
     public interface Listener {
         void onResult(String summary, long elapsedMs);
+        default void onResult(String summary, long elapsedMs, long durationMs) { onResult(summary, elapsedMs); }
         void onError(String message);
     }
     private static final long MAX_DURATION_MS = 180_000;
@@ -120,7 +121,7 @@ public final class ReferenceAnalyzer implements AutoCloseable {
                     + " pose_samples=" + (pose == null ? 0 : pose.successful)
                     + " detected_samples=" + (pose == null ? 0 : pose.detected)
                     + " elapsed_ms=" + elapsed + " backend_preference=pose_cpu sparse=true");
-            main.post(() -> { if (!closed) listener.onResult(result, elapsed); });
+            main.post(() -> { if (!closed) listener.onResult(result, elapsed, duration); });
         } catch (Exception failure) {
             String message = failure instanceof IllegalArgumentException || failure instanceof IllegalStateException
                     ? failure.getMessage() : "Reference could not be read. Choose a downloaded local video and try again.";

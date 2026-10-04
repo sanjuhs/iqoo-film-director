@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Rational;
 import android.util.Size;
 
@@ -16,6 +17,7 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FallbackStrategy;
+import androidx.camera.video.AudioStats;
 import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.Quality;
 import androidx.camera.video.QualitySelector;
@@ -34,6 +36,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Foreground-only phone capture for the dated research prototype.
@@ -46,7 +49,26 @@ public final class CaptureController implements AutoCloseable {
         void onRecordingStarted();
         void onRecordingFinished(Uri uri, long durationMs);
         void onError(String message);
+        /** Recording energy only; no speech/sentence or microphone-routing claim. */
+        default void onAudioStatus(AudioStatus status) { }
     }
+
+    /** Immutable scalar snapshot. Receipt time does not certify amplitude sampling age. */
+    public static final class AudioStatus {
+        public final long generation, recordingId, recordedMs, receivedElapsedMs;
+        public final double amplitude;
+        public final int audioState;
+        public final boolean eligible;
+        private AudioStatus(long generation, long recordingId, long recordedMs, long receivedElapsedMs,
+                double amplitude, int audioState, boolean eligible) {
+            this.generation = generation; this.recordingId = recordingId; this.recordedMs = recordedMs;
+            this.receivedElapsedMs = receivedElapsedMs; this.amplitude = amplitude;
+            this.audioState = audioState; this.eligible = eligible;
+        }
+    }
+
+    private static final AtomicLong NEXT_GENERATION = new AtomicLong();
+    private final long generation = NEXT_GENERATION.incrementAndGet();
 
     private final ComponentActivity activity;
     private final PreviewView previewView;
@@ -65,6 +87,9 @@ public final class CaptureController implements AutoCloseable {
     private volatile boolean analysisAvailable;
     private int lensFacing = CameraSelector.LENS_FACING_FRONT;
     private int bindingGeneration;
+    private long nextRecordingId;
+    private volatile long recordingId;
+    private boolean recordingStarted;
 
     public CaptureController(ComponentActivity activity, PreviewView preview, Listener listener) {
         this.activity = activity;
@@ -82,6 +107,10 @@ public final class CaptureController implements AutoCloseable {
     }
 
     public boolean isAnalysisAvailable() { return analysisAvailable; }
+
+    public long getGeneration() { return generation; }
+    /** Zero when no take is active. Allocate policy after this attempt's Start callback. */
+    public long getRecordingId() { return recordingId; }
 
     public int getLensFacing() { return lensFacing; }
 
@@ -227,22 +256,44 @@ public final class CaptureController implements AutoCloseable {
                 .setFileSizeLimit(100L * 1024L * 1024L)
                 .setDurationLimitMillis(60_000L).build();
         stopRequested = false;
+        long attemptId = ++nextRecordingId;
+        recordingId = attemptId; recordingStarted = false;
         try {
             recording = videoCapture.getOutput().prepareRecording(activity, options)
-                    .withAudioEnabled().start(mainExecutor, event -> handleEvent(event, outputFile));
+                    .withAudioEnabled().start(mainExecutor, event -> handleEvent(event, outputFile, attemptId));
         } catch (RuntimeException failure) {
             recording = null;
+            recordingId = 0; recordingStarted = false;
             if (outputFile.exists()) outputFile.delete();
             listener.onError("Recording could not start. Check camera and microphone access.");
         }
     }
 
-    private void handleEvent(VideoRecordEvent event, File file) {
+    private void handleEvent(VideoRecordEvent event, File file, long attemptId) {
+        if (attemptId != recordingId) return;
         if (event instanceof VideoRecordEvent.Start) {
-            if (!closed && previewRequested && !stopRequested) listener.onRecordingStarted();
+            if (!closed && previewRequested && !stopRequested) {
+                recordingStarted = true;
+                listener.onRecordingStarted();
+            }
+        } else if (event instanceof VideoRecordEvent.Status) {
+            if (closed || !previewRequested || stopRequested || !recordingStarted || recording == null) return;
+            long durationNanos = event.getRecordingStats().getRecordedDurationNanos();
+            // Forward even duplicate/regressing/ineligible stats: the policy must invalidate
+            // earlier quiet evidence when an audio error arrives without duration progress.
+            long recordedMs = durationNanos >= 0 ? durationNanos / 1_000_000L : -1;
+            AudioStats audio = event.getRecordingStats().getAudioStats();
+            double raw = audio.getAudioAmplitude();
+            boolean finiteRange = Double.isFinite(raw) && raw >= 0 && raw <= 1;
+            double normalized = Double.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0;
+            boolean eligible = audio.getAudioState() == AudioStats.AUDIO_STATE_ACTIVE
+                    && audio.hasAudio() && !audio.hasError() && finiteRange && durationNanos >= 0;
+            listener.onAudioStatus(new AudioStatus(generation, attemptId, recordedMs,
+                    SystemClock.elapsedRealtime(), normalized, audio.getAudioState(), eligible));
         } else if (event instanceof VideoRecordEvent.Finalize) {
             recording = null;
             stopRequested = false;
+            recordingId = 0; recordingStarted = false;
             VideoRecordEvent.Finalize result = (VideoRecordEvent.Finalize) event;
             boolean usableResult = !result.hasError()
                     || result.getError() == VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED

@@ -8,7 +8,23 @@ Native Android app with three screens: **Brief → Direct → Assemble**. Fashio
 
 Local reference inspection samples colors, rough scene changes and person landmarks. Optional CPU visual inference describes one selected frame, shows its thumbnail and requires corrected notes before they enter the next plan. Body framing uses a separate conservative landmark heuristic; an uncertain crop asks for review. This is not temporal trend understanding. Spoken takes can receive an offline speech-edge trim proposal: preview it paused, listen, then explicitly apply or keep the current cut. Existing captions and original media remain intact.
 
+**Review three reference moments** performs serial local frame inspection and
+explicit selection/correction. Confirmed boards save text/times/provenance,
+without pixel copies. Explicitly named performer actions are retained as
+creator-authored instructions after actual native generation and labelled as
+such; other instructions, captions and lengths are model drafts. An unspecified
+fashion Detail uses a disclosed creator-choice grammar constraint. Prompting
+alone failed to reliably preserve poses; this retention is not learned grounding.
+See [reference-board evidence](../../docs/reference-board-evidence.md).
+
 The optional full-shot sequence speaks instructions between takes, waits for actual cue completion, allows an eight-second pose break, speaks each countdown number to completion, and auto-stops each take. Stop or leaving the app ends the sequence; it never resumes on return. This sequence and real camera capture still need an attended shoot check.
+
+**Wait for a quiet pause · experimental** is off by default. With a timed stop or
+sequence, it may extend the explicitly started recording by at most eight
+seconds, within the 60-second ceiling. It reuses CameraX sound-level statistics,
+not a second microphone or a speech-completion model. Thresholds are uncalibrated;
+a quiet pause can occur mid-sentence. Manual/background Stop remains immediate.
+The policy's synthetic tests do not validate microphone behavior or AirPods.
 
 ## Build and install
 
@@ -37,6 +53,7 @@ adb -d install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.
 adb -d shell am instrument -w -e class dev.minifilm.director.LocalAITest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.MediaWorkflowTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.ReferenceAnalyzerTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
+adb -d shell am instrument -w -e class dev.minifilm.director.ReferenceBoardTest,dev.minifilm.director.QuietTailStopPolicyTest,dev.minifilm.director.CaptureFinalizationTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.ScenePlanningTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.FramePoseFramingTest,dev.minifilm.director.ReferenceVisionTest,dev.minifilm.director.ModelLeaseTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner
 adb -d shell am instrument -w -e class dev.minifilm.director.SpeechTrimTest,dev.minifilm.director.SpeechTrimExportTest,dev.minifilm.director.ClipPreviewTest,dev.minifilm.director.ReferenceFrameDecoderTest,dev.minifilm.director.CaptureFinalizationTest dev.minifilm.director.test/androidx.test.runner.AndroidJUnitRunner

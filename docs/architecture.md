@@ -1,5 +1,12 @@
 # Mini Film Director — proposed architecture
 
+Current implementation evidence is maintained in [status](status.md) and the
+[completion audit](completion-audit.md). The design/proposal statements below
+retain their original planning context: a phone research prototype and synthetic
+local model/media checks now exist, while the full attended multicamera, trained
+director and event-hardware vision remains unverified.
+
+
 Research design, 4 October 2026 (IST). No component below is established as
 implemented by this document.
 

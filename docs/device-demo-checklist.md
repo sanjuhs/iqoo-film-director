@@ -48,6 +48,19 @@ that fallback a generated result. Setup/provenance is in the
    and editable notes. Correct guesses, then select **Use corrected notes**
    before building another plan. You can also type the desired beats in your
    brief. One frame is not an understanding of the whole trend.
+   **Review three reference moments** instead samples three increasing times;
+   defaults use the selected clip's measured duration. Review the thumbnails,
+   correct selected notes to short shot cues, or exclude an unclear moment.
+   **Use reviewed moments** explicitly saves the selected cues. Saved boards
+   retain text/times/selection rather than images; re-read to see frames again.
+   Unconfirmed drafts and typed corrections are temporary across recreation.
+   For a reviewed fashion board without a named Detail cue, the planner uses a
+   visibly labelled creator-choice detail constraint. Other shots remain model
+   drafts: inspect their pose, caption and facts before recording.
+   Name one shot and an action in a note to retain your own direction, such as
+   “Side pose: Pause in profile”. These are creator-authored instructions kept
+   after generation, with a separate label; captions remain editable model drafts.
+   A malformed or duplicate named cue asks for correction before planning.
 4. Tap **Let's direct this reel →**, then **Start camera**. Check the live preview
    and written pose cue. “Review needed” means insufficient landmark evidence;
    use your own framing judgment. Detail/object shots may disable person advice.
@@ -59,6 +72,12 @@ that fallback a generated result. Setup/provenance is in the
    starts, and directions stay quiet. Speak a short line if you want captions.
    **Stop take** cancels a countdown or stops the take; **Stop at planned shot
    length** enables its planned stop. Wait for the take to finish saving.
+   For a talking take, optionally enable **Wait for a quiet pause · experimental**
+   before recording. It is off by default and can extend a timed/sequence take
+   by at most eight seconds, within the 60-second cap. It measures sound energy,
+   not sentence completion; faint speech, music or a mid-sentence pause can fool
+   it. Settings apply to the next take. Check the saved speech and immediate
+   Stop/background behavior before relying on it in a demo.
 2. Use **End shoot & review**, then **Preview take** in Assemble. Playback opens
    paused; press play yourself. Check picture, orientation, duration and sound
    before relying on a longer shoot.
@@ -113,8 +132,8 @@ sequence. Confirm these behaviors on the real phone before a presentation.
   result but cannot guarantee an immediate stop of a blocking file provider.
 - If pose advice abstains or is wrong, follow the preview and your scene cue.
   Do not lower confidence or treat missing joints as observed. The public cropped
-  portrait check abstained; successful head-and-shoulders classification is
-  not established.
+  portrait check abstained; a separately encoded, letterboxed crop supported
+  head-and-shoulders. These few fixtures do not establish general framing quality.
 - If offline speech fails before a take, recording pauses. Turn spoken direction
   off for a visual countdown, or fix Android's offline English voice/output and
   rehear a cue before retrying.

@@ -696,3 +696,70 @@ are not additional hardware tests. Unapplied trim/reference review state is
 intentionally ephemeral across recreation; saved cuts/confirmed notes persist.
 Decoder close suppresses late callbacks but cannot interrupt every blocking
 provider/MMR read. Both practical limitations are in the attended checklist.
+
+
+### Reviewed reference board and experimental quiet stop — 4 October, 14:38 IST
+
+The installed pre-event app adds serial review of three selected reference
+moments, editable/excludable notes and confirmed text-only board persistence.
+Actual local frame inference remains sparse CPU vision plus conservative pose
+landmarks; thumbnails and unconfirmed edits are temporary across recreation.
+Selected canonical notes have a strict 210-character limit with no silent
+truncation. Named role instructions remain creator-authored edits retained
+verbatim after native generation, with a distinct label. Unknown fashion Detail
+uses a disclosed creator-choice constraint. Embedded source clocks are rejected
+from model captions. Neither mechanism is learned reference grounding.
+
+Prompt-only preservation repeatedly failed. The 11-test runner failed one case
+in 141.547 s: its native plan kept a generic Side/Closing despite reviewed cues,
+while its ordinary introduction/fashion and reference checks passed. An earlier
+28.438-second single-method green runner still invented a lapel because that
+installed test lacked the newly added part/choice assertions. These reports and
+all earlier failed outputs remain retained; see reference-board-evidence.md.
+
+The final combined runner passed **23 tests in 92.759 s**: eight board cases,
+13 synthetic quiet-stop policy cases and two finalized-container methods.
+Actual three-frame inspection completed in **32.779 s**, preserving original
+hash and requested 1000/4500/7500 ms association. Two actual native CPU plans ran
+in **27.781/29.638 s**; exact named manual instructions and disclosures passed,
+and an explicit confirmed left-pocket Detail bypassed the unknown constraint.
+Fifteen malformed/time/duplicate cases failed before native load with one
+main-thread error, no plan or fallback, zero resident handle and no model lease.
+The prior same-source sparse-reference and ordinary unseen-plan checks passed
+in the preceding runner. These are targeted mechanics, not general accuracy.
+
+The explicit-detail native draft also said **“Walk to the left pocket”**. That
+nonsensical Movement met shape/lexical tests and demonstrates a remaining quality
+limit. Model captions can stay generic after manual directions are retained.
+The Brief page explicitly requires review/editing of directions and captions;
+no good creative output, whole-trend understanding or creator benefit is proven.
+
+Direct now offers **Wait for a quiet pause · experimental**, off by default and
+not persisted across recreation. It observes only scalar CameraX statistics
+from an explicitly started recording; no extra microphone stream/model is added.
+It needs prior valid energy and a fresh advancing one-second quiet window, and
+allows at most eight extra seconds within the existing 60-second limit. Stop
+settings are snapshotted for each take. Matching controller/take IDs reject old
+events; duplicates, invalid/muted/error states and gaps invalidate evidence.
+Manual Stop/background/error/finalize cancel immediately, while automatic quiet
+completion retains normal sequence progression after Finalize. The 13 policy
+checks cover bounded synthetic sequences only. Sound energy is not sentence
+completion; thresholds and real microphone/AirPods behavior are uncalibrated.
+Source review found no blocker in this wiring, not a hardware result.
+
+Both APK builds/installations succeeded; the latest app received a normal launch
+request. Window policy still reports Keyguard unlocked=false; camera/microphone
+remain denied. No secure unlock, grant, camera/mic, private upload, cloud or
+aircraft action occurred. The final APK is output/apk/MiniFilm-research.apk,
+**52,838,059 bytes**, SHA-256
+**9f8febfb45688a9462247f953b2b9e45aecf43d092087c7c5e2aedf818a7b3eb**.
+The packaged notices match source bytes, separate core/projector/Whisper weights
+are absent, and the manifest has no Internet/network-state permission. The only
+post-test source change was the Brief review-warning text, rebuilt/reinstalled;
+no functional source changed afterward. No new SDK/JDK or model download.
+
+Qualified storage accounting is **7.546 GB**, including historical missing-archive
+and cache reserves plus phone files/cache; exhaustive inventory remains limited
+as recorded in storage.json. The goal remains active. New board UI/persistence,
+real filming, quiet-stop calibration, audible AirPods, iQOO/NPU/Office Kit and
+organizer-compliant competition source/accepted submission remain open.

@@ -1,5 +1,12 @@
 # Mini Film Director — phone, drone and optional Action 4 as one filming unit
 
+Current implementation evidence is maintained in [status](status.md) and the
+[completion audit](completion-audit.md). The design/proposal statements below
+retain their original planning context: a phone research prototype and synthetic
+local model/media checks now exist, while the full attended multicamera, trained
+director and event-hardware vision remains unverified.
+
+
 User-approved vision, 4 October 2026 (IST). This is pre-event research and a
 delivery proposal. No app, trained model, NPU execution, drone connection or
 automatic edit has been demonstrated for this product.

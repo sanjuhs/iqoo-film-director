@@ -173,3 +173,23 @@ claims are still pending. APK and refreshed six-page pitch hashes are in
 [local AI evidence](local-ai-evidence.md), and the practical returning-user flow
 in [the attended checklist](device-demo-checklist.md). No new submission or
 external publishing occurred. The development goal remains active.
+
+
+### 14:38 IST: reviewed reference board and bounded pause experiment
+
+The new 23-test / 92.759-second runner passed board ownership/persistence,
+actual serial public/synthetic reference inspection, disclosed creator-cue
+retention and quiet-stop policy/container checks. Source prompting repeatedly
+lost named poses; deterministic retention now preserves explicitly authored
+instructions and is labelled separately. Two native drafts still generate
+other instructions/captions/lengths; one said “Walk to the left pocket”. Green
+mechanics tests do not establish creative quality, and the app requires review.
+See [reference-board evidence](reference-board-evidence.md).
+
+The optional off-by-default quiet-pause switch is integrated, with a maximum
+eight-second extension and immediate manual/background stop. Thirteen synthetic
+policy checks passed; no live recording statistics, calibrated thresholds,
+sentence completion or AirPods route was verified. The installed app remains
+behind secure keyguard with camera/microphone denied. Latest SHA/storage and
+retained failures are in [status](status.md). Attended workflow and competition
+acceptance gates remain open; this is still pre-event research.
