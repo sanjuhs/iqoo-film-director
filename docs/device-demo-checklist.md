@@ -396,3 +396,12 @@ results keep existing words too. Backgrounding/canceling stops this single-take
 request; request a fresh draft after returning. Explicit **Remove subtitles**
 clears the current take. Batch missing-subtitle generation keeps its earlier
 keep-existing behavior. [Evidence](standalone-subtitle-proposal-evidence.md).
+
+## Preview and confirm a suggested speech cut
+
+Keep Assemble open during analysis. **Preview suggested cut** keeps the finished
+suggestion; returning restores your list position. Reopen **Review suggested
+speech cut** before choosing **Apply trim** or **Keep current cut**. Leaving the
+app dismisses the old dialog and cancels unfinished analysis; it applies nothing.
+Finished suggestions remain in memory while their source/range is unchanged.
+[Ownership and actual output evidence](speech-trim-review-ownership-evidence.md).

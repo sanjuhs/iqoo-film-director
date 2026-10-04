@@ -10,6 +10,18 @@ prospective native tests retained speech-topic failures. One default hybrid
 retained the creator-authored Closing explicitly. Creative accuracy across
 unseen briefs and the attended workflow remain unverified.
 
+Latest23:24 speech-cut repair owns Apply/Preview/Keep and analysis cleanup.
+Completed suggestions survive Preview/background for explicit re-review, with
+scroll retained; stale controls/terminals cannot affect newer work. Fresh UI
+39/74.806s and physical focused3/13.245s passed. Actual synthetic8759ms source,
+reviewed1220–7480ms range, encoded720×1280/6263ms retained speech/caption timing
+and original SHA. UI Preview was intercepted, not played; no attended ASR UI
+claim. Built/saved/independently read installedAPK SHA256
+91c09281a3d3f8c16c12c36326c620d26b03ee3970c1c69ab82a02d9afd7abea.
+[Speech-cut evidence](speech-trim-review-ownership-evidence.md). Qualified peak
+10873353179B/finaladjacent9336525787B; gallery30/0/8,534,454B. Own AVD cleaned;
+physical secure keyguard/capturedenied. Attended/device/event gates stay open.
+
 Latest23:11 standalone subtitle repair keeps generated words as a proposal
 until explicit current Save/Remove. Later/empty/background/cancel preserve saved
 words. Physical15/5.254s and fresh UI34/65.073s passed; separate actual synthetic

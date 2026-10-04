@@ -319,3 +319,7 @@ the manual choice while showing its required planned stop.
 Generating fresh subtitles now proposes words for review before replacing saved
 subtitles. Later, empty results and background cancellation preserve your words.
 [Proposal evidence](../../docs/standalone-subtitle-proposal-evidence.md) separates actual ASR and synthetic editor checks.
+
+Suggested speech cuts now require the current review: old or hidden actions cannot
+apply/discard a newer suggestion. Preview preserves it for explicit re-review and
+returns to the same list position. [Review evidence](../../docs/speech-trim-review-ownership-evidence.md).

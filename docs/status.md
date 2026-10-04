@@ -1898,3 +1898,36 @@ other untouched. Qualified peak10536879296B/finaladjacent9338096076B; existing
 reserve/inventory/runtime limits retained. No downloads/private upload/capture/
 playback/aircraft action. Goal active until midnight; full attended/AirPods,
 iQOO/NPU/OfficeKit, semantic benefit and eligible accepted entry remain open.
+
+### 23:24 IST — current speech-cut review and retained preview suggestion
+
+Speech-cut Apply/Preview now require the exact current attached foreground
+dialog/pending pair and unchanged source/range. Current Keep safely discards
+only its own candidate even after a range change; old actions cannot affect
+new work. Completed suggestions survive preview/background for explicit
+re-review, with list position retained and no automatic apply/dialog reopening.
+Analysis owns reader/generation/busy through real closeWhenIdle; stale terminals
+and cleanup hooks cannot publish old results or release newer busy. Numeric
+SpeechTrim/apply/native/export policy unchanged. [Evidence](speech-trim-review-ownership-evidence.md).
+
+Offline build1s/normal installs; fresh UI39/74.806s passed including new review5,
+proposal5, subtitle4, workflow10, newReel4, fixed4, stopPrefs3 and Finish4. Physical
+focused3/13.245s passed: actual synthetic speech-cut export plus two cancellation
+methods. Actual CPU tiny.en analysis5,532ms/output transcription4,312ms each
+returned3segments with jacket/green/outfit words. Source8759ms → explicit
+range1220–7480ms → encoded720×1280/6263ms. Original SHA/prefs/subtitle aliases
+and timing, mapped/burned captions and stale/repeated-apply refusal passed.
+Synthetic output retained locally, only its exact recovery journal removed.
+Synthetic UI listener/idle-reader gates and intercepted Preview intent do not
+establish attended Main→ASR→Apply or media playback/native concurrency.
+
+Built/saved/independently read installedAPK52838059B SHA256
+91c09281a3d3f8c16c12c36326c620d26b03ee3970c1c69ab82a02d9afd7abea; source-identical notices,
+separate weights excluded/bundledMLKit/noInternet. Metadata-only gallery1/0.284s
+30owned/0pending/8,534,454B. NormalMain launch behind securekeyguard/capturedenied
+requested. Independent final source review found no blocker. Cleanup helper
+first rejected path-shaped argument before mutation; basename retry passed.
+Own AVD/reg removed after parent terminal; other untouched. Qualified peak
+10873353179B/finaladjacent9336525787B with existing reserve/inventory/runtime
+limits. No downloads/private upload/capture/playback/aircraft action. Goal active
+until midnight; attended/AirPods/iQOO/NPU/OfficeKit/usefulness/event gates open.

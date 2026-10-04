@@ -46,6 +46,10 @@ public class MainActivity extends ComponentActivity {
     private int referenceSpeechGeneration, referenceAnalysisGeneration;
     private boolean referenceSpeechOwnsBusy;
     private AlertDialog referenceSpeechDialog;
+    private ClipTranscriber speechTrimReader;
+    private int speechTrimGeneration;
+    private boolean speechTrimOwnsBusy,speechTrimCancelRequested;
+    private AlertDialog speechTrimDialog;
     private ClipTranscriber standaloneSubtitleReader;
     private int standaloneSubtitleGeneration;
     private boolean standaloneSubtitleOwnsBusy,standaloneSubtitleCancelRequested;
@@ -72,9 +76,9 @@ public class MainActivity extends ComponentActivity {
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
         ++pageRenderGeneration;plannedStopSwitch=null;cancelFinishContinue(true);finishContinueButton=null;captureAction=null;stopTakeButton=null;
-        clearAssemblyFooter();clearPoseBreak();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();dismissNewReel();
+        clearAssemblyFooter();clearPoseBreak();dismissSpeechTrimReview();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();dismissNewReel();
         ++shootPoseGeneration;
-        cancelStandaloneSubtitles(false);cancelTakeFraming(false);dismissTakeTools();
+        cancelSpeechTrim(false);cancelStandaloneSubtitles(false);cancelTakeFraming(false);dismissTakeTools();
         dismissShotAssignments();coverageSummary=null;coverageRows=null;nextMissingShotButton=null;
         cancelReferenceSpeech();cancelVoiceBrief();speech.stopListening();stopVoiceInputButton=null;finishVoiceBriefButton=null;
         clearQuietStopPolicy();
@@ -92,7 +96,7 @@ public class MainActivity extends ComponentActivity {
     }
     private void setBusy(boolean value){if(value)stopVoiceInput();busy=value;if(cancelProcessingButton!=null){cancelProcessingButton.setText(hasVoiceBriefWork()?"Cancel voice brief":"Cancel local processing");cancelProcessingButton.setVisibility(value?View.VISIBLE:View.GONE);}setEditorsEnabled(root,!value);updateSelectionSummary();updateFinishContinueButton();}
     private void setEditorsEnabled(View view,boolean enabled){if(view==null)return;if(view instanceof EditText||view instanceof Spinner||view instanceof CheckBox||view instanceof Switch)view.setEnabled(enabled&&!(view==plannedStopSwitch&&guideSequence));if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)setEditorsEnabled(group.getChildAt(i),enabled);}}
-    private void cancelProcessing(){if(standaloneSubtitleReader!=null&&standaloneSubtitleOwnsBusy){cancelStandaloneSubtitles(true);return;}if(activeTakeFramingReview!=null&&takeFramingOwnsBusy){cancelTakeFraming(true);return;}if(activeSubtitleBatch!=null&&subtitleBatchOwnsBusy){cancelSubtitleBatch();return;}if(referenceSpeechReader!=null&&referenceSpeechOwnsBusy){cancelReferenceSpeech();return;}if(hasVoiceBriefWork()){cancelVoiceBrief();return;}++referenceAnalysisGeneration;dismissReferenceNotesDialog();pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";clearPendingReferenceFrame();planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
+    private void cancelProcessing(){if(speechTrimReader!=null&&speechTrimOwnsBusy){cancelSpeechTrim(true);return;}if(standaloneSubtitleReader!=null&&standaloneSubtitleOwnsBusy){cancelStandaloneSubtitles(true);return;}if(activeTakeFramingReview!=null&&takeFramingOwnsBusy){cancelTakeFraming(true);return;}if(activeSubtitleBatch!=null&&subtitleBatchOwnsBusy){cancelSubtitleBatch();return;}if(referenceSpeechReader!=null&&referenceSpeechOwnsBusy){cancelReferenceSpeech();return;}if(hasVoiceBriefWork()){cancelVoiceBrief();return;}++referenceAnalysisGeneration;dismissReferenceNotesDialog();pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";clearPendingReferenceFrame();planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
     private void switchTab(int n){if(busy){toast("Wait for the current operation to finish.");return;}if(countdown || capture!=null&&capture.isRecording()){toast("Stop this take before changing screens.");return;}sequenceActive=false;cancelCountdown();speech.stopListening();speech.stop();session=false;if(n!=0)releasePlannerForMedia();if(n==2)recoverSavedTakes(false);tab=n;save();render();}
     // close() queues native cleanup after any work; it never blocks the UI or frees an active core directly.
     private void releasePlannerForMedia(){planner.close();planner=new LocalPlanner(this);}
@@ -885,36 +889,83 @@ public class MainActivity extends ComponentActivity {
         }));
     }
     private void suggestSpeechTrim(Take take) {
-        if(busy)return;
+        if(busy||destroying||tab!=2||!takes.contains(take)||referenceSpeechReader!=null
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
         if(!transcriber.isModelAvailable()){toast("The local English speech model is unavailable. Use Trim & typography.");return;}
-        pendingSpeechTrim=null;pendingSpeechTrimTake=null;speech.stopListening();speech.stop();
+        dismissSpeechTrimReview();pendingSpeechTrim=null;pendingSpeechTrimTake=null;speech.stopListening();speech.stop();releasePlannerForMedia();
+        ClipTranscriber reader=transcriber;int generation=++speechTrimGeneration;
+        speechTrimReader=reader;speechTrimOwnsBusy=true;speechTrimCancelRequested=false;
         setBusy(true);status.setText("Finding a speech cut locally… keep the app open");
-        transcriber.analyzeForTrim(take.uri,take.inMs,take.outMs,new ClipTranscriber.TrimListener(){
+        reader.analyzeForTrim(take.uri,take.inMs,take.outMs,speechTrimListener(reader,generation,take));
+    }
+    private ClipTranscriber.TrimListener speechTrimListener(ClipTranscriber reader,int generation,Take take){
+        final Uri source=take.uri;final long in=take.inMs,out=take.outMs,duration=take.durationMs;
+        return new ClipTranscriber.TrimListener(){
             public void onComplete(SpeechTrim candidate,long elapsedMs){
-                setBusy(false);
-                if(!takes.contains(take)||!candidate.matches(take)){status.setText("This cut changed. Request a new suggestion.");return;}
+                if(!completeSpeechTrim(reader,generation))return;
+                if(tab!=2||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+                if(!takes.contains(take)||!Objects.equals(source,take.uri)||in!=take.inMs||out!=take.outMs||duration!=take.durationMs
+                        ||candidate==null||!candidate.matches(take)){status.setText("This cut changed. Request a new suggestion.");return;}
                 if(!candidate.hasSuggestion){status.setText("Current cut kept. "+candidate.reason);return;}
                 pendingSpeechTrim=candidate;pendingSpeechTrimTake=take;render();
-                status.setText("A tighter talking cut is ready. Preview it before applying.");
-                if(getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))reviewSpeechTrim(take,candidate);
+                status.setText("A tighter talking cut is ready. Preview it before applying.");reviewSpeechTrim(take,candidate);
             }
-            public void onError(String message){setBusy(false);status.setText(message);toast(message);}
-        });
+            public void onError(String message){
+                if(!completeSpeechTrim(reader,generation))return;
+                if(tab==2&&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){status.setText(message);toast(message);}
+            }
+        };
+    }
+    private boolean completeSpeechTrim(ClipTranscriber reader,int generation){
+        if(destroying||speechTrimReader!=reader||speechTrimGeneration!=generation||!speechTrimOwnsBusy||speechTrimCancelRequested)return false;
+        speechTrimReader=null;speechTrimOwnsBusy=false;setBusy(false);return true;
+    }
+    private void cancelSpeechTrim(boolean announce){
+        ClipTranscriber reader=speechTrimReader;
+        if(reader==null||!speechTrimOwnsBusy||speechTrimCancelRequested)return;
+        speechTrimCancelRequested=true;int generation=++speechTrimGeneration;
+        if(transcriber==reader&&!destroying)transcriber=new ClipTranscriber(this);
+        if(announce&&status!=null)status.setText("Stopping speech-cut processing. Your current trim is kept.");
+        reader.closeWhenIdle(()->runOnUiThread(()->{
+            if(destroying||speechTrimReader!=reader||speechTrimGeneration!=generation||!speechTrimOwnsBusy)return;
+            speechTrimReader=null;speechTrimOwnsBusy=false;speechTrimCancelRequested=false;setBusy(false);
+            if(announce&&tab==2&&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))status.setText("Speech-cut processing canceled. Your current trim is kept.");
+        }));
     }
     private void reviewSpeechTrim(Take take,SpeechTrim candidate){
+        if(busy||destroying||tab!=2||pendingSpeechTrim!=candidate||pendingSpeechTrimTake!=take
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
         if(!takes.contains(take)||!candidate.matches(take)){pendingSpeechTrim=null;pendingSpeechTrimTake=null;render();status.setText("This cut changed. Request a new speech suggestion.");return;}
+        dismissSpeechTrimReview();int previousScrollY=pageScroll==null?0:pageScroll.getScrollY();
         String message="Current: "+SubtitleTime.format(take.inMs)+" → "+SubtitleTime.format(take.outMs)+" seconds\n"
                 +"Suggested: "+SubtitleTime.format(candidate.suggestedInMs)+" → "+SubtitleTime.format(candidate.suggestedOutMs)+" seconds\n\n"
                 +"This trims quieter beginning/end pauses and keeps a short margin around speech. It is approximate; preview the clip before applying.";
-        new AlertDialog.Builder(this).setTitle("A tighter talking cut").setMessage(message)
-                .setPositiveButton("Apply trim",(dialog,which)->{
-                    if(!takes.contains(take)||!candidate.applyTo(take)){toast("This cut changed. Request a new suggestion.");return;}
-                    pendingSpeechTrim=null;pendingSpeechTrimTake=null;save();render();status.setText("Speech trim applied. Preview your cut before exporting.");
-                })
-                .setNeutralButton("Preview suggested cut",(dialog,which)->previewVideo(take.uri,candidate.suggestedInMs,candidate.suggestedOutMs))
-                .setNegativeButton("Keep current cut",(dialog,which)->{pendingSpeechTrim=null;pendingSpeechTrimTake=null;render();status.setText("Your current cut is kept.");})
-                .show();
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("A tighter talking cut").setMessage(message)
+                .setPositiveButton("Apply trim",null).setNeutralButton("Preview suggested cut",null).setNegativeButton("Keep current cut",null).create();
+        speechTrimDialog=dialog;dialog.setOnDismissListener(d->{if(speechTrimDialog==dialog)speechTrimDialog=null;});
+        dialog.setOnShowListener(d->{
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
+                if(!ownsSpeechTrimReview(dialog,take,candidate,true)||!candidate.applyTo(take))return;
+                pendingSpeechTrim=null;pendingSpeechTrimTake=null;dismissSpeechTrimReview();save();render();restorePageScroll(pageScroll,previousScrollY,2);status.setText("Speech trim applied. Preview your cut before exporting.");
+            });
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->{
+                if(!ownsSpeechTrimReview(dialog,take,candidate,true))return;
+                dismissSpeechTrimReview();previewVideo(take.uri,candidate.suggestedInMs,candidate.suggestedOutMs);
+            });
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{
+                if(!ownsSpeechTrimReview(dialog,take,candidate,false))return;
+                pendingSpeechTrim=null;pendingSpeechTrimTake=null;dismissSpeechTrimReview();render();restorePageScroll(pageScroll,previousScrollY,2);status.setText("Your current cut is kept.");
+            });
+        });dialog.show();
     }
+    private boolean ownsSpeechTrimReview(AlertDialog dialog,Take take,SpeechTrim candidate,boolean requireMatchingCut){
+        return speechTrimDialog==dialog&&dialog.isShowing()&&dialog.getWindow()!=null
+                &&dialog.getWindow().getDecorView().isShown()&&dialog.getWindow().getDecorView().getWindowToken()!=null
+                &&!busy&&!destroying&&tab==2&&pendingSpeechTrim==candidate&&pendingSpeechTrimTake==take
+                &&(!requireMatchingCut||takes.contains(take)&&candidate.matches(take))
+                &&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED);
+    }
+    private void dismissSpeechTrimReview(){if(speechTrimDialog!=null){AlertDialog dialog=speechTrimDialog;speechTrimDialog=null;dialog.dismiss();}}
     private void reviewSubtitles(int index){
         if(busy||destroying||tab!=2||index<0||index>=takes.size()
                 ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
@@ -1221,9 +1272,7 @@ public class MainActivity extends ComponentActivity {
             int previousScrollY=pageScroll==null?0:pageScroll.getScrollY();
             render();
             if(pendingReview)status.setText(pendingSpeechTrim!=null?"Your speech trim suggestion is ready to review.":"Your previously prepared edit package is ready to save.");
-            else{
-                restorePageScroll(pageScroll,previousScrollY,2);
-            }
+            if(!pendingReview||pendingSpeechTrim!=null)restorePageScroll(pageScroll,previousScrollY,2);
         }
     }
 
@@ -1299,8 +1348,8 @@ public class MainActivity extends ComponentActivity {
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
-    @Override protected void onStop(){++pageRenderGeneration;++shootPoseGeneration;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();dismissNewReel();super.onStop();cancelStandaloneSubtitles(false);reviewAfterSave=false;cancelFinishContinue(true);cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");updateFinishContinueButton();save();}
-    @Override protected void onDestroy(){++pageRenderGeneration;++shootPoseGeneration;destroying=true;cancelStandaloneSubtitles(false);cancelFinishContinue(true);finishContinueButton=null;stopTakeButton=null;captureAction=null;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();dismissNewReel();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
+    @Override protected void onStop(){++pageRenderGeneration;++shootPoseGeneration;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();dismissNewReel();super.onStop();dismissSpeechTrimReview();cancelSpeechTrim(false);cancelStandaloneSubtitles(false);reviewAfterSave=false;cancelFinishContinue(true);cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");updateFinishContinueButton();save();}
+    @Override protected void onDestroy(){++pageRenderGeneration;++shootPoseGeneration;destroying=true;dismissSpeechTrimReview();cancelSpeechTrim(false);cancelStandaloneSubtitles(false);cancelFinishContinue(true);finishContinueButton=null;stopTakeButton=null;captureAction=null;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();dismissNewReel();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
     private void planExportError(IllegalArgumentException invalid){setBusy(false);String message=invalid.getMessage();if(message==null||message.isEmpty())message="Review your shot plan fields and lengths before exporting.";status.setText(message);toast(message);}
     private JSONArray serializeShots() throws JSONException{JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs).put("framingTarget",FramingTarget.normalize(s.framingTarget)));return ss;}
     private JSONArray serializeTakes() throws JSONException{JSONArray tt=new JSONArray();for(Take t:takes){JSONArray subs=new JSONArray();for(SubtitleCue cue:t.subtitles)subs.put(new JSONObject().put("start",cue.startMs).put("end",cue.endMs).put("text",cue.text));tt.put(new JSONObject() .put("subtitles",subs).put("reviewedShotIds",new JSONArray(t.reviewedShotIds==null?Collections.emptyList():t.reviewedShotIds)).put("captionOrigin",t.captionOrigin).put("uri",t.uri.toString()).put("id",t.shotId).put("title",t.title).put("caption",t.caption).put("duration",t.durationMs).put("in",t.inMs).put("out",t.outMs).put("selected",t.selected));}return tt;}
