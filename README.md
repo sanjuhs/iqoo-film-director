@@ -1,9 +1,10 @@
 # Mini Film Director — research preparation
 
-An Android film director for solo fashion creators: combine phone and drone
-perspectives with opt-in speech and local perception, coordinate approved shots,
-review coverage and propose an editable video. Guided import/review is the first
-useful delivery; learned direction, bounded control and assembly are later gates.
+An Android multicamera film director for solo creators: understand an opt-in
+spoken brief, suggest poses and framing, coordinate phone/drone and optional
+Action 4 shots, review coverage and propose an editable video. Daily fashion reels
+are the first workflow; walking/talking stories and product reveals use the same
+director. See the [expanded project objectives](docs/objectives.md). The [phone research app](prototype/phone-director/README.md) now runs local planning, pose inference, English transcription and MP4 assembly on the development phone. Attended capture, earbud playback and iQOO validation remain open checks.
 
 The user makes fashion reels daily and reports a Mini 4 Pro, **DJI Neo 2**,
 **RC-N3**, a screen-equipped remote and **Nothing Phone (3a)**. Firmware,
@@ -16,11 +17,15 @@ equipment, not the app target.
 Start with the [full phone-and-drone vision](docs/vision.md): equipment, sensor
 roles, Kev training, NPU gates and video assembly. DJI currently lists Neo/Neo 2
 as SDK-unsupported; explore Neo 2 through DJI Fly and use Mini 4 Pro for the
-custom SDK route. The vision links the official compatibility table.
+custom SDK route. A shoot-specific Neo 2 Accessibility bridge and Action 4 BLE
+adapter are research candidates, with [source checks and limitations](docs/multicamera-research.md).
+No app-to-app control or multicamera hardware result is established.
 
-## First milestone
+## Phone delivery and secondary drone milestone
 
-Prove a **propellers-off Mini 4 Pro connection** from an Android phone through a
+The phone app is installed and launched through ADB. Its three screens are Brief, Direct and Assemble. See [measured evidence](docs/status.md), the [demo runbook](docs/demo-runbook.md) and [submission draft](docs/submission-draft.md). Local CPU inference is verified; NPU acceleration is not.
+
+For the separate aircraft research path, prove a **propellers-off Mini 4 Pro connection** from an Android phone through a
 supported RC-N2/RC-N3 remote: SDK registration, aircraft identification,
 read-only telemetry and camera preview. No motor start, takeoff, autonomous flight,
 waypoint upload or camera recording belongs in this first test.
@@ -55,8 +60,7 @@ registered for the probe's actual package before hardware testing can pass.
 
 Private footage, captures, hardware identifiers, evidence, models, downloads and
 build caches stay outside Git. Shared Android/JDK installations remain available.
-There is no installed DJI app from this repository and no proven drone, model,
-iQOO NPU or Office Kit execution yet.
+The new phone app contains no provider keys and no Internet permission. There is no installed DJI app from this repository and no proven drone, iQOO NPU or Office Kit execution yet.
 
 ## First product demonstration
 

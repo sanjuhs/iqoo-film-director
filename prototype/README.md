@@ -1,8 +1,12 @@
 # Pre-event research prototypes
 
-No film-director implementation exists yet. Start with the read-only,
-propellers-off Mini 4 Pro connection protocol in `docs/mini4-connection-test.md`.
+The phone-first [Mini Film Director](phone-director/README.md) is a dated research
+prototype created on 4 October 2026. It is distinct from the archived FocusPilot
+app. Phone delivery covers posing, spoken direction and editable local assembly.
 
-All code added here is dated pre-event research. It cannot be represented as
-event-created competition code. Do not restore the archived FocusPilot app here
-as the new product.
+The independent read-only Mini 4 Pro connection test remains described in
+[the probe protocol](../docs/mini4-connection-test.md); no aircraft integration
+or command is established by the phone app.
+
+This preparation cannot be represented as event-created competition code. See
+[eligibility and deadline notes](../hackathon.md) and [verified status](../docs/status.md).

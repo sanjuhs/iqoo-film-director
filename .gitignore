@@ -47,3 +47,9 @@ __pycache__/
 *.dylib
 .DS_Store
 output/
+
+# Pinned local vendor checkout, fetched separately for native builds.
+prototype/phone-director/app/src/main/cpp/llama.cpp/
+prototype/phone-director/app/src/main/cpp/whisper/vendor/
+# Rendered document inspection intermediates.
+tmp/pdfs/

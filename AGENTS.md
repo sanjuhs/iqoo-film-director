@@ -2,14 +2,22 @@
 
 Read instructions.md, plan.md, hackathon.md and docs/status.md before changing scope.
 The user authorizes parallel agents; assign non-overlapping files.
-Focus on a mini film director for daily solo fashion reels, using phone capture
-and a DJI Mini 4 Pro where supported. First milestone is a propellers-off,
+Focus on a phone-first multicamera film director, with daily solo fashion reels
+as the first workflow and walking/talking stories, product reveals and introductions
+as later scenes. Read docs/objectives.md for voice-led direction, posing advice,
+optional Action 4 coordination, Neo 2 app-bridge research and editable assembly.
+Latest delivery instruction prioritizes phone-first posing, spoken earbud direction
+and local editable subtitle/reel assembly; ADB installation/launch is authorized.
+Drone work is secondary and does not block phone delivery. Use phone capture and
+a DJI Mini 4 Pro where supported. First drone milestone is a propellers-off,
 read-only SDK connection/telemetry/camera-preview test. Do not carry forward the
 archived focus coach, simulated accountability balance or assistant feature scope.
 Read docs/vision.md for the full phone/drone perspective, opt-in shoot-session
 speech, learned direction and editable video assembly scope. User confirms DJI
 Neo 2, RC-N3 and Nothing Phone (3a). Neo/Neo 2 are currently SDK-unsupported; use
-Mini 4 Pro for custom SDK work and keep DJI Fly experiments distinct. NPU
+Mini 4 Pro for custom SDK work and keep DJI Fly experiments distinct. Shoot-specific
+Accessibility research starts on mock UI with no aircraft connected; no working
+Neo 2 control is assumed. Action 4 access and Android integration are unverified. NPU
 inference, Android command dispatch and onboard flight control are separate.
 Model training, Android conversion and NPU execution each require evidence.
 

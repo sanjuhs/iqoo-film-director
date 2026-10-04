@@ -10,7 +10,11 @@ they do not verify the new product. Read `plan.md`, `hackathon.md`,
 
 The first user makes fashion reels daily. The full vision combines a phone
 camera/microphone and drone view, local learned direction, pilot-approved bounded
-capture/control and an aligned editable video. See `docs/vision.md`.
+capture/control and an aligned editable video. The expanded objectives add opt-in
+voice briefs, posing/framing cues, story-aware shot choices, optional Action 4
+coordination and a separately gated Neo 2/Fly app bridge. Daily fashion remains
+the first workflow; walking/talking stories, product reveals and introductions
+reuse that director. See `docs/objectives.md` and `docs/vision.md`.
 Build one useful first workflow: brief →
 editable shot list → user-guided phone/drone capture → imported-clip review →
 selected clips and edit notes for the laptop. First demo: one outfit, one location,
@@ -21,7 +25,12 @@ Phone (3a), then validate on iQOO. The user also reports an iPhone with DJI Fly;
 that does not change the Android target. See `docs/product.md` for the workflow
 and `docs/tiny-director-model.md` for the proposed task-specific model.
 
-The immediate milestone is a **propellers-off Mini 4 Pro connection probe**:
+The latest user delivery instruction prioritizes a phone-first **Pose → Perform →
+Assemble** prototype now: local planning/posing, earbud spoken direction, explicit
+phone capture and editable local subtitle/reel export. ADB installation/launch
+and parallel agents are authorized. Phone work does not wait for drone access.
+
+The independent drone milestone remains a **propellers-off Mini 4 Pro connection probe**:
 SDK registration, aircraft identification, read-only telemetry and camera preview.
 It excludes takeoff, motor commands, Virtual Stick, waypoint execution, gimbal
 movement, recording and firmware changes. See `docs/mini4-connection-test.md`.
@@ -31,6 +40,9 @@ Firmware, cable, pairing, screen-remote label and iQOO availability remain unkno
 DJI's current compatibility table lists Neo/Neo 2 as SDK-unsupported. Learn vendor
 filming on Neo 2 through DJI Fly; use Mini 4 Pro + RC-N3 for the custom probe.
 Do not assume a DJI Fly plug-in, shared connection or screen-remote app support.
+A shoot-specific Accessibility bridge is now a research candidate, distinct from
+the SDK probe and from a demonstrated Neo 2 transport. Optional Action 4 control
+needs exact camera/firmware/interface validation and Android evidence.
 
 ## Evidence and permissions
 
@@ -49,8 +61,12 @@ runs while visible, uses DJI's accessory connection integration and requests onl
 justified permissions through normal Android UI. No permission grants through
 debugging tools. Phone camera/microphone capture and opt-in spoken intent belong
 to a later, explicitly started shoot session, separate from the connection probe.
-No passive audio outside that session, general screen observation, Accessibility
-or usage-monitoring scope is inherited from the old product.
+No passive audio outside that session, general screen observation or
+usage-monitoring scope is inherited from the old product. New Accessibility scope
+is limited to an explicitly enabled shoot experiment with allowlisted mock/Fly
+surfaces. First test gestures against our own mock UI with no aircraft connected.
+It is not part of the read-only connection probe; hardware control remains behind
+the existing action-level approval and override gates.
 
 Do not claim on-device vision, useful AI shot planning, iQOO execution, NPU
 acceleration, Office Kit transfer or working aircraft control before reproducible

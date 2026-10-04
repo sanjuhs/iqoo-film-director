@@ -4,22 +4,26 @@ Research design, 4 October 2026 (IST). No component below is established as
 implemented by this document.
 
 Target Android for the complete app and local inference: Nothing Phone (3a) for
-development, iQOO for final evidence. The [full vision](vision.md) defines dual
-perspectives, opt-in speech, local direction and aligned editing. The
+development, iQOO for final evidence. The [expanded objectives](objectives.md)
+and [full vision](vision.md) define multicamera perspectives, opt-in voice briefs,
+posing advice, local direction and aligned editing. The
 [product specification](product.md) covers the first workflow and
 [model design](tiny-director-model.md) the initial framing head.
 
 ```mermaid
 flowchart TD
   A[Editable shot goal] --> D[Bounded local director]
-  B[Phone and drone frames] --> C[Local visual perception]
+  B[Verified phone and camera observations] --> C[Local visual perception]
   M[Opt-in microphone] --> S[Local speech cues]
   C --> D
   S --> D
   T[Timestamped orientation and SDK state] --> D
   D --> E[Creator and pilot review]
-  E --> F[Later validated DJI executor]
-  O[Original phone and drone recordings] --> V[Alignment and editable cut list]
+  E --> F[Later validated per-camera executors]
+  F --> G[Mini 4 Pro SDK route]
+  F --> H[Optional Action 4 BLE route]
+  F --> I[Experimental Neo 2 Fly bridge]
+  O[Original phone and external-camera recordings] --> V[Alignment and editable cut list]
   V --> X[Android media export]
 ```
 
@@ -63,13 +67,51 @@ drive command timing. See [runtime and conversion research](vision-research.md).
    Measure output correctness and resource cost. A preview render or script file
    is not proof of an exported, synchronized reel.
 
+## Multicamera director and adapters
+
+Natural-language interpretation updates editable shoot intent occasionally.
+Separate perception/speech components produce timestamped scene state; rules,
+the small head or a measured Kev port suggest the next bounded shot. No model
+owns low-level command timing. Keep per-observation source/confidence/freshness,
+per-camera tested capabilities and actual recording acknowledgements. Model
+confidence is not obstacle clearance or pilot approval.
+
+Use distinct adapters for CameraX phone capture, Mini 4 Pro MSDK, optional Action 4
+BLE and experimental Neo 2/Fly Accessibility. Do not route Neo 2 through MSDK or
+claim simultaneous Fly/SDK transport ownership. Prefer the official DJI R SDK
+BLE protocol/demo as the Action 4 research starting point; its example platform
+is not evidence of Android integration. BLE status/control does not imply a
+preview or media-transfer API. Camera access, protocol revision, authentication,
+firmware, license and supported operations must be pinned before implementation.
+
+A shoot-session coordinator manages lifecycle, selected cameras, cues and an
+editable cut list. Test phone capture/audio/inference while Fly is foreground,
+BLE occupancy and the chosen aircraft link. Use the official camera/microphone
+foreground-service rules if background continuation is necessary, with visible
+state, normal permissions and user start. Do not assume multiple camera Wi-Fi
+networks, hidden screen access or continuous rendering in a background app.
+
+The Fly experiment starts on an allowlisted mock UI with no aircraft connected.
+Only an explicitly enabled service may inspect/inject shoot-specific surfaces.
+Gesture profiles must match measured screen/layout/version state and suspend on
+focus/layout changes. Test cancellation, continuation and human-touch interference;
+Android gesture cancellation is not a verified aircraft stop. Any later screen
+capture/OCR needs explicit consent and timestamped uncertain observations. No
+arbitrary app monitoring, firmware/configuration writes or safety bypass enters
+this route. See [integration source checks](multicamera-research.md).
+
+A camera switch in the first assembly workflow selects aligned original media
+for an edit; it does not imply live mixing or physical camera movement. Shared
+session timestamps do not prove synchronized recordings.
+
 ## DJI interface selection
 
 User confirms Neo 2 and RC-N3. [DJI's compatibility table](https://repair.dji.com/help/content?customId=01700000763&documentType=&lang=en&paperDocType=ARTICLE&re=US&spaceId=17)
 lists Neo/Neo 2 as SDK-unsupported and Mini 4 Pro as Mobile SDK supported. The
 adapter initially targets Mini 4 Pro + RC-N3. Neo 2 DJI Fly experiments/imports
-remain distinct vendor-controlled media sources. No Fly plug-in or simultaneous
-shared-transport integration is established.
+remain distinct vendor-controlled media sources. A scoped Accessibility bridge
+is an optional experiment, not official SDK support. No Fly plug-in, successful
+Neo 2 control or simultaneous shared-transport integration is established.
 
 [DJI's current official repository](https://github.com/dji-sdk/Mobile-SDK-Android-V5)
 lists MSDK **5.18.0** and Mini 4 Pro. Start with same-version aircraft,

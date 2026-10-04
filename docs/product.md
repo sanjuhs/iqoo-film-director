@@ -6,11 +6,16 @@ complete demonstration on iQOO. The iPhone is optional reference equipment.
 
 ## The useful promise
 
-The [full vision](vision.md) includes phone/drone perspectives, opt-in speech,
-local learned direction, approved drone actions and aligned video assembly.
+The [expanded objectives](objectives.md) and [full vision](vision.md) include
+phone/drone/optional Action 4 perspectives, opt-in voice briefs, posing/framing
+advice, story-aware local direction, approved camera/aircraft actions and aligned
+video assembly. Daily fashion is the first scene; walking/talking stories,
+product reveals and introductions use the same shoot workflow.
 The workflow below is the first delivery/recovery path. The user confirms Neo 2
 and RC-N3. Neo 2 has no current SDK support; its DJI Fly footage can be imported,
-while Mini 4 Pro is the custom-control target.
+while Mini 4 Pro is the official SDK target. A Neo 2/Fly Accessibility bridge is
+separate research; Action 4 access and Android integration remain unverified.
+See [camera interface evidence](multicamera-research.md).
 
 Help a solo fashion creator leave a shoot with the footage needed for a reel.
 The director turns a brief into an editable plan, guides the next take, reviews
@@ -54,6 +59,29 @@ and a clearly identified bench preview.
    and original phone/drone media, then select the result/notes for the laptop.
    Automatic assembly is a later gate; actual
    Office Kit transfer is a separate integration gate.
+
+## Expanded shoot experience
+
+During an explicitly started session, a later local voice path can interpret:
+“Start on the phone, suggest a pose, get a side view when available, and let me
+finish speaking before interrupting.” Show the interpreted brief for correction.
+Quiet mode suppresses routine spoken cues during performance; session STOP ends
+our capture/advice and prevents new proposals. It does not assert that a drone
+has landed or released control. Camera recording and aircraft actions have their
+own visible status and approvals.
+
+A tested director can propose HOLD_POSE, TURN_TOWARD_LIGHT, SUGGEST_DETAIL,
+SUGGEST_SIDE, SUGGEST_WIDE or KEEP_SHOT with evidence and a short reason. Give
+metric movement instructions only with validated geometry. Camera capabilities
+are discovered/verified per device; available, previewing and recording are
+separate states. Do not advertise a nonexistent phone lens or treat sent record
+commands as acknowledgements.
+
+“Cut to the side camera” first means proposing a cut between aligned recordings.
+Live mixing/streaming is not required. Starting an Action 4 recording needs its
+own tested adapter; moving a drone for an angle needs its own pilot-approved
+executor. Manually captured/imported clips remain useful for both. The first
+complete test still uses one outfit, five shots and a 20-second reel.
 
 ## Guided clip import
 

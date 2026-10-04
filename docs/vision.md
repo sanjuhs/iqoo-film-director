@@ -1,4 +1,4 @@
-# Mini Film Director — phone and drone working as one filming unit
+# Mini Film Director — phone, drone and optional Action 4 as one filming unit
 
 User-approved vision, 4 October 2026 (IST). This is pre-event research and a
 delivery proposal. No app, trained model, NPU execution, drone connection or
@@ -7,7 +7,12 @@ automatic edit has been demonstrated for this product.
 ## The experience
 
 The creator starts a shoot on Android and keeps talking or performing. The phone
-captures one perspective and speech; a drone supplies another perspective. Local
+captures one perspective and speech; a drone and optional Action 4 supply other
+perspectives. The [expanded objectives](objectives.md) incorporate the supplied
+ChatGPT research: voice-led briefs, posing/framing advice, story-aware multicamera
+coordination and a separately gated Neo 2/Fly app bridge. Daily fashion remains
+the first workflow; walking/talking stories, product reveals and introductions
+use the same director. Local
 perception and a learned director interpret spoken intent, framing and coverage,
 propose useful viewpoints and coordinate approved shots. The app then aligns
 the takes and proposes an editable video with continuous speech and deliberate
@@ -30,6 +35,7 @@ the full vision adds local direction, bounded control and automatic assembly.
 | Nothing Phone (3a) | Confirmed Android development phone | Actual OS/RAM, permissions and concurrent performance |
 | iPhone with DJI Fly | Reported optional reference equipment | No iOS app planned |
 | iQOO demo phone | Required final hardware | Exact model/SoC and access unknown |
+| DJI Osmo Action 4 | Proposed optional side/static camera from supplied research | Ownership/access, firmware, BLE authentication, Android record/status and media workflow unverified |
 
 [Nothing's specifications](https://in.nothing.tech/products/phone-3a) identify
 Snapdragon 7s Gen 3. The eventual iQOO needs separate compilation and measurements.
@@ -48,11 +54,25 @@ Use Neo 2 to explore vendor filming features and obtain selected footage.
 and phone audio through DJI Fly; its RC route requires the Digital Transceiver.
 Those are DJI features, not access granted to our model. Use Mini 4 Pro + RC-N3
 for the independent custom SDK probe. No new drone purchase is needed for that
-route. Neo 2 custom control is blocked pending a supported interface.
+route. Neo 2 has no official SDK path; custom control through a shoot-specific
+Accessibility bridge is an unverified research candidate. Public configuration
+or media transports do not establish real-time piloting.
 
 DJI Fly and our SDK app are distinct operating modes. Our app owns its SDK
 connection; no documented plug-in/control bridge into Fly has been established.
-Do not depend on both apps sharing transport or silently automate Fly's UI.
+Do not depend on both apps sharing transport. The newly proposed Fly bridge is
+explicitly enabled, restricted to shoot-specific surfaces and separate from MSDK.
+Start with gestures on our own mock controls with no aircraft connected. Test
+exact phone/Fly versions, orientation, overlays, gesture continuation/cancellation,
+focus loss and interference with human input before considering hardware actions.
+App gestures are not evidence of aircraft response or a working manual override.
+
+For Action 4, investigate the official DJI R SDK BLE protocol/demo first, then
+review third-party Android implementations for the exact required operation.
+Record/status, preview, media retrieval and synchronization are separate gates.
+BLE occupancy/authentication and phone camera/mic operation with Fly foreground
+require tests. Do not assume simultaneous dual-camera Wi-Fi or multiple BLE
+controllers. See [source-backed integration research](multicamera-research.md).
 
 ## What the inputs contribute
 
@@ -60,6 +80,7 @@ Do not depend on both apps sharing transport or silently automate Fly's UI.
 | --- | --- | --- |
 | Phone camera | Close view, person/garment framing | Place it where it sees the creator; use one phone camera initially |
 | Drone preview | Wide view and subject framing | Preview differs from original recorded media; hidden sensing cameras are not assumed accessible |
+| Optional Action 4 | Side/static recorded view | BLE control does not prove preview or original-clip transfer; import remains available |
 | Phone microphone | Intent, speech timing and master audio | Noise/recognition need testing; sound is not a second visual angle |
 | Phone inertial sensors | Phone tilt/orientation/motion diagnostics | They do not locate the drone relative to the person |
 | SDK telemetry | Available aircraft state and freshness | Validate availability and coordinate interpretation |
@@ -97,12 +118,19 @@ not need to pass through an NPU. [Runtime research](vision-research.md) describe
 Qualcomm options and required backend evidence.
 
 Perception produces bounded scene state: framing, intended shot, speech cue,
-coverage, confidence and input age. Compare rules with the
+coverage, confidence and input age. Add camera capability/recording evidence,
+current shot duration, creator preference and opt-in speech context. Unknown
+distance or obstacle clearance stays unknown; no synthetic obstacle flag becomes
+a physical safety fact. The director selects useful shot suggestions rather than
+raw stick values. Compare rules with the
 [tiny numerical framing head](tiny-director-model.md). Separately, fine-tune a
 compatible released [Kev checkpoint](https://github.com/jaredpalmer/kev) on
 creator-labelled textual scene states and shot choices. Train on the laptop;
 compare with the untouched checkpoint and rules on separate whole shoots.
 Kev's text decisions and numerical framing suggestions are distinct experiments.
+Calibrate shot-choice confidence on held-out shoots; a probability threshold is
+not flight clearance. Low confidence asks for review or suspends new proposals,
+rather than assuming a model-selected hover or land command is safe.
 
 Verify faithful Android probability outputs, including after quantization, before
 attempting NPU compilation. Actual operators, backend logs and sustained device
@@ -129,11 +157,15 @@ must enumerate and approve each action and its limits before execution.
 | 6 | Android deployment and NPU | Output parity, latency/RAM/thermals, actual backend/fallback logs; repeat on iQOO |
 | 7 | Bounded SDK capture/control | Action-level pilot approval, validated limits, takeover/watchdog/failure behavior; one operation at a time |
 | 8 | First editable reel | Continuous phone speech, aligned original camera clips, correct cut/crop and Android export playback |
-| 9 | Complete demo | Repeatable dual-view performance, learned review and final video on required iQOO; actual Office Kit transfer and permitted venue demo |
+| 9 | Complete demo | Repeatable phone-first performance, learned review and final video on required iQOO; optional Action 4/Neo 2 routes only if separately verified; actual Office Kit transfer and permitted venue demo |
 
 Steps 1 and 2 are independent. Training is not needed to prove SDK connection.
 NPU work starts with compatible small perception graphs and a CPU reference.
-If Neo 2 support remains unavailable, it stays a vendor-controlled media source.
+Optional parallel research after the probe includes a mock Accessibility test and
+Action 4 BLE status/capture feasibility. Their results do not pass SDK, NPU or
+flight gates. If the Neo 2 bridge is unverified or unreliable, Neo 2 remains a
+vendor-controlled media source. No route requires a laptop at shoot time once
+its Android execution is established; laptop training remains allowed.
 If a control/backend gate fails, preserve useful review/editing and disclose the
 gap. Imported footage cannot establish live AI drone control. No flight action
 is part of the first connection probe.

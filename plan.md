@@ -2,15 +2,37 @@
 
 Updated 4 October 2026 (IST). This is pre-event research, not an eligible build.
 
-**Promise:** a phone and drone work together as a film director while the creator
-talks or performs. Phone camera/microphone, drone view and local models coordinate
-approved shots and propose an aligned editable reel. Read the
+**Promise:** an Android phone acts as a multicamera film director while the
+creator talks or performs: interpret a spoken brief, suggest poses/framing,
+coordinate approved phone/drone and optional Action 4 shots, then propose an
+aligned editable reel. Daily fashion is the first scene; walking/talking stories,
+product reveals and introductions use the same workflow. See the
+[expanded objectives](docs/objectives.md) and [interface research](docs/multicamera-research.md). Read the
 [full vision and equipment decisions](docs/vision.md). Guided coverage review is
 the first useful delivery toward that vision.
 
 Android is required for the app and local inference. Use the user's Nothing
 Phone (3a) for development and iQOO for final validation. The
 [product specification](docs/product.md) consolidates the creator workflow.
+
+## Immediate delivery revision — 4 October 2026
+
+The latest user instruction makes the phone director the primary delivery and
+drone integration secondary. Build and test a dated research prototype now:
+**Pose → Perform → Assemble**, with editable local model plans, optional local
+reference observations, short earbud-friendly direction, explicit CameraX takes,
+offline English subtitle drafts and reviewed local Media3 export. The user has
+authorized ADB installation/launch and parallel agents while away. Normal
+Android permission UI still applies; unattended verification uses generated
+fixtures rather than recording private surroundings.
+
+Phone work no longer waits for the drone probe. The independent Mini 4 Pro
+probe retains its propellers-off, read-only bounds. Optional drone clips can be
+imported; no DJI connection/control is implied. Nothing Phone development, actual
+iQOO execution, Qualcomm NPU, AirPods routing, Office Kit and accepted submission
+remain separately evidenced gates. Today's implementation remains pre-event
+research; event-created competition source and any organizer reuse approval
+must be handled separately. See [current build evidence](docs/status.md).
 
 ## Milestones
 
@@ -30,7 +52,10 @@ from its saved path; current complete recovery remains unresolved in
 
 The user confirms Neo 2 and RC-N3. DJI currently lists Neo/Neo 2 as SDK-unsupported;
 Neo 2 DJI Fly experiments/imports are a vendor-controlled path. Mini 4 Pro + RC-N3
-remains the custom-control integration target.
+remains the official SDK integration target. A Neo 2/Fly Accessibility bridge is
+a separate experimental route; its first test uses mock controls with no aircraft
+connected. Action 4 is optional equipment with ownership/access unconfirmed.
+The research conversation does not establish working control on either device.
 
 ## Full-vision technical gates
 
@@ -51,6 +76,28 @@ First technical work is milestone 1, described in
 [`docs/mini4-connection-test.md`](docs/mini4-connection-test.md). No SDK or model
 installation is established by this plan. Keep the probe independent of any AI
 runtime so model failures cannot hide connection failures.
+
+## Expanded director milestones
+
+These follow the independent read-only probe and useful fashion plan/review path;
+they do not enlarge milestone 1 or require every camera for the first demo.
+
+| Order | Addition | Acceptance gate |
+| --- | --- | --- |
+| A | Voice brief and posing/framing advice | Explicit session start/stop, offline speech evidence or typed fallback, creator edits, measured useful cues and quiet mode |
+| B | Shoot-specific app bridge bench prototype | Allowlisted mock UI, user-enabled Accessibility, continued/multitouch gestures, cancellation and layout/focus failures measured; no aircraft connected |
+| C | Optional Action 4 adapter | Confirm access/model/firmware; pin protocol/implementation/license; separately test status, approved record/stop and resulting original clip; preview/import are independent |
+| D | Multicamera feasibility | Phone capture/audio plus BLE and chosen drone route measured together; no assumed dual-Wi-Fi or shared Fly/SDK connection; sequential/manual fallback |
+| E | Learned next-shot decisions | Perception/speech → structured state → bounded shot choices; held-out quality/calibration, Android parity and actual backend evidence |
+| F | Approved capture/control | Each aircraft action confirmed with bounds and tested takeover/failure behavior; Neo 2 bridge feasibility separate from supported Mini 4 Pro SDK evidence |
+| G | Editable multicamera reel | Original recordings aligned to phone audio, reviewed cuts/offsets/drift, real Android export/playback and separate Office Kit transfer |
+
+The same-phone target needs concurrency/lifecycle testing while DJI Fly is in the
+foreground. The laptop may train models but should not be required at shoot time.
+Unknown observations remain unknown; model confidence is not aircraft safety
+clearance. DJI Fly joystick/UI success would not establish reliable autonomous
+following, a safe orbit or all other integration gates. Reverse-engineered Neo 2
+protocol work is long-term research, outside the first delivery.
 
 ## First complete story
 

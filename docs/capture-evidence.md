@@ -1,0 +1,61 @@
+# Phone capture implementation — 4 October 2026
+
+Pre-event research prototype; event-code eligibility is not established.
+
+`prototype/phone-director/app/src/main/java/dev/minifilm/director/CaptureController.java`
+implements explicit foreground phone preview, front/rear switching, CameraX
+video recording with microphone, asynchronous finalization, and an optional
+ImageAnalysis analyzer. It contains no drone APIs, uploads, provider credentials,
+remote inference or permission bypass. Camera permission is checked before
+preview; camera plus microphone grants and a resumed activity are required
+before recording. The activity owns normal Android permission prompts.
+
+The public integration contract is:
+
+- Construct with `ComponentActivity`, `PreviewView`, and `Listener`.
+- Register `setAnalyzer(ImageAnalysis.Analyzer)` before preview. The analyzer
+  must close every ImageProxy, including asynchronous failure paths.
+- Call `startPreview()` only from an explicit creator action.
+- `onReady()` means camera use cases bound; check `isAnalysisAvailable()` before
+  displaying live pose guidance. Hardware that rejects simultaneous video,
+  preview and analysis uses real preview/recording without analysis.
+- `startRecording()` and `stopRecording()` are explicit UI actions. CameraX
+  `onRecordingStarted()` confirms actual start; `isRecording()` remains true
+  while a take is finalizing. A switch cannot interrupt an active take.
+- `onRecordingFinished(Uri,long)` returns a private local file URI and recorded
+  duration in milliseconds. Share through the activity's FileProvider, never a
+  raw file URI across apps. Preserve original takes when editing.
+- Call `stopPreview()` in `onStop()` before ending speech/pose session state.
+  Call `close()` once in `onDestroy()`. Returning does not resume capture.
+- Invoke public mutations on the Android UI thread.
+
+Recorder preference is HD (720p) with CameraX lower-then-higher fallback. Each
+take is capped at 60 seconds/100 MiB and recording requires at least 256 MiB
+available phone storage. Files live in the app-private `files/takes` directory.
+Known size/duration/source-inactive finalization results can retain valid media;
+invalid recordings are discarded. Background interruption still needs a real
+playback test. A take finalized after activity destruction remains private on
+disk but the closed controller suppresses UI callbacks; persistence/recovery is
+an activity responsibility.
+
+## Official references checked
+
+- [CameraX video capture](https://developer.android.com/media/camera/camerax/video-capture):
+  Recorder, HD quality/fallback, file output, start/stop and finalize events.
+- [CameraX analysis](https://developer.android.com/media/camera/camerax/analyze):
+  latest-frame backpressure, binding and ImageProxy lifecycle.
+- [Runtime permission requests](https://developer.android.com/training/permissions/requesting):
+  normal camera/microphone permission UI and handling denial.
+- [Finalize API](https://developer.android.com/reference/androidx/camera/video/VideoRecordEvent.Finalize):
+  distinguish terminal errors from saved output at limits or lifecycle stop.
+
+## Checks and limits
+
+Source-level lifecycle and permission review completed. Parent integration owns
+Gradle/build and device tests. Required dependencies are matching CameraX 1.4.2
+`camera-camera2`, `camera-lifecycle`, `camera-video` and `camera-view`, plus
+AndroidX Activity/Core. No separate model download, SDK installation or media
+copy was performed by this capture work. Actual camera preview, recording,
+audio route, analysis concurrency, saved playback and iQOO execution are not
+yet evidenced by this file. Bluetooth AirPods recording route is not asserted;
+CameraX uses the Android recording audio source, requiring actual route testing.

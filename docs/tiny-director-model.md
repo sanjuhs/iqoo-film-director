@@ -26,7 +26,12 @@ The complete director also needs an editable shot plan, coverage state, clip
 import and creator decisions; six classes cannot infer a whole fashion story.
 The [full vision](vision.md) adds phone/drone perspectives, opt-in speech,
 separate Kev shot-choice research, approved control and aligned editing. This
-small head remains a narrow framing baseline within that system.
+small head remains a narrow framing baseline within that system. The
+[expanded objectives](objectives.md) also add optional Action 4 coordination,
+posing cues and speech-aware multicamera shot selection. The six-class head
+does not cover that broader state; evaluate a separate shot-choice model with
+perception/speech and measured camera capabilities. Do not train raw flight
+commands from synthetic framing rules or interpret confidence as flight clearance.
 
 ## Smallest proposed learned head
 
