@@ -1,2 +1,4 @@
 # Keep generated Windows launcher usable with CRLF while storing normalized text.
 *.bat text eol=crlf
+# Preserve the original Qwen license bytes, whose official file uses CRLF.
+prototype/phone-director/app/src/main/assets/THIRD_PARTY_NOTICES.txt -text whitespace=cr-at-eol

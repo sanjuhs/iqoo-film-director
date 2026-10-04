@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -58,6 +59,8 @@ public final class LocalPlanner {
     private final AtomicBoolean busy = new AtomicBoolean(false);
     private volatile long handle;
     private volatile boolean closed;
+    // Owned by the worker; retained while handle exists, even between planning requests.
+    private LocalModelLease.Token modelLease;
 
     public LocalPlanner(Context context) { modelFile = new File(context.getFilesDir(), "director-model.gguf"); }
     public boolean isModelAvailable() { return runtimeLoaded && modelFile.isFile() && modelFile.length() > 10000000; }
@@ -71,10 +74,19 @@ public final class LocalPlanner {
         String[][] roleActions = actionsForRoles(roles);
         // Only our role/verb constants enter the grammar, never the creator's brief.
         String grammar = grammarForRoles(roles, roleActions);
-        worker.execute(() -> {
+        try { worker.execute(() -> {
             long began = SystemClock.elapsedRealtime();
             try {
-                if (handle == 0) handle = nativeLoad(modelFile.getAbsolutePath());
+                if (closed) return;
+                if (handle == 0) {
+                    modelLease = LocalModelLease.acquire("planner", () -> closed, 5000);
+                    if (closed) return;
+                    long loaded = nativeLoad(modelFile.getAbsolutePath());
+                    synchronized (this) {
+                        handle = loaded;
+                        if (closed && handle != 0) nativeCancel(handle);
+                    }
+                }
                 if (closed) return;
                 String prompt = "<|im_start|>system\nDirect a creator making five recorded phone takes. Never give preparation or lighting setup as a take. " +
                         "The phone is already mounted and stationary. Address the creator as the performer with one imperative action, never describe a third person. " +
@@ -87,6 +99,7 @@ public final class LocalPlanner {
                         "Allowed opening verbs per title: " + actionHints(roles, roleActions) + ". " +
                         "No markdown, no explanation.\n<|im_end|>\n<|im_start|>user\nScene: " + safeStyle + "\nBrief: " + safeBrief +
                         "\n<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
+                if (closed) return;
                 String result = new String(nativeGenerate(handle, prompt.getBytes(StandardCharsets.UTF_8),
                         grammar.getBytes(StandardCharsets.UTF_8), 580), StandardCharsets.UTF_8);
                 List<Shot> plan = parse(result, roles, roleActions);
@@ -96,8 +109,14 @@ public final class LocalPlanner {
             } catch (Exception | LinkageError failure) {
                 Log.w("MiniFilmLocalAI", "planner_failed type=" + failure.getClass().getSimpleName());
                 main.post(() -> { if (!closed) listener.onError("Local AI couldn't produce a valid plan. Use the editable template or try a shorter brief."); });
-            } finally { busy.set(false); }
-        });
+            } finally {
+                if (closed || handle == 0) freeNativeAndRelease();
+                busy.set(false);
+            }
+        }); } catch (RejectedExecutionException failure) {
+            busy.set(false);
+            if (!closed) listener.onError("The local planner is closed.");
+        }
     }
 
     private static List<Shot> parse(String text, String[] roles, String[][] roleActions) throws Exception {
@@ -238,8 +257,12 @@ public final class LocalPlanner {
         // Native handle is only freed on the same worker after generation finishes.
         long current = handle;
         if (current != 0) nativeCancel(current);
-        worker.execute(() -> { if (handle != 0) { nativeFree(handle); handle = 0; } });
+        worker.execute(this::freeNativeAndRelease);
         worker.shutdown();
+    }
+    private synchronized void freeNativeAndRelease() {
+        if (handle != 0) { nativeFree(handle); handle = 0; }
+        if (modelLease != null) { modelLease.close(); modelLease = null; }
     }
     private static native long nativeLoad(String path);
     private static native byte[] nativeGenerate(long handle, byte[] prompt, byte[] grammar, int maxTokens);

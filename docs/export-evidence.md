@@ -239,3 +239,23 @@ and removed after verifying its exact known synthetic source; its MP4/JSON stay
 intact. Future media checks use callback-scoped fixture-marker cleanup.
 Normal Files ZIP saving, Office Kit receipt, attended capture/AirPods, actual
 iQOO and organizer-compliant event code/submission remain unverified.
+
+### 13:36 IST: reviewed speech-edge application through actual export
+
+SpeechTrim combines one decoded PCM/English ASR pass with deterministic RMS
+boundaries and explicit creator review. ASR-missed sustained energy at either
+edge is retained; silence/noise/clipping/insufficient support abstain. It makes
+only outer-edge suggestions with padding, not semantic performance selection.
+Stale source/range/duration snapshots and repeat application are rejected;
+Apply touches only take in/out, preserving reviewed caption source times/text.
+
+The final18-case trim/export/preview/decoder/duration runner passed in18.560 s.
+The actual padded synthetic source8759 ms yielded range1220–7480 ms; the encoded
+720×1280 output is6263 ms. Two reviewed captions spanning the chosen edges were
+mapped/clipped to the output timeline, burned in first/last decoded samples and
+absent in the middle. The output's local re-transcription retained jacket,
+green and outfit. Source SHA, reviewed list/object identity/text/time/origin and
+saved shoot preferences stayed unchanged. Only the exact test-owned recovery
+marker was removed after verified callback provenance; files remained retained.
+This is one known synthetic speech fixture, not real/noisy multilingual trim
+accuracy or the attended UI experience. No sound was played or recorded.

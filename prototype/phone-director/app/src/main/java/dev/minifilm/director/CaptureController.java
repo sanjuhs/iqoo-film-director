@@ -2,6 +2,7 @@ package dev.minifilm.director;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Looper;
 import android.util.Rational;
@@ -33,7 +34,6 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Foreground-only phone capture for the dated research prototype.
@@ -244,12 +244,14 @@ public final class CaptureController implements AutoCloseable {
             recording = null;
             stopRequested = false;
             VideoRecordEvent.Finalize result = (VideoRecordEvent.Finalize) event;
-            long durationMs = TimeUnit.NANOSECONDS.toMillis(
-                    result.getRecordingStats().getRecordedDurationNanos());
             boolean usableResult = !result.hasError()
                     || result.getError() == VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
                     || result.getError() == VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED
                     || result.getError() == VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
+            // Synchronous on Finalize's UI callback: validate before the listener can
+            // advance/rebind. Container duration is authoritative for editor/ASR bounds;
+            // CameraX RecordingStats can differ at codec/container edges.
+            long durationMs = usableResult ? finalizedVideoDuration(file) : 0;
             if (usableResult && durationMs > 0 && file.length() > 0) {
                 if (!closed) listener.onRecordingFinished(Uri.fromFile(file), durationMs);
             } else {
@@ -258,6 +260,27 @@ public final class CaptureController implements AutoCloseable {
                 if (!closed) listener.onError("This take could not be saved (camera error "
                         + result.getError() + "). Please try again.");
             }
+        }
+    }
+
+    /** Read a finalized local video, never substitute recording statistics on failure.
+     * Returns zero for an empty, unreadable, non-video or malformed new recording.
+     */
+    static long finalizedVideoDuration(File file) {
+        if (file == null || !file.isFile() || file.length() <= 0) return 0;
+        MediaMetadataRetriever metadata = new MediaMetadataRetriever();
+        try {
+            metadata.setDataSource(file.getAbsolutePath());
+            if (!"yes".equalsIgnoreCase(metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)))
+                return 0;
+            int width = Integer.parseInt(metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            int height = Integer.parseInt(metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            long duration = Long.parseLong(metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            return width > 0 && height > 0 && duration > 0 ? duration : 0;
+        } catch (RuntimeException unreadable) {
+            return 0;
+        } finally {
+            try { metadata.release(); } catch (Exception ignored) { }
         }
     }
 

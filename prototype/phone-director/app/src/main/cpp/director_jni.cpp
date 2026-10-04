@@ -72,7 +72,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL
 Java_dev_minifilm_director_LocalPlanner_nativeGenerate(JNIEnv * env, jclass, jlong handle, jbyteArray input, jbyteArray grammar_input, jint max_tokens) {
     auto * state = reinterpret_cast<DirectorModel *>(handle);
     if (!state || !state->context) { fail(env, "Local model is unavailable."); return nullptr; }
-    state->cancelled.store(false);
+    // Cancellation ends this handle's lifetime; close never reuses it. Keep a
+    // cancel arriving just before JNI entry rather than clearing it here.
     state->deadline = std::chrono::steady_clock::now() + std::chrono::seconds(100);
     std::string prompt(env->GetArrayLength(input), '\0');
     env->GetByteArrayRegion(input, 0, prompt.size(), reinterpret_cast<jbyte *>(prompt.data()));

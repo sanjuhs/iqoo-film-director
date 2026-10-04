@@ -525,3 +525,174 @@ capture. Standalone ignored APK SHA-256:
 The current accounted estimate is about 6.42 GB, including target phone files/cache
 and historical archive/cache reserves; this remains a qualified estimate, not
 a complete machine inventory. No further model/SDK/JDK download occurred.
+
+### Speech-edge review, held-out briefs and actual cut preview — 4 October, 13:36 IST
+
+Two new held-out native CPU planner briefs passed (Dev/comics/badminton introduction
+40.002 s; unspecified kurta fashion 32.378 s), with actual supplied facts and no
+observed earlier-example leakage or invented garment color/material/fastener.
+These are two additional fixtures, not broad creative accuracy evidence. The
+first combined held-out/trim/source-bounded ASR runner passed nine tests in 84.636 s.
+
+ClipTranscriber now performs one local PCM decode and English ASR pass for a
+review-only outer-edge SpeechTrim candidate. Sustained energy, ASR agreement,
+noise/clipping abstention, 300 ms padding and a minimum useful removed edge
+bound the heuristic. Review found that ASR-missed energetic prefix/tail could be
+trimmed; the final rule preserves ALL sustained above-threshold energy runs,
+not only ASR-supported runs. It never cuts internal pauses or selects the best
+performance. The rule score is uncalibrated. Stale URI/range/duration candidates,
+repeat application and cancellation are rejected. Apply changes only in/out;
+reviewed caption text/timing and originals remain untouched.
+
+The updated runner passed **18 tests in 18.560 s**: nine trim/cancellation/rule
+cases, one actual analysis→confirmed application→MP4 export, three paused clipped
+preview checks, three local reference-frame decoder checks and two finalized
+container-duration checks. The known synthetic source is 8759 ms; final suggested
+range **1220–7480 ms** exported as **6263 ms / 720×1280**. Reviewed first/last cues
+were clipped/mapped correctly and present in decoded pixels, absent in the
+middle. Re-transcription retained jacket/green/outfit; source SHA and saved shoot
+preferences stayed unchanged. Only the test's exact verified journal marker was
+removed; original, MP4 and JSON retained. No playback, camera, microphone or UI
+Activity was used. Evidence: ignored `trim-preview-export-test.log` and
+`vision-trim-preview-metrics.log`.
+
+Take finalization reads actual video container duration and rejects missing,
+empty, malformed or audio-only files instead of using CameraX statistics as a
+source bound. This passed synthetic-file checks, not an attended camera result.
+Main exposes candidate review and a paused suggested-range preview before Apply;
+normal take preview now respects the current trim. Dialogs wait for foreground
+review where implemented. The latest visible UI and real capture/AirPods remain
+unverified behind the secure phone lock; no lock bypass or permission grant ran.
+
+### Exact-source visual component preparation — 4 October, 13:36 IST
+
+The existing 563,036,064-byte language GGUF matches the official runtime
+maintainer's artifact at revision `8fea620810c4afa23dd6443f999a48574c1611a3`
+by SHA-256, resolving the earlier unverified-publisher statement. Its declared
+PRIMARY source is official Qwen revision `2fc06364715b967f1860aea9cf38778875588b17`.
+See [reference feasibility](local-reference-feasibility.md) for primary sources.
+
+Pinned conversion dependencies were installed in an ignored isolated Python3.12
+venv (about578 MB allocated), preserving the bundled runtime and existing SDK/JDK.
+Global Hugging Face CLI metadata requests stalled in TCP address selection;
+a child-only IPv4 probe/dry-run succeeded. Official bounded curl retrieved only
+the exact source shard/config/index/processor/license/card; the large transfer
+hit its180s cap and resumed once, without a duplicate source cache. The final
+1,746,942,600-byte official shard matched SHA-256
+04b1c301231dd422b8860db31311ab2721511346a32cb1e079c4c4e5f1fe4696.
+
+`tools/convert_reference_projector.py` verifies source size/hash, architecture,
+153 visual source tensors, runtime pin and ignored output paths, then runs
+`--mmproj --outtype f16` only. Result **204,987,136 bytes /154 GGUF tensors**, SHA-256
+91388cbe4ccde93acd902d7ce32776d14c32bd71a462d4affc1d2e226d81cada,
+with no language tensors, core conversion or training. The existing language
+weights were retained. The phone's separate projector copy matched the same SHA;
+no weights entered APK or Git. A separate bounded CPU mtmd JNI image path builds
+successfully with the unchanged runtime pin. It does not establish image
+interpretation quality until actual inference tests finish.
+
+### Visual execution and stricter framing failure —4October13:50IST
+
+Actual RGB/mtmd CPU image execution passed first two tests in42.766s: public
+person recognized at30.004s, black frame described as black/empty/no identifiable
+subject at11.509s, immediate cancellation delivered no success. A concise-phrase
+revision passed in24.206s with subject latencies11.140/12.189s. The public image
+clearly depicts a full body, but the model initially called its framing close-up.
+These subject checks therefore do not prove framing quality.
+
+A strict enum refinement correctly called the full frame full-body(12.482s),
+but called its held-out head/shoulders crop full-body too(12.912s). The7-case
+runner failed1case in97.484s. Its actual assertion failed first because the
+valid subject word'child' was absent from the test's person synonyms; that test
+false-negative is repaired, while the separately logged wrong framing remains
+an actual model defect. No creative/framing accuracy success is claimed for it.
+The implementation now removes generative framing and is integrating a separate
+visible-pose-landmark heuristic with strict full/crop/empty real-inference checks.
+
+The other6cases passed: three shared-model lifetime/cancellation regressions,
+vision cancellation and two fresh planner briefs. A fair shared permit spans
+entire native core/context lifetimes, including idle text handles. Vision waits
+for canceled planner resources to be freed; no released request steals another
+owner's permit. Native cancel immediately before generation stays terminal
+instead of being reset at JNI entry. The actual loaded-text→close→vision check
+observed text handle0 throughout vision ownership and no stale text callback.
+Main gates planning during a still-releasing frame job. Selecting a different
+reference clears previous clip notes even if inspection fails; excessive combined
+brief/notes are shortened by the creator rather than silently losing notes.
+
+One prior read-only~1s memory sample run collected25usable/3missing samples over
+28.184s: max sampled PSS1,547,793KiB, RSS1,652,760KiB, nativeheapPSS954,096KiB.
+These are sampled maxima, not certified peaks; no camera concurrency benchmark.
+The accounted conversion peak estimate was9.344GB, below10GBaim/15GBlimit,
+including both projector copies, isolated converter dependencies and historical
+archive/cache reserves. After re-verifying both SHA values, only the newly
+fetched1,746,942,600-byte conversion source shard was removed. Runtime weights,
+small pinned configs/license/card, provenance record, converter environment and
+historical archive reserve are preserved. No new SDK/JDK, training or upload.
+
+The first separate-pose framing runner ran9tests in33.857s with2failures:
+full-body and black framing passed, but the held-out portrait crop returned
+'review needed' rather than the test's required head-and-shoulders label. This
+is conservative abstention, not a wrong positive class. The stricter positive
+head-classification requirement is NOT established. Acceptance is being made
+explicit: cropped portraits may produce evidenced head-and-shoulders or a
+zero-confidence review-needed result, and must never claim full-body/waist-up.
+The landmark threshold is not lowered and no missing joints are invented.
+Both earlier failed reports remain retained. Subject inference, immediate
+cancellation and all three model-lifetime checks passed in that runner.
+
+
+### Saved local reference/edit checkpoint — 4 October, 14:02 IST
+
+The final framing/reference/model-lifetime runner passed **9 tests in 46.25 s**.
+It ran actual CPU multimodal inference on the attributed public full-body image,
+a held-out top-32% crop and synthetic black pixels, without camera/microphone.
+The full frame returned person/full-body in 10.495 s. The crop returned child/
+review-needed in 9.308 s; age is not validated, and its landmark evidence was
+upper 2/3, hips 0/2, lower 0/4. The heuristic abstained rather than extrapolating
+missing joints. Black returned unknown/empty-or-unclear/unknown in 11.869 s.
+
+The preceding 45.669-second runner failed its black-subject assertion despite
+that safe unknown result. Acceptance was explicitly expanded to permit **only**
+that exact three-field uncertain outcome, separately logged as abstention;
+explicit absence recognition is not claimed. The earlier wrong generative
+framing and the initial positive-portrait failures remain recorded above.
+No thresholds were lowered to force a framing label. Model uncertainty text
+may be vague. All observations require creator correction before planning.
+
+All three shared-model lifetime methods and immediate vision cancellation passed.
+This is separate from the **18-test / 18.560-second** speech-trim/export/paused-
+preview/reference-decoder/container run already recorded. Its actual synthetic
+speech cut shortened 8759 ms to a 6263 ms encoded video, preserving reviewed
+caption timing, known speech and original hashes. No real creator recording or
+AirPods playback was attempted. Exact runner and metrics remain ignored under
+private/evidence/final-local-checkpoint-*; the earlier failed reports are retained.
+
+The final APK is copied to output/apk/MiniFilm-research.apk, **52,838,059 bytes**,
+SHA-256 **725ba52792cc8075c9b1fc32a96400028006b92235a4caada3670f11768c966a**.
+Build and test APK installs succeeded. A normal MainActivity launch was accepted;
+the phone remains securely locked, so this does not establish visible usability.
+Camera and microphone remain denied. Manifest inspection confirms no Internet/
+network-state permission. Separate Qwen/Whisper weights are absent from the APK;
+ML Kit's bundled SDK assets remain. Full publisher license bytes match its
+packaged notices. No private upload, cloud request or aircraft action occurred.
+
+The six-page phase-one pitch was refreshed with current evidence and all pages
+rendered and visually checked. PDF SHA-256:
+**f226fb9fbe82da5db302ee253455f64243de4df7d270cd48950124136cb95087**.
+The [attended device checklist](device-demo-checklist.md) maps actual app controls
+to unlock, normal permissions, audible-earbud checks, capture, correction,
+speech-cut preview/apply and MP4/ZIP saving. The accounted storage estimate is
+**7.557 GB**, including historical archive/cache reserves and both phone/laptop
+projector copies; inventory qualifications in storage.json still apply.
+The goal remains active: attended UI/capture/AirPods, iQOO/NPU/Office Kit and
+organizer-compliant event implementation/submission have not been completed.
+
+
+Three parallel read-only source reviews found no concrete blocking defect in
+trim/application/source bounds, clipped preview/capture duration, model ownership/
+cancellation/JNI bounds, or normal reference-thumbnail ownership. These reviews
+are not additional hardware tests. Unapplied trim/reference review state is
+intentionally ephemeral across recreation; saved cuts/confirmed notes persist.
+Decoder close suppresses late callbacks but cannot interrupt every blocking
+provider/MMR read. Both practical limitations are in the attended checklist.

@@ -1,7 +1,7 @@
 # User-goal completion audit — 4 October 2026
 
 The **pre-event phone prototype is installed and its local media pipeline has
-real fixture evidence**. The attended Pose → Perform → Assemble workflow and
+real fixture evidence**, including reviewed speech-edge application and local image input. The attended Pose → Perform → Assemble workflow and
 competition delivery remain incomplete. This audit separates current source,
 passed checks and observed failures. The final lower-temperature planner fixture
 rerun passed; creative accuracy across unseen briefs remains unverified.
@@ -17,13 +17,13 @@ runner reports and direct synthetic-output review.
 
 | Requirement | Established now | Remaining gate |
 | --- | --- | --- |
-| Activate the app through ADB | Fresh Mini Film APK built, installed and launched on Nothing Phone (3a), Android 16. Synthetic takes/reel and editable plans have been saved. | Required iQOO hardware validation and final installed-source checkpoint. |
+| Activate the app through ADB | Fresh Mini Film APK built, installed and launched on Nothing Phone (3a), Android 16. Synthetic takes/reel and editable plans have been saved. | Required iQOO hardware validation and attended visible launch. Latest source checkpoint is installed. |
 | Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Earlier inactive UI fixtures passed. | An unlocked attended shoot and first-time usability check; latest visual/lifecycle rerun is invalid under the locked-phone conditions below. |
 | Substantial local AI | Actual local CPU Qwen generation, bundled ML Kit pose inference, offline English TTS and whisper tiny.en clip transcription. App has no network permission. | Useful grounding across unseen briefs, sustained camera/inference concurrency and iQOO execution. No NPU/GPU, Kev adaptation or trained-director result. |
 | Pose and direct each take | Live analysis integration, shared vertical crop, persisted lens and optional speech-completion-gated sequence in source. Public pose fixture yielded 33 confident landmarks; empty-frame inference yielded none. | Live framing usefulness, front/rear recording, full sequence, interruption and quiet captured speech. Synthetic geometry is not live capture. |
 | AirPods direction | Offline voice synthesis and two real-engine silent completion/cancellation tests passed. | Paired AirPods playback, microphone routing and physical cue leakage. Synthesis-to-file never played audio. |
-| Understand reels/trends | Three local sparse-reference fixture tests passed; creator describes the story and reviews the plan. | Semantic trend/style/shot understanding is unimplemented; sparse heuristics do not establish it. |
-| Start, stop and trim | Explicit CameraX start/stop, bounded planned-duration takes and editable cut ranges; actual synthetic cuts exported in order. | Attended capture/finalization and semantic selection of the best performance moments. |
+| Understand reels/trends | Three sparse-reference checks and actual single-frame CPU vision/pose checks passed; corrected notes must be reviewed before planning. | Full trend/story/style understanding and real reference accuracy remain unverified; observed model errors and conservative crop/black abstentions are retained. |
+| Start, stop and trim | Explicit CameraX start/stop, actual-container source bounds, editable cuts and reviewed local speech-edge suggestions; actual synthetic cuts exported in order. | Attended capture/finalization and semantic selection of the best performance moments. |
 | Color correction | Local presets plus heuristic Auto balance have actual analyzer/export evidence below. | Real footage, creative suitability and shot matching. This is not learned AI grading. |
 | Subtitles and typography | Local English timed drafts, creator word/time review, real burned-in captions, and full-text fit-or-reject handling passed. | Attended speech accuracy and longer real text. No karaoke, generated music or semantic caption polishing. |
 | Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths and hashes. | Real creator reel, attended sound review, normal Files ZIP saving, desktop-editor compatibility and actual Office Kit transfer. |
@@ -134,3 +134,42 @@ timing and portable ZIP with four hash-verified originals. Container-bound ASR
 and exact review/trim time conversion are repaired and checked headlessly.
 Desktop copies matched hashes. Normal visible Files saving and all attended/
 event gates above remain open.
+
+### 13:39 IST: additional local editing/reference progress
+
+Eighteen trim/actual-export/paused-cut-preview/reference-decoder/container tests
+passed in18.560 s, preserving known synthetic speech, reviewed subtitles and
+source SHA while shortening the padded source8759 ms to an encoded6263 ms.
+Two additional held-out native planner briefs passed at32.378 and40.002 s; this
+adds fixture coverage, not broad grounding evidence.
+
+An exact-source F16 vision projector was derived from the publisher-declared
+official checkpoint using the unchanged pinned runtime and verified on the
+phone. First actual CPU image run passed two tests in42.766 s: public person
+recognized (~30.004 s), black frame reported black/empty/no identifiable subject
+(~11.509 s), and immediate cancellation delivered no success. A long framing
+phrase hit its grammar bound; a concise-phrase refinement is being rechecked.
+This establishes image execution on these two fixtures, not temporal trend
+understanding, learned direction, image accuracy on real footage, NPU, iQOO or
+user benefit. Manual corrected notes are required before a visual draft enters
+the next plan. Current UI/attended gate remains the secure device lock.
+
+
+### 14:02 IST: installed checkpoint and explicit reference abstention
+
+The final 9-test framing/reference/model-lifetime runner passed in 46.25 s.
+Public full-body framing was supported, the portrait crop abstained with only
+2/3 required upper joints visible, and black pixels yielded an exact unknown/
+empty-or-unclear/unknown outcome. This accepts conservative missing information,
+not successful head-and-shoulders classification or explicit empty-scene
+recognition. Prior generative framing errors, portrait-positive failures and the
+stricter black assertion failure remain in the evidence ledgers. Subject age and
+vague uncertainty text are unvalidated; editable creator review is mandatory.
+
+The latest APK installed and its normal launch intent succeeded behind secure
+keyguard. Camera/microphone remain denied; visible UI and attended workflow
+claims are still pending. APK and refreshed six-page pitch hashes are in
+[status](status.md), exact visual/runtime evidence in
+[local AI evidence](local-ai-evidence.md), and the practical returning-user flow
+in [the attended checklist](device-demo-checklist.md). No new submission or
+external publishing occurred. The development goal remains active.

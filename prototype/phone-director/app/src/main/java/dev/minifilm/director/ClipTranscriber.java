@@ -22,12 +22,21 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Offline English draft captions from the selected clip's audio; never opens a microphone. */
 public final class ClipTranscriber {
     public interface Listener {
         void onComplete(List<SubtitleCue> cues, long elapsedMs);
         void onError(String message);
+    }
+    public interface TrimListener {
+        void onComplete(SpeechTrim suggestion, long elapsedMs);
+        void onError(String message);
+    }
+    private interface Completion {
+        void complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs);
+        void error(String message);
     }
     private static final long MODEL_SIZE = 77_704_715L;
     private static final int MAX_SAMPLES = 16_000 * 180;
@@ -43,6 +52,7 @@ public final class ClipTranscriber {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
     private final AtomicBoolean busy = new AtomicBoolean(false);
+    private final AtomicInteger callbackGeneration = new AtomicInteger();
     private volatile boolean closed;
 
     public ClipTranscriber(Context context) {
@@ -52,14 +62,42 @@ public final class ClipTranscriber {
     public boolean isModelAvailable() { return NATIVE_AVAILABLE && model.isFile() && model.length() == MODEL_SIZE; }
 
     public void transcribe(Uri uri, Listener listener) {
-        if (closed) { main.post(() -> listener.onError("Transcriber is closed.")); return; }
-        if (!isModelAvailable()) { main.post(() -> listener.onError("Install the verified local tiny.en speech model first.")); return; }
-        if (!busy.compareAndSet(false, true)) { main.post(() -> listener.onError("Another clip is being transcribed.")); return; }
+        run(uri, -1, -1, new Completion() {
+            @Override public void complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs) {
+                main.post(() -> { if (!closed) listener.onComplete(cues, elapsedMs); });
+            }
+            @Override public void error(String message) { listener.onError(message); }
+        });
+    }
+
+    /** Separate review-only request. It does not return or overwrite the creator's caption list. */
+    public void analyzeForTrim(Uri uri, long currentInMs, long currentOutMs, TrimListener listener) {
+        if (currentInMs < 0 || currentOutMs <= currentInMs) {
+            postPreflightError(() -> listener.onError("Choose a valid reviewed clip range before suggesting a trim.")); return;
+        }
+        run(uri, currentInMs, currentOutMs, new Completion() {
+            @Override public void complete(DecodedAudio audio, List<SubtitleCue> cues, long elapsedMs) {
+                long analysisStarted = SystemClock.elapsedRealtime();
+                SpeechTrim suggestion = SpeechTrim.analyze(uri, audio.samples, audio.offsetMs, audio.containerDurationMs,
+                        currentInMs, currentOutMs, cues, () -> closed);
+                long totalElapsedMs = elapsedMs + SystemClock.elapsedRealtime() - analysisStarted;
+                main.post(() -> { if (!closed) listener.onComplete(suggestion, totalElapsedMs); });
+            }
+            @Override public void error(String message) { listener.onError(message); }
+        });
+    }
+
+    private void run(Uri uri, long trimInMs, long trimOutMs, Completion completion) {
+        if (closed) { postPreflightError(() -> completion.error("Transcriber is closed.")); return; }
+        if (!isModelAvailable()) { postPreflightError(() -> completion.error("Install the verified local tiny.en speech model first.")); return; }
+        if (!busy.compareAndSet(false, true)) { postPreflightError(() -> completion.error("Another clip is being transcribed.")); return; }
         worker.execute(() -> {
             long started = SystemClock.elapsedRealtime();
             try {
                 DecodedAudio audio = decode(uri);
                 if (closed) return;
+                if (trimInMs >= 0 && trimOutMs > audio.containerDurationMs)
+                    throw new IllegalArgumentException("The reviewed range exceeds this clip's actual duration.");
                 String result = nativeTranscribe(model.getAbsolutePath(), audio.samples);
                 if (closed) return;
                 JSONObject json = new JSONObject(result);
@@ -82,10 +120,10 @@ public final class ClipTranscriber {
                 long elapsed = SystemClock.elapsedRealtime() - started;
                 Log.i("MiniFilmASR", "ASR_OK backend=CPU model=tiny.en samples=" + audio.samples.length
                         + " segments=" + cues.size() + " elapsedMs=" + elapsed);
-                main.post(() -> { if (!closed) listener.onComplete(cues, elapsed); });
+                completion.complete(audio, cues, elapsed);
             } catch (Exception e) {
                 Log.e("MiniFilmASR", "Clip transcription failed", e);
-                main.post(() -> { if (!closed) listener.onError("Transcription failed: "
+                main.post(() -> { if (!closed) completion.error("Transcription failed: "
                         + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage())); });
             } finally { busy.set(false); }
         });
@@ -93,8 +131,14 @@ public final class ClipTranscriber {
 
     public void close() {
         closed = true;
+        callbackGeneration.incrementAndGet();
         if (NATIVE_AVAILABLE) nativeCancel();
         worker.shutdownNow();
+    }
+
+    private void postPreflightError(Runnable error) {
+        int generation = callbackGeneration.get();
+        main.post(() -> { if (generation == callbackGeneration.get()) error.run(); });
     }
 
     private DecodedAudio decode(Uri uri) throws Exception {

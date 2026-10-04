@@ -88,12 +88,16 @@ The [publisher's Qwen3.5 0.8B model card](https://huggingface.co/Qwen/Qwen3.5-0.
 states Apache 2.0 and research/prototyping applicability for this model scale.
 Tensor headers confirm 186 Q4_0, 133 F32 and one Q8_0 tensor. The embedded
 chat template's disabled-thinking generation prefix matches the prefix used
-by `LocalPlanner`. This existing file's exact quantizer/revision and checksum need separate
-verification; embedded metadata is not a substitute for a publisher checksum.
+by `LocalPlanner`. An additional 4 October primary-source check resolved publisher provenance:
+the exact 563,036,064-byte file/SHA matches ggml-org/Qwen3.5-0.8B-GGUF
+at revision `8fea620810c4afa23dd6443f999a48574c1611a3`; its PRIMARY source
+record pins Qwen/Qwen3.5-0.8B revision `2fc06364715b967f1860aea9cf38778875588b17`.
+See [exact reference-source evidence](local-reference-feasibility.md).
 The integrator measured SHA-256
 `57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf`
 and verified the local transfer's byte count/hash matched the original.
-This is a transfer-integrity measurement, not a publisher-provenance checksum.
+The original transfer check alone established integrity; the later exact
+publisher metadata match also establishes artifact/source identity.
 The new app uses a private local file named `files/director-model.gguf` and
 does not package weights in Git or the APK. Reusing this generic model as a
 dependency does not reuse the previous app's implementation or establish
@@ -263,3 +267,90 @@ The installed no-Internet assertion passed. These are narrow synthetic fixtures
 with handwritten scaffolding; unseen brief quality and creator benefit remain
 unverified, and all drafts still require review. Evidence: ignored
 `private/evidence/final-planner-test.log` and `final-planner-metrics.log`.
+
+## One-frame visual interpretation — 4 October, final check 14:00 IST
+
+`VisionReference` retains the exact existing language core and uses the locally
+converted **204,987,136-byte F16 projector** from official Qwen source revision
+`2fc06364715b967f1860aea9cf38778875588b17`, with unchanged llama.cpp pin
+`11fe02151f79c41d0d4af7da708755d73b9c0da6`. Projector SHA-256:
+`91388cbe4ccde93acd902d7ce32776d14c32bd71a462d4affc1d2e226d81cada`.
+Laptop/phone copies match; instrumentation checks core, projector and public
+fixture hashes. Actual RGB enters mtmd encoding and M-RoPE, rather than a textual
+image placeholder. CPU only: 1536-token context, 64–256 image tokens, at most
+192 generated tokens, 180-second native deadline, maximum decoded frame side 512.
+The subject/uncertainty fields are grammar-bounded to 80 characters each and
+remain editable. No Internet permission, provider request, private-image upload,
+camera/microphone capture or training was used for these checks.
+
+The original three-field VLM passed public-person/black and immediate-cancellation
+fixtures in **42.766 s**, then **24.206 s** with concise phrases. Public-person
+subject recognition took **11.140 s**, black **12.189 s** in that second run.
+Those subject checks missed a real error: generated framing called the known
+full-body image close-up. A later category prompt called the held-out top-32%
+head/shoulders crop full-body. Generative framing was therefore **removed**.
+It was not validated by renaming the field or by the earlier green subject tests.
+
+Current displayed framing comes from **FramePoseFraming**, bundled ML Kit
+single-image inference with CPU preference, followed by handwritten likelihood
+>=0.75 and in-bounds landmark rules. It is an uncalibrated heuristic, separate
+from VLM subject inference. The public full-body fixture had **33** visible
+landmarks and all required groups (**upper 3/3, hips 2/2, lower 4/4**), yielding
+**full-body**. The held-out crop had **12** visible landmarks, **upper 2/3,
+hips 0/2, lower 0/4**, yielding **review needed** because upper evidence was
+incomplete. It does not claim head-and-shoulders recognition for this crop.
+Black pixels returned zero landmarks and **empty or unclear**. Diagnostic
+counts/reasons are preserved; extrapolated lower joints do not count as visible.
+
+The **9-method / 45.669-second** checkpoint failed one strict black-subject
+assertion: VLM returned **unknown**, not explicit absence/black wording. The
+subsequent **9-method / 46.25-second** rerun passed, with a specifically logged
+conservative-abstention outcome requiring **unknown subject**, **empty or unclear
+heuristic framing**, and **unknown uncertainty** together. This accepts missing
+information; it does not turn unknown into correct explicit subject recognition.
+Final public/crop/black observations and callback times:
+
+| Fixture | VLM subject | Heuristic framing | VLM uncertainty | Elapsed |
+| --- | --- | --- | --- | ---: |
+| Public full-body person | person | full-body | unknown | 10.495 s |
+| Held-out top-32% crop | child | review needed | hair | 9.308 s |
+| Synthetic black | unknown | empty or unclear | unknown | 11.869 s |
+
+The cropped subject's age label is not validated ground truth, and **hair** is
+vague uncertainty text rather than calibrated confidence. Results establish
+actual local inference and the asserted fixture policies only. Evidence:
+ignored `private/evidence/final-local-checkpoint-device-test.log` and
+`final-local-checkpoint-metrics.log`; the earlier failed checkpoint remains in
+`pose-abstention-checkpoint-device-test.log`.
+
+All **three LocalModelLease methods passed** in that final runner. The shared
+fair lease covers the full native language-core lifetime, including an idle
+planner handle, and is released only after nativeFree. It waits at most five
+seconds with cancellation checks every 50 ms. Tests verified a cancelled waiter
+cannot release another owner's permit, real JNI pre-cancellation remains
+terminal, and an actual loaded planner is freed before vision owns the lease
+without stale planner callbacks. Immediate vision-request cancellation also
+passed; this does not certify cancellation latency at every encoding stage.
+Existing **18 trim/export/preview/decoder/capture tests passed in 18.56 s**
+separately; media success does not establish semantic-reference quality.
+
+An earlier concise-phrase run's read-only memory sampling over **28.184 s**
+collected **25** usable samples and **3** missing: maximum sampled total PSS
+**1,547,793 KiB**, RSS **1,652,760 KiB**, native-heap PSS **954,096 KiB**.
+These are sampled maxima for that build, not certified latest-pipeline peaks.
+No camera concurrency, sustained thermal/power or real-time benchmark ran.
+
+The **1,746,942,600-byte source shard** was removed by root after verified
+conversion; matching projector output remains on laptop and phone. Conversion
+packages, native builds and both copies still count toward the storage budget.
+See [exact provenance and conversion evidence](local-reference-feasibility.md).
+
+Reference UI decodes one creator-requested seek in a selected local video of at
+most three minutes; exact decoded presentation timestamp is not asserted.
+A thumbnail and editable observations are reviewed before explicit **Use corrected notes**
+informs planning. Longer combined briefs/notes require shortening, rather than
+silently discarding notes. Visible attended UI remains pending normal unlock.
+No temporal trend/story understanding, general reference accuracy, useful
+creative direction, creator benefit, iQOO execution or NPU acceleration follows
+from these public/synthetic tests. Further unseen/consented reference evaluation
+and an attended creator workflow remain required.

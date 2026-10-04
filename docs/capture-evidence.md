@@ -100,3 +100,20 @@ object scenes receiving shoulder/face advice. The latest expanded seven-case
 UI rerun encountered secure keyguard and its five screen-dependent failures
 cannot verify these changes. An explicit unlocked-phone test precondition was
 added; repeat those UI checks and the attended sequence after normal unlock.
+
+### 13:36 IST: finalized duration and actual cut preview
+
+Finalized takes now use positive MMR video container duration with valid video
+width/height, rather than recording statistics. Two headless synthetic cases
+passed for measured MP4 duration/original SHA and null/missing/empty/malformed/
+audio-only inputs. No CameraX recording was performed; hardware finalization
+latency and callbacks remain pending.
+
+Paused PreviewActivity accepts optional paired source-relative start/end values.
+It validates the local source and actual container bound, configures Media3
+clipping, restores positions relative to that cut only for the same URI/range,
+and never auto-plays. Three headless checks passed, including a real ExoPlayer
+prepared 1500 ms clipped timeline while paused. Suggested speech-trim review and
+normal take preview use these selected bounds. No Activity, camera, microphone
+or audible playback was used in this verification. Evidence is part of the
+18-case `private/evidence/trim-preview-export-test.log` runner (18.560 s).
