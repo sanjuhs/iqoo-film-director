@@ -21,6 +21,8 @@ custom SDK route. A shoot-specific Neo 2 Accessibility bridge and Action 4 BLE
 adapter are research candidates, with [source checks and limitations](docs/multicamera-research.md).
 No app-to-app control or multicamera hardware result is established.
 
+Start with [When you return](docs/return-to-phone.md) for a short phone walkthrough.
+
 ## Phone delivery and secondary drone milestone
 
 The phone app is installed and launched through ADB. Its three screens are Brief, Direct and Assemble. See [measured evidence](docs/status.md), the [demo runbook](docs/demo-runbook.md) and [submission draft](docs/submission-draft.md). Local CPU inference is verified; NPU acceleration is not.

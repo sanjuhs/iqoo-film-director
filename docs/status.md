@@ -1931,3 +1931,53 @@ Own AVD/reg removed after parent terminal; other untouched. Qualified peak
 10873353179B/finaladjacent9336525787B with existing reserve/inventory/runtime
 limits. No downloads/private upload/capture/playback/aircraft action. Goal active
 until midnight; attended/AirPods/iQOO/NPU/OfficeKit/usefulness/event gates open.
+
+### 23:39 IST — first-shot daily reset, bounded cut-list export and real UI video
+
+Confirmed Start a new reel now resets/persists first plan shot0; Cancel keeps
+the old final position. Prior clips/edits/plan/output remain. Four revised reset
+checks stage last shot1, preserve Cancel and confirm0 across recreation/actual
+Direct navigation without media. [Evidence](new-reel-first-shot-evidence.md).
+
+A source-backed mismatch allowed complete subtitle edit JSON above the existing
+1MiB recovery/Files cap. Export now allocates real UUID/frozen exact prettyUTF8
+bytes and checks before busy/journal/temp/encoder/gallery. Publication writes
+those same bytes; one shared cap leaves existing reader/Files bounds unchanged.
+Overflow refuses with correction guidance and no truncation.
+[Evidence](edit-document-budget-evidence.md). Independent frozen review found
+no blocker; no numerical, model, subtitle-schema or codec changes.
+
+Offline build1s/normal installs; own fresh UI14/26.286s passed (revised reset4+
+workflow10). Physical focused6/2.885s passed (new budget3, actual encoded plan1,
+published-ready recovery1, copier bound1). Public budget refusal covered valid
+large ASCII/Unicode off-cut lists before source access, keeping aliases/prefs/
+owned output/gallery metadata unchanged. Actual encoded synthetic plan1043ms/
+720×1280 decoded a frame and preserved plan/mapping/source SHA/prefs; result
+retained locally, only exact completed journal detached. Gallery1/0.301s now
+31owned/0pending/8,563,448B. No runtime failures or new native model run.
+
+Built/saved/independently read installedAPK52838059B SHA256
+45b96786e2871a4b65af8b4c3a56094fc92bda345d4acb684dbb34d91e09d76f; source-identical notices,
+separate weights excluded/bundledMLKit/noInternet. Normal physical Main launch
+requested at23:30 behind securekeyguard/capturedenied, no unlock/grants.
+
+A labelled60s silent actual-emulator UI walkthrough now shows template/shot
+review, Direct with camera closed, cuts/typography and successful actual local
+synthetic export. Own output independently probed720×1280H.264/AAC6.069660s;
+only that exact three-cut synthetic output copied. Final edited540×1380video
+1668131B visually reviewed; no generated UI or speed benchmark. Initial VFR
+trim omitted held dialog frames; normalization-before-cut fixed and raw/initial
+assets retained. No LLM/ASR/live pose/microphone/earbud result inferred. Observed
+label/modal-scroll/idle-dump helper failures retained; corrected or excluded.
+[Video evidence](synthetic-ui-walkthrough.md), [short return guide](return-to-phone.md).
+
+AVD helper first rejected missing basename before mutation; corrected creation
+passed. Own AVD/reg removed after parent terminal; other untouched. Qualified
+peak10900650701B/finaladjacent9366797005B includes raw/labelled walkthrough,
+external cover once and historic missing-archive/cache reserves; full inventory/
+runtime exclusions remain. No downloads/private upload/capture/physical playback/
+aircraft action. Initial whole-tree Markdown link sweep included untracked
+vendored documentation/code links; scoped tracked-project360links passed with no missing targets; whitespace
+check passed.
+Goal active until midnight; attended/AirPods/iQOO/NPU/OfficeKit/semantic utility/
+event eligibility and accepted receipt remain open.

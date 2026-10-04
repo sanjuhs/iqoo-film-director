@@ -84,10 +84,15 @@ public final class ExportRecovery {
     }
 
     static Journal begin(Context context) throws Exception {
+        return begin(context, UUID.randomUUID().toString());
+    }
+
+    /** The exporter allocates its actual ID before freezing and bounding the edit document. */
+    static Journal begin(Context context, String id) throws Exception {
         synchronized (LOCK) {
             if (journalNames(context).size() >= MAX_JOURNALS)
                 throw new IOException("Too many export records. Reopen the app before exporting again.");
-            Journal journal = new Journal(context.getApplicationContext(), UUID.randomUUID().toString());
+            Journal journal = new Journal(context.getApplicationContext(), id);
             journal.write(); // Durable names exist before any output file is created.
             ACTIVE.add(journal.id);
             return journal;
@@ -129,7 +134,7 @@ public final class ExportRecovery {
 
     private static boolean validPair(Journal journal, Row row) throws Exception {
         if (journal.expectedBytes < 1000 || !journal.edit().isFile()
-                || journal.edit().length() > 1_048_576) return false;
+                || journal.edit().length() > EditDocumentBudget.MAX_BYTES) return false;
         JSONObject json = new JSONObject(new String(Files.readAllBytes(journal.edit().toPath()), StandardCharsets.UTF_8));
         if (!"minifilm.edit.v1".equals(json.optString("schema")) || !journal.id.equals(json.optString("exportId"))
                 || json.optLong("durationMs") <= 0 || json.optJSONArray("cuts") == null) return false;

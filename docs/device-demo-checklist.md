@@ -405,3 +405,17 @@ speech cut** before choosing **Apply trim** or **Keep current cut**. Leaving the
 app dismisses the old dialog and cancels unfinished analysis; it applies nothing.
 Finished suggestions remain in memory while their source/range is unchanged.
 [Ownership and actual output evidence](speech-trim-review-ownership-evidence.md).
+
+## Reuse the plan for tomorrow and keep the cut list saveable
+
+**Start a new reel** now resets to its first retained plan shot after confirmation,
+so a completed sequence does not restart on its last scene. Cancel keeps the
+current position. All prior clips/edits stay available.
+[First-shot evidence](new-reel-first-shot-evidence.md).
+
+Export stops before encoding if the complete cut-list JSON exceeds1MiB. Reduce
+subtitle segments/text or use fewer cuts; off-cut words also count because they
+are retained for editing. No words are silently shortened. This matches the
+existing Files/recovery limit. [Budget evidence](edit-document-budget-evidence.md).
+See [When you return](return-to-phone.md) and the
+[synthetic walkthrough evidence](synthetic-ui-walkthrough.md).

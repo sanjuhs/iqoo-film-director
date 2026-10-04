@@ -323,3 +323,11 @@ subtitles. Later, empty results and background cancellation preserve your words.
 Suggested speech cuts now require the current review: old or hidden actions cannot
 apply/discard a newer suggestion. Preview preserves it for explicit re-review and
 returns to the same list position. [Review evidence](../../docs/speech-trim-review-ownership-evidence.md).
+
+Confirmed **Start a new reel** now begins at the first retained plan shot,
+while Cancel keeps its previous position. Cut-list export checks the exact
+pretty UTF-8 document against the shared1MiB recovery/Files bound before
+encoding; it never silently shortens subtitle words. Latest focused UI14 and
+physical6 passed. [Reset](../../docs/new-reel-first-shot-evidence.md),
+[budget](../../docs/edit-document-budget-evidence.md) and
+[actual synthetic UI video](../../docs/synthetic-ui-walkthrough.md) retain scope.

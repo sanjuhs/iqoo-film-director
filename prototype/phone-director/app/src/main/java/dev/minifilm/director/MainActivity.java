@@ -533,7 +533,7 @@ public class MainActivity extends ComponentActivity {
         final String snapshot=newReelSnapshot();if(snapshot.isEmpty()){toast("This reel could not be reviewed. Your takes and edits are kept.");return;}
         dismissNewReel();
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Start a new reel?")
-                .setMessage("Deselect all existing takes and clear the reel title. Your original clips, trims, captions, subtitles, shot assignments and last export stay available. Your brief, shot plan and look are kept. Review the brief and plan before filming again; reselect any older takes you want to use.")
+                .setMessage("Deselect all existing takes and clear the reel title. Your original clips, trims, captions, subtitles, shot assignments and last export stay available. Your brief, shot plan and look are kept. The next shoot starts at the first plan shot. Review the brief and plan before filming again; reselect any older takes you want to use.")
                 .setPositiveButton("Start a new reel",null).setNegativeButton("Keep current reel",null).create();
         newReelDialog=dialog;
         dialog.setOnDismissListener(d->{if(newReelDialog==dialog)newReelDialog=null;});
@@ -545,8 +545,8 @@ public class MainActivity extends ComponentActivity {
                         ||busy||destroying||tab!=2||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
                         ||!snapshot.equals(newReelSnapshot()))return;
                 for(Take take:takes)take.selected=false;
-                reelTitle="";tab=0;save();dismissNewReel();render();
-                status.setText("Ready for your next reel. Review the existing brief and shot plan before filming; older takes remain in Assemble, unselected.");
+                reelTitle="";shotIndex=0;tab=0;save();dismissNewReel();render();
+                status.setText("Ready for your next reel, starting at the first shot. Review the existing brief and shot plan before filming; older takes remain in Assemble, unselected.");
             });
         });dialog.show();
     }
@@ -1299,7 +1299,7 @@ public class MainActivity extends ComponentActivity {
     private void copyEditDocument(Uri destination){
         Uri source=lastEdit;if(source==null)return;
         int generation=++saveGeneration;setBusy(true);savingDocument=true;status.setText("Saving your last exported cut list…");
-        documentCopier.copy(source,destination,1048576L,new DocumentCopier.Listener(){
+        documentCopier.copy(source,destination,EditDocumentBudget.MAX_BYTES,new DocumentCopier.Listener(){
             public void onComplete(long bytes){if(generation!=saveGeneration)return;savingDocument=false;setBusy(false);status.setText("Last exported cut list saved to your chosen folder");}
             public void onError(String message){if(generation!=saveGeneration)return;savingDocument=false;setBusy(false);status.setText("Cut-list save did not finish. Choose a writable local folder and a new name; the earlier document may be partial.");}
         });

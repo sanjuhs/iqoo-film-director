@@ -40,10 +40,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /** Pre-event research: on-phone editing, deterministic looks and manual captions. */
 public final class ReelExporter {
@@ -131,10 +131,17 @@ public final class ReelExporter {
             if (cuts.size() > 12 || total > 180_000) {
                 throw new IllegalArgumentException("This research exporter supports up to 12 takes and 3 minutes.");
             }
+            // Freeze the real publication ID and exact pretty UTF-8 bytes before creating
+            // any journal, temporary file, encoder or gallery row. Recovery and Files use
+            // this same budget; retain off-cut words unchanged rather than truncating them.
+            final String exportId = UUID.randomUUID().toString();
+            final byte[] editBytes = EditDocumentBudget.encode(
+                    editDocument(exportId, cuts, title, look, measured, shotPlan));
+            final long nominalDurationMs = total;
             busy = true;
             final int run = ++generation;
             activeListener = listener;
-            activeJournal = ExportRecovery.begin(context);
+            activeJournal = ExportRecovery.begin(context, exportId);
             activeFile = activeJournal.temp();
             if (!activeFile.createNewFile()) throw new IllegalStateException("Export temporary file already exists.");
             final File output = activeFile;
@@ -177,7 +184,7 @@ public final class ReelExporter {
                             if (run != generation) return;
                             main.removeCallbacks(progress); transformer = null;
                             listener.onProgress(95);
-                            new Thread(() -> publish(run, output, journal, cuts, title, look, measured, shotPlan, listener), "Reel-save").start();
+                            new Thread(() -> publish(run, output, journal, cuts, editBytes, nominalDurationMs, listener), "Reel-save").start();
                         }
                         @Override public void onError(Composition composition, ExportResult result,
                                 ExportException exception) {
@@ -220,8 +227,7 @@ public final class ReelExporter {
     }
 
     private void publish(int run, File output, ExportRecovery.Journal journal, List<Take> cuts,
-            String title, String look, List<AutoColorBalance.Balance> measured,
-            ShotPlanSnapshot shotPlan, Listener listener) {
+            byte[] editBytes, long nominalDurationMs, Listener listener) {
         Uri video = null;
         File edit = null;
         try {
@@ -231,9 +237,8 @@ public final class ReelExporter {
             File directory = new File(context.getFilesDir(), "exports");
             if (!directory.exists() && !directory.mkdirs()) throw new IllegalStateException("Edit folder unavailable.");
             edit = journal.edit();
-            JSONObject project = editDocument(journal.id, cuts, title, look, measured, shotPlan);
             try (FileOutputStream stream = new FileOutputStream(edit)) {
-                stream.write(project.toString(2).getBytes(StandardCharsets.UTF_8));
+                stream.write(editBytes);
                 stream.getFD().sync();
             }
             Uri editUri = FileProvider.getUriForFile(context, context.getPackageName() + ".files", edit);
@@ -283,7 +288,7 @@ public final class ReelExporter {
                 activeFile = null; activeJournal = null; activeListener = null; busy = false;
                 try {
                     listener.onProgress(100); listener.onComplete(savedVideo, editUri);
-                    Log.i("MiniFilmExport", "EXPORT_OK durationMs=" + project.optLong("durationMs")
+                    Log.i("MiniFilmExport", "EXPORT_OK durationMs=" + nominalDurationMs
                             + " size=" + output.length() + " width=720 height=1280 cuts=" + cuts.size());
                 } catch (Exception error) { Log.w("MiniFilmExport", "Published export retained after UI callback failure", error); }
                 finally { output.delete(); }

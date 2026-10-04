@@ -61,7 +61,7 @@ public final class NewReelUiTest {
             scenario.onActivity(a->{String state=preferences.getString("state","");String snapshot=(String)invoke(a,"packSnapshot");AlertDialog current=dialog(a);Button retained=current.getButton(-1);
                 assertTrue(hasText(current.getWindow().getDecorView(),"original clips"));assertTrue(hasText(current.getWindow().getDecorView(),"Review the brief and plan"));
                 current.getButton(-2).performClick();assertNull("Keep relinquishes ownership in this event",field(a,"newReelDialog"));retained.performClick();
-                assertEquals(snapshot,invoke(a,"packSnapshot"));assertEquals(state,preferences.getString("state",""));assertSame(pointer,field(a,"pendingPack"));assertTrue(pointer.exists());assertEquals(2,field(a,"tab"));assertNoMedia(a);});
+                assertEquals(snapshot,invoke(a,"packSnapshot"));assertEquals(state,preferences.getString("state",""));assertSame(pointer,field(a,"pendingPack"));assertTrue(pointer.exists());assertEquals(2,field(a,"tab"));assertEquals("Cancel keeps the previous last-shot position",1,field(a,"shotIndex"));assertNoMedia(a);});
         }
     }
 
@@ -74,14 +74,16 @@ public final class NewReelUiTest {
                 List<TakeFacts> snapshots=new ArrayList<>();for(Take t:takes(a))snapshots.add(new TakeFacts(t));facts.set(snapshots);plan.set(new ArrayList<>(shots(a)));shotsJson.set(invoke(a,"serializeShots").toString());});idle();File pointer=pointer();
             scenario.onActivity(a->{set(a,"pendingPack",pointer);set(a,"pendingPackSnapshot",invoke(a,"packSnapshot"));invoke(a,"save");});openNewReel(scenario);
             scenario.onActivity(a->dialog(a).getButton(-1).performClick());idle();
-            scenario.onActivity(a->{assertNull(field(a,"newReelDialog"));assertEquals(0,field(a,"tab"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());
+            scenario.onActivity(a->{assertNull(field(a,"newReelDialog"));assertEquals(0,field(a,"tab"));assertEquals("The next reel begins at the first retained plan shot",0,field(a,"shotIndex"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());
                 for(int i=0;i<facts.get().size();i++){assertSame(facts.get().get(i).identity,takes(a).get(i));facts.get().get(i).check(takes(a).get(i),true);}
                 for(int i=0;i<plan.get().size();i++)assertSame(plan.get().get(i),shots(a).get(i));assertEquals(shotsJson.get(),invoke(a,"serializeShots").toString());
                 assertKeptContext(a);assertNull(field(a,"pendingPack"));assertFalse(pointer.exists());assertTrue(((TextView)field(a,"status")).getText().toString().contains("Review the existing brief and shot plan"));assertNoMedia(a);
-                try{JSONObject saved=new JSONObject(preferences.getString("state",""));assertEquals(0,saved.getInt("tab"));assertEquals("",saved.getString("reelTitle"));for(int i=0;i<saved.getJSONArray("takes").length();i++)assertFalse(saved.getJSONArray("takes").getJSONObject(i).getBoolean("selected"));}catch(Exception e){throw new AssertionError(e);}
+                try{JSONObject saved=new JSONObject(preferences.getString("state",""));assertEquals(0,saved.getInt("tab"));assertEquals(0,saved.getInt("shot"));assertEquals("",saved.getString("reelTitle"));for(int i=0;i<saved.getJSONArray("takes").length();i++)assertFalse(saved.getJSONArray("takes").getJSONObject(i).getBoolean("selected"));}catch(Exception e){throw new AssertionError(e);}
             });scenario.recreate();idle();
-            scenario.onActivity(a->{assertEquals(0,field(a,"tab"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());for(int i=0;i<facts.get().size();i++)facts.get().get(i).check(takes(a).get(i),false);
+            scenario.onActivity(a->{assertEquals(0,field(a,"tab"));assertEquals("The persisted first-shot position survives recreation",0,field(a,"shotIndex"));assertEquals("",field(a,"reelTitle"));assertEquals(3,takes(a).size());for(int i=0;i<facts.get().size();i++)facts.get().get(i).check(takes(a).get(i),false);
                 assertEquals(shotsJson.get(),invoke(a,"serializeShots").toString());assertKeptContext(a);assertNoMedia(a);});
+            scenario.onActivity(a->clickVisible((Button)find((View)field(a,"nav"),Button.class,"02  Direct")));idle();
+            scenario.onActivity(a->{assertEquals(1,field(a,"tab"));assertEquals(0,field(a,"shotIndex"));assertTrue("Direct displays the first retained plan title",hasText((View)field(a,"root"),"SHOT 01 OF 02  ·  Hero pose"));assertEquals("Pose in your own outfit.",((TextView)field(a,"cueView")).getText().toString());assertNoMedia(a);});
         }
     }
 
@@ -121,7 +123,7 @@ public final class NewReelUiTest {
     }
     private static void prepare(MainActivity a,boolean withTakes){takes(a).clear();if(withTakes){Take t=take("Old selected take");takes(a).add(t);Take second=take("Old unselected take");second.selected=false;takes(a).add(second);Take alias=take("Another original cut");alias.uri=t.uri;alias.subtitles=t.subtitles;alias.reviewedShotIds=t.reviewedShotIds;takes(a).add(alias);}
         shots(a).clear();shots(a).add(new Shot("new-reel-ui-plan-1","Hero pose","Pose in your own outfit.","My outfit",4000,FramingTarget.FACE_SHOULDERS));shots(a).add(new Shot("new-reel-ui-plan-2","Movement","Turn slightly in place.","My turn",5000,FramingTarget.FULL_OUTFIT));
-        set(a,"tab",2);set(a,"reelTitle","Yesterday's reel");set(a,"brief","My next daily outfit idea");set(a,"look","Warm");set(a,"planSource","Synthetic creator-reviewed plan");set(a,"lastVideo",Uri.parse("content://synthetic.invalid/previous-reel"));set(a,"lastEdit",Uri.parse("content://synthetic.invalid/previous-edit"));invoke(a,"save");invoke(a,"render");}
+        set(a,"shotIndex",shots(a).size()-1);set(a,"tab",2);set(a,"reelTitle","Yesterday's reel");set(a,"brief","My next daily outfit idea");set(a,"look","Warm");set(a,"planSource","Synthetic creator-reviewed plan");set(a,"lastVideo",Uri.parse("content://synthetic.invalid/previous-reel"));set(a,"lastEdit",Uri.parse("content://synthetic.invalid/previous-edit"));invoke(a,"save");invoke(a,"render");}
     private static Take take(String title){Take t=new Take(Uri.parse("content://synthetic.invalid/new-reel/source"),"new-reel-ui-plan-1",title,"Kept manual fallback",6000);t.inMs=500;t.outMs=5746;t.captionOrigin="creator-reviewed-offline-asr";t.reviewedShotIds.add("new-reel-ui-plan-1");t.subtitles.add(new SubtitleCue(1000,3000,"Kept reviewed words"));return t;}
     private static void assertKeptContext(MainActivity a){assertEquals("My next daily outfit idea",field(a,"brief"));assertEquals("Warm",field(a,"look"));assertEquals("Synthetic creator-reviewed plan",field(a,"planSource"));assertEquals(Uri.parse("content://synthetic.invalid/previous-reel"),field(a,"lastVideo"));assertEquals(Uri.parse("content://synthetic.invalid/previous-edit"),field(a,"lastEdit"));}
     private static void openNewReel(ActivityScenario<MainActivity> scenario){scenario.onActivity(a->{Button b=(Button)find((View)field(a,"root"),Button.class,"Start a new reel");assertNotNull(b);scrollToButton((ScrollView)field(a,"pageScroll"),b);});idle();scenario.onActivity(a->clickVisible((Button)find((View)field(a,"root"),Button.class,"Start a new reel")));idle();scenario.onActivity(a->assertTrue(dialog(a).isShowing()));}

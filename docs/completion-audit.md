@@ -10,6 +10,26 @@ prospective native tests retained speech-topic failures. One default hybrid
 retained the creator-authored Closing explicitly. Creative accuracy across
 unseen briefs and the attended workflow remain unverified.
 
+Latest23:39 daily-reel/export repair passed14 fresh UI methods/26.286s and6
+focused physical checks/2.885s. Confirmed new reel starts at first retained shot;
+Cancel keeps the old position. Exact prettyUTF8 cut-list bytes are bounded
+before encoding and published unchanged under the same recovery/Files1MiB cap.
+Actual encoded synthetic plan1043ms/720×1280 preserved frozen context and source.
+[Reset evidence](new-reel-first-shot-evidence.md),
+[budget evidence](edit-document-budget-evidence.md). Current built/saved/
+independently read installedAPK SHA256
+45b96786e2871a4b65af8b4c3a56094fc92bda345d4acb684dbb34d91e09d76f; gallery31/0/8,563,448B.
+Normal Main request remains behind secure keyguard with camera/microphone denied.
+
+A visually reviewed [60-second actual UI walkthrough](synthetic-ui-walkthrough.md)
+and [return guide](return-to-phone.md) are local. Emulator template/synthetic-only
+ordinary UI export produced720×1280H.264/AAC6.069660s; it is distinct from physical
+device/model evidence. Silent edited video labels removed pauses and pending
+live filming/AirPods. Qualified peak10900650701B/finaladjacent9366797005B; own
+AVD cleaned, existing inventory/reserve limits retained. These deliverables
+leave attended/device/semantic/event gates open. Older installed hashes/counts
+below retain their dated context.
+
 Latest23:24 speech-cut repair owns Apply/Preview/Keep and analysis cleanup.
 Completed suggestions survive Preview/background for explicit re-review, with
 scroll retained; stale controls/terminals cannot affect newer work. Fresh UI
