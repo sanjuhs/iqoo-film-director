@@ -2028,3 +2028,15 @@ workspace. Adjacent qualified storage9,367,321,461B at23:48 remains below10GBaim
 15GBcap with historic missing-archive/cache reserves and runtime/inventory
 exclusions. Prior own-emulator peak/cleanup and31owned/0pending gallery remain
 unchanged; no new dependency/model/SDK/JDK download or app mutation.
+
+### 23:51 IST — first-shoot instructions checked against installed source
+
+Two independent read-only reviews found handoff omissions rather than new app
+failures. [Return guide](return-to-phone.md) now explicitly says to enable Spoken
+direction/earbuds, grant camera+mic and tap Start camera again, and explains that
+Finish & continue ends a guided take early while planned stopping still applies.
+Before export, review every title/caption/subtitle word; native drafts have
+retained generic/truncated wording. The18-check increment is called planning-
+dialog repair to distinguish it from model-prompt work. No app/media/model
+changes or repeat tests. New-reel/review/export instructions matched installed
+source94ab6c9; prior model/attended/event limits remain.

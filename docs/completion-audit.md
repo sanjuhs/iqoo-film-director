@@ -10,7 +10,7 @@ prospective native tests retained speech-topic failures. One default hybrid
 retained the creator-authored Closing explicitly. Creative accuracy across
 unseen briefs and the attended workflow remain unverified.
 
-Latest23:44 planning-prompt repair passed18 fresh UI methods/33.135s. Keep
+Latest23:44 planning-dialog repair passed18 fresh UI methods/33.135s. Keep
 synchronously relinquishes current prompt ownership; stale Replace/Starter
 actions cannot replace reviewed directions after dismissal, changed inputs or
 background. Current labelled template choices still preserve take edits. Native
@@ -29,7 +29,7 @@ Cancel keeps the old position. Exact prettyUTF8 cut-list bytes are bounded
 before encoding and published unchanged under the same recovery/Files1MiB cap.
 Actual encoded synthetic plan1043ms/720×1280 preserved frozen context and source.
 [Reset evidence](new-reel-first-shot-evidence.md),
-[budget evidence](edit-document-budget-evidence.md). Current built/saved/
+[budget evidence](edit-document-budget-evidence.md). Then-built/saved/
 independently read installedAPK SHA256
 45b96786e2871a4b65af8b4c3a56094fc92bda345d4acb684dbb34d91e09d76f; gallery31/0/8,563,448B.
 Normal Main request remains behind secure keyguard with camera/microphone denied.

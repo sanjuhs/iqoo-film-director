@@ -11,7 +11,7 @@ recording with an editable template and synthetic clips.
 ## First short shoot
 
 1. Pair AirPods in Android settings, then open **02 Direct** and try **Hear the
-   direction**. Confirm you actually hear it in the earbuds. The app follows
+   direction** with **Spoken direction / earbuds** enabled. Confirm you actually hear it in the earbuds. The app follows
    Android's selected output; AirPods microphone recording is not established.
 2. In **01 Brief**, type: “20-second jacket reveal. I want to describe my own
    layering choice.” Choose **Fashion**, then **Build my shot plan**. Allow a full
@@ -19,17 +19,21 @@ recording with an editable template and synthetic clips.
    Closing duration to fit your words. Closing's retained request is labelled
    creator-authored; the model still makes topic/detail mistakes.
 3. In **02 Direct**, choose the front/back lens and a stable portrait position.
-   **Start camera** opens the preview; it does not start a take. Set the shot's
+   On the first **Start camera** tap, allow camera and microphone, then tap
+   **Start camera** again to open the preview. Set the shot's
    framing target in its editor if needed. Turn on guided shooting for scene-by-
    scene direction, or leave it off for manual takes. Tap **Record · 3 sec** when
    ready. Guided flow gives the scene cue, at least eight seconds to pose, then
    the countdown. Advice stays quiet during recording. **Finish & continue**
-   waits for the saved take before the next scene; **Stop take** ends continuation.
+   ends a guided take early and waits for it to save before the next scene;
+   planned stopping still applies. **Stop take** ends continuation.
 4. In **03 Assemble**, preview the saved take and listen to its actual sound.
    Select the clips you want, reorder, and use **Edit & review take** for cuts,
    captions and subtitles. Generated English subtitles are a proposal: correct
    the words/times and explicitly save. **Later** keeps your existing words.
-5. Choose a look and optional title, then **Export my reel**. Keep the app open.
+5. Choose a look and optional title. Review every title/caption/subtitle word
+   before **Export my reel**; local drafts can contain generic or truncated words.
+   Keep the app open.
    Play the exported reel and check sound, framing, words and timing. The saved
    MP4 is vertical 720p; originals stay intact. **Save clips + edits for my laptop**
    creates a portable ZIP for a folder you choose. Office Kit transfer is separate.
@@ -44,7 +48,7 @@ deselects older takes, clears the title and returns to the first plan shot.
 
 Local shot planning, pose inference, English clip transcription, reviewed speech
 cuts and playable vertical exports have run on the development phone. The latest
-planning-prompt repair passed18 interface checks; the preceding export repair
+planning-dialog repair passed18 interface checks; the preceding export repair
 passed6 focused phone checks. Earlier speech-cut checks also preserved the
 original video and subtitle timing.
 
