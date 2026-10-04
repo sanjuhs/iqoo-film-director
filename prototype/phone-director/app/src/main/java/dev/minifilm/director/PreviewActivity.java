@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.activity.ComponentActivity;
@@ -31,6 +32,8 @@ public final class PreviewActivity extends ComponentActivity {
     /** Optional source-relative cut range; provide both extras or neither. */
     public static final String EXTRA_START_MS = "preview.startMs";
     public static final String EXTRA_END_MS = "preview.endMs";
+    /** Geometry-only center crop for source take review; exported reels use the default FIT mode. */
+    public static final String EXTRA_CROP_TO_REEL = "preview.cropToReel";
     private static final String POSITION = "preview.positionMs";
     private static final String SOURCE = "preview.source";
     private PlayerView playerView;
@@ -41,6 +44,8 @@ public final class PreviewActivity extends ComponentActivity {
     private long positionMs;
     private Long startMs, endMs;
     private boolean validRange = true;
+    private boolean cropToReel;
+    private FrameLayout cropViewport;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -52,6 +57,7 @@ public final class PreviewActivity extends ComponentActivity {
         bars.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
 
         source = getIntent() == null ? null : getIntent().getData();
+        cropToReel = getIntent() != null && getIntent().getBooleanExtra(EXTRA_CROP_TO_REEL, false);
         if (getIntent() != null) {
             boolean hasStart = getIntent().hasExtra(EXTRA_START_MS), hasEnd = getIntent().hasExtra(EXTRA_END_MS);
             try {
@@ -76,13 +82,54 @@ public final class PreviewActivity extends ComponentActivity {
         playerView = new PlayerView(this);
         playerView.setBackgroundColor(Color.BLACK);
         playerView.setShutterBackgroundColor(Color.BLACK);
-        playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+        playerView.setResizeMode(cropToReel ? AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                : AspectRatioFrameLayout.RESIZE_MODE_FIT);
         playerView.setUseController(true);
         playerView.setControllerShowTimeoutMs(3000);
         playerView.setControllerAutoShow(true);
         playerView.setShowPreviousButton(false);
         playerView.setShowNextButton(false);
-        root.addView(playerView, new FrameLayout.LayoutParams(-1, -1));
+        if (cropToReel) {
+            playerView.setShowFastForwardButton(false);
+            playerView.setShowRewindButton(false);
+        }
+        if (cropToReel) {
+            // The video zooms inside a separate 9:16 clip. Controls remain inside that
+            // viewport; fitting to the whole phone would crop to the phone's own aspect.
+            LinearLayout review = new LinearLayout(this);
+            review.setOrientation(LinearLayout.VERTICAL);
+            review.setPadding(dp(12), dp(94), dp(12), dp(12));
+            TextView label = new TextView(this);
+            label.setText("Reel crop preview · framing only\nSource audio is unchanged. Export text and color are not shown.");
+            label.setTextColor(0xFFF5F5EF); label.setTextSize(12);
+            label.setGravity(Gravity.CENTER); label.setPadding(dp(4), 0, dp(4), dp(10));
+            review.addView(label, new LinearLayout.LayoutParams(-1, -2));
+            FrameLayout available = new FrameLayout(this);
+            available.setClipChildren(true); available.setClipToPadding(true);
+            review.addView(available, new LinearLayout.LayoutParams(-1, 0, 1));
+            cropViewport = new FrameLayout(this);
+            cropViewport.setClipChildren(true); cropViewport.setClipToPadding(true);
+            cropViewport.addView(playerView, new FrameLayout.LayoutParams(-1, -1));
+            available.addView(cropViewport, new FrameLayout.LayoutParams(1, 1, Gravity.CENTER));
+            available.addOnLayoutChangeListener((v,l,t,r,b,oldL,oldT,oldR,oldB) -> {
+                int width = r-l, height = b-t;
+                if (width <= 0 || height <= 0) return;
+                int fittedWidth = Math.min(width, Math.max(1, Math.round(height * 9f/16f)));
+                int fittedHeight = Math.min(height, Math.max(1, Math.round(fittedWidth * 16f/9f)));
+                FrameLayout.LayoutParams bounds = (FrameLayout.LayoutParams) cropViewport.getLayoutParams();
+                if (bounds.width != fittedWidth || bounds.height != fittedHeight) {
+                    bounds.width = fittedWidth; bounds.height = fittedHeight;
+                    cropViewport.setLayoutParams(bounds);
+                }
+            });
+            root.addView(review, new FrameLayout.LayoutParams(-1, -1));
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root, (v,insets) -> {
+                androidx.core.graphics.Insets safe = insets.getInsetsIgnoringVisibility(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                v.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+                return insets;
+            });
+        } else root.addView(playerView, new FrameLayout.LayoutParams(-1, -1));
 
         loading = new ProgressBar(this);
         FrameLayout.LayoutParams loadingBounds = new FrameLayout.LayoutParams(dp(42), dp(42), Gravity.CENTER);
@@ -165,6 +212,7 @@ public final class PreviewActivity extends ComponentActivity {
         if (source != null) state.putString(SOURCE, source.toString());
         if (startMs != null) state.putLong(EXTRA_START_MS, startMs);
         if (endMs != null) state.putLong(EXTRA_END_MS, endMs);
+        state.putBoolean(EXTRA_CROP_TO_REEL, cropToReel);
         super.onSaveInstanceState(state);
     }
 

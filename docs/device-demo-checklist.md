@@ -123,11 +123,15 @@ retrying and inspect Android's microphone indicator.
    it. Settings apply to the next take. Check the saved speech and immediate
    Stop/background behavior before relying on it in a demo.
 2. Use **End shoot & review**, then **Preview take** in Assemble. Playback opens
-   paused; press play yourself. Check picture, orientation, duration and sound
+   paused in the centered9:16 reel crop; the label explains that export text/color
+   are absent and source audio is unchanged. Press play yourself. Check picture,
+   orientation, duration and sound
    before relying on a longer shoot.
 3. For the five-shot rehearsal, return to Direct and enable **Guide the full shot
    sequence**. Start the camera, then tap Record. It speaks each reviewed cue,
-   gives an eight-second pose break, speaks the countdown, records quietly and
+   gives at least eight seconds for posing with current person-framing advice.
+   With spoken direction enabled, one pending framing hint finishes before the
+   countdown. Speech failure pauses preparation. It then records quietly and
    moves to the next shot. This complete live sequence is still an attended
    acceptance check. Keep **Stop take** reachable throughout.
 

@@ -251,3 +251,11 @@ Assemble keeps one selection summary and **Export my reel** above navigation,
 independent of list scrolling. Empty selections/processing disable export;
 returning from a preview preserves your place. [Footer evidence](../../docs/assembly-footer-evidence.md)
 records lifecycle state and actual synthetic export checks.
+
+The guided pose break now accepts current person-framing advice for at least8s;
+one pending spoken hint finishes before countdown3. Object/detail shots exclude
+person advice, and stopping/backgrounding invalidates preparation. Take/trim
+playback uses a clipped centered9:16 framing preview; exported-reel playback stays
+FIT. Text/color effects are absent from source previews. [Verification and
+limitations](../../docs/pose-break-crop-evidence.md) records29 distinct passing
+emulator methods across two runners and three physical range checks.

@@ -11,10 +11,12 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Switch;
 import androidx.camera.view.PreviewView;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -35,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.Assert.*;
 
 /** Synthetic session delivery only: no preview, ML inference, microphone or TTS playback. */
@@ -225,6 +228,139 @@ public final class ShootPoseCueUiTest {
                 assertFalse(((SpeechCoach)field(a,"speech")).hasSpeechWork());assertIdleCapture(a);
             });
         }
+    }
+
+    @Test(timeout=30_000) public void sequencePoseBreakEnablesPersonVisualAdviceButRejectsOldFramesAndObjectAdvice(){
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{
+                prepareIdlePoseBreak(a);int generation=(Integer)field(a,"countdownGeneration");
+                assertEquals(true,field(field(a,"pose"),"enabled"));assertEquals(true,field(a,"poseBreakActive"));
+                apply(a,(Integer)field(a,"shootPoseGeneration"),"Fresh synthetic framing observation",15,40);
+                assertEquals("Fresh synthetic framing observation",framing(a));
+                String current=framing(a);apply(a,(Integer)field(a,"shootPoseGeneration"),"Stale observation",4,2001);
+                assertEquals(current,framing(a));
+                DenyFocus focus=installDenyFocus(a);String held=holdActualFramingCompletion(a,"One early synthetic framing cue");
+                invoke(field(a,"speech"),"finishSpeech",new Class<?>[]{String.class,boolean.class},held,true);
+                assertFalse(((SpeechCoach)field(a,"speech")).hasSpeechWork());assertEquals(1,focus.requests);
+                apply(a,(Integer)field(a,"shootPoseGeneration"),"Visual update after own speech completes",16,30);
+                assertEquals("Visual update after own speech completes",framing(a));assertEquals("The same break cannot speak a second framing cue",1,focus.requests);
+                invoke(a,"finishPoseBreak",new Class<?>[]{int.class},generation);
+                assertEquals("An early finish cannot shorten the eight-second break",true,field(a,"poseBreakActive"));
+                assertEquals(true,field(field(a,"pose"),"enabled"));assertFalse(timer(a).startsWith("Starting in"));
+                invoke(a,"stopTake",new Class<?>[0]);set(a,"style","Product reveal");set(a,"voice",false);
+                set(a,"sequenceActive",true);invoke(a,"prepareSequenceShot",new Class<?>[0]);
+                assertEquals(false,field(field(a,"pose"),"enabled"));current=framing(a);String before=status(a);
+                apply(a,(Integer)field(a,"shootPoseGeneration"),"Object shot must not accept a person cue",17,40);
+                assertEquals(current,framing(a));assertEquals(before,status(a));
+                invoke(a,"stopTake",new Class<?>[0]);assertIdleCapture(a);
+            });
+        }
+    }
+
+    @Test(timeout=30_000) public void realEightSecondPoseBreakWaitsForOneOwnedFramingCueBeforeCountdownThree(){
+        AtomicReference<MainActivity> identity=new AtomicReference<>();AtomicReference<String> heldId=new AtomicReference<>();
+        AtomicReference<DenyFocus> focus=new AtomicReference<>();AtomicReference<Long> deadline=new AtomicReference<>();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{
+                identity.set(a);prepareIdlePoseBreak(a);deadline.set((Long)field(a,"poseBreakUntilMs"));
+                focus.set(installDenyFocus(a));heldId.set(holdActualFramingCompletion(a,"One synthetic framing cue"));
+                assertEquals(1,focus.get().requests);assertEquals(true,field(a,"poseBreakSpeechPending"));
+                apply(a,(Integer)field(a,"shootPoseGeneration"),"New visual observation while speech is pending",18,30);
+                assertEquals("New visual observation while speech is pending",framing(a));assertEquals(1,focus.get().requests);
+                assertEquals(heldId.get(),field(field(a,"speech"),"activeUtterance"));assertIdleCapture(a);
+            });
+            // This method retains a real clock-driven minimum; other cancellation checks do not wait eight seconds.
+            while(SystemClock.elapsedRealtime()<deadline.get()-500)SystemClock.sleep(Math.min(50,Math.max(1,deadline.get()-500-SystemClock.elapsedRealtime())));
+            scenario.onActivity(a->{assertEquals(true,field(a,"poseBreakActive"));assertEquals(true,field(field(a,"pose"),"enabled"));assertFalse(timer(a).startsWith("Starting in"));assertEquals(1,focus.get().requests);});
+            awaitMain(identity.get(),()->Boolean.TRUE.equals(field(identity.get(),"poseBreakWaitingForSpeech")),5000);
+            scenario.onActivity(a->{
+                assertTrue(SystemClock.elapsedRealtime()>=deadline.get());assertEquals(false,field(a,"poseBreakActive"));
+                assertEquals(false,field(field(a,"pose"),"enabled"));assertEquals(true,field(a,"poseBreakSpeechPending"));
+                assertFalse(timer(a).startsWith("Starting in"));String before=framing(a);
+                apply(a,(Integer)field(a,"shootPoseGeneration"),"Late observation after break",19,20);assertEquals(before,framing(a));
+                SpeechCoach coach=(SpeechCoach)field(a,"speech");invoke(coach,"finishSpeech",new Class<?>[]{String.class,boolean.class},heldId.get(),true);
+                assertEquals("Starting in 3…",timer(a));assertEquals(false,field(field(a,"pose"),"enabled"));
+                assertEquals("One framing cue and then countdown three",2,focus.get().requests);
+                assertNull("Denied focus never arms playback",field(coach,"speechTimeout"));invoke(a,"stopTake",new Class<?>[0]);assertIdleCapture(a);
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            scenario.onActivity(a->{assertEquals(false,field(a,"countdown"));assertFalse(((SpeechCoach)field(a,"speech")).hasSpeechWork());assertIdleCapture(a);});
+        }
+    }
+
+    @Test(timeout=30_000) public void stoppedDisabledReplacedAndBackgroundPoseBreaksCannotAdvanceFromRetainedSpeechCompletion(){
+        AtomicReference<MainActivity> identity=new AtomicReference<>();AtomicReference<Runnable> backgroundCompletion=new AtomicReference<>();AtomicInteger backgroundGeneration=new AtomicInteger();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{
+                identity.set(a);
+                for(int mode=0;mode<3;mode++){
+                    prepareIdlePoseBreak(a);installDenyFocus(a);holdActualFramingCompletion(a,"Synthetic cancellable cue");
+                    Runnable completion=(Runnable)field(field(a,"speech"),"afterSpeech");assertNotNull(completion);int old=(Integer)field(a,"countdownGeneration");
+                    if(mode==0)invoke(a,"stopTake",new Class<?>[0]);
+                    else if(mode==1){Switch sequence=switchView((View)field(a,"root"),"Guide the full shot sequence");assertNotNull(sequence);assertTrue(sequence.isChecked());sequence.setChecked(false);}
+                    else{invoke(a,"cancelCountdown",new Class<?>[0]);set(a,"voice",false);set(a,"sequenceActive",true);invoke(a,"prepareSequenceShot",new Class<?>[0]);}
+                    String before=timer(a);completion.run();invoke(a,"finishPoseBreak",new Class<?>[]{int.class},old);
+                    assertEquals(before,timer(a));assertFalse(timer(a).startsWith("Starting in"));
+                    if(mode==2){assertEquals(true,field(a,"poseBreakActive"));assertEquals(true,field(field(a,"pose"),"enabled"));}
+                    else assertEquals(false,field(a,"countdown"));
+                    invoke(a,"stopTake",new Class<?>[0]);assertIdleCapture(a);
+                }
+                prepareIdlePoseBreak(a);installDenyFocus(a);holdActualFramingCompletion(a,"Synthetic background cue");
+                backgroundCompletion.set((Runnable)field(field(a,"speech"),"afterSpeech"));backgroundGeneration.set((Integer)field(a,"countdownGeneration"));
+            });
+            scenario.moveToState(Lifecycle.State.CREATED);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
+                MainActivity a=identity.get();String before=timer(a);backgroundCompletion.get().run();invoke(a,"finishPoseBreak",new Class<?>[]{int.class},backgroundGeneration.get());
+                assertEquals(before,timer(a));assertEquals(false,field(a,"session"));assertEquals(false,field(a,"countdown"));assertEquals(false,field(field(a,"pose"),"enabled"));assertIdleCapture(a);
+            });
+            scenario.moveToState(Lifecycle.State.RESUMED);
+            scenario.onActivity(a->{assertEquals(false,field(a,"countdown"));assertFalse(timer(a).startsWith("Starting in"));assertIdleCapture(a);});
+        }
+    }
+
+    @Test(timeout=30_000) public void failedOwnedFramingSpeechPausesBeforeCountdownAndStaleDeadlineStaysInert(){
+        AtomicInteger generation=new AtomicInteger();
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->{
+                prepareIdlePoseBreak(a);DenyFocus focus=installDenyFocus(a);generation.set((Integer)field(a,"countdownGeneration"));
+                apply(a,(Integer)field(a,"shootPoseGeneration"),"Synthetic denied framing cue",14,30);
+                assertEquals(1,focus.requests);assertNull(field(field(a,"speech"),"speechTimeout"));assertIdleCapture(a);
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            scenario.onActivity(a->{
+                assertEquals(false,field(a,"sequenceActive"));assertEquals(false,field(a,"countdown"));assertEquals(true,field(a,"spokenPreparationPaused"));
+                assertFalse(((SpeechCoach)field(a,"speech")).hasSpeechWork());assertFalse(timer(a).startsWith("Starting in"));
+                String before=timer(a);invoke(a,"finishPoseBreak",new Class<?>[]{int.class},generation.get());assertEquals(before,timer(a));assertIdleCapture(a);
+            });
+        }
+    }
+
+    private static void prepareIdlePoseBreak(MainActivity a){
+        installIdleCapture(a);PoseCoach old=(PoseCoach)field(a,"pose");if(old!=null)old.close();
+        PoseCoach pose=new PoseCoach((cue,count,latency)->fail("No frame may be inferred in this synthetic test"));pose.setEnabled(false);set(a,"pose",pose);
+        set(a,"style","Fashion");set(a,"voice",false);
+        Switch sequence=switchView((View)field(a,"root"),"Guide the full shot sequence");assertNotNull(sequence);sequence.setChecked(true);
+        set(a,"sequenceActive",true);invoke(a,"prepareSequenceShot",new Class<?>[0]);assertEquals(true,field(a,"countdown"));assertEquals(true,field(a,"poseBreakActive"));
+    }
+    private static DenyFocus installDenyFocus(MainActivity a){
+        ((SpeechCoach)field(a,"speech")).close();DenyFocus focus=new DenyFocus();SpeechCoach coach=new SpeechCoach(a,focus);set(a,"speech",coach);set(coach,"ready",true);set(a,"voice",true);set(a,"lastCue",-12_001L);return focus;
+    }
+    private static String holdActualFramingCompletion(MainActivity a,String cue){
+        apply(a,(Integer)field(a,"shootPoseGeneration"),cue,16,30);SpeechCoach coach=(SpeechCoach)field(a,"speech");
+        assertNotNull(field(coach,"activeUtterance"));assertNotNull(field(coach,"afterSpeech"));assertNotNull(field(coach,"speechFailed"));
+        // Retain the production completion gate while its queued denied-focus ID becomes stale.
+        // Only utterance ownership is controlled; no successful audio backend is fabricated.
+        String held="synthetic-held-framing-"+field(a,"countdownGeneration");set(coach,"activeUtterance",held);assertNull(field(coach,"speechTimeout"));return held;
+    }
+    private static void awaitMain(MainActivity a,java.util.function.BooleanSupplier condition,long timeoutMs){
+        long until=SystemClock.elapsedRealtime()+timeoutMs;AtomicBoolean ready=new AtomicBoolean();
+        do{InstrumentationRegistry.getInstrumentation().runOnMainSync(()->ready.set(condition.getAsBoolean()));if(ready.get())return;SystemClock.sleep(25);}while(SystemClock.elapsedRealtime()<until);
+        fail("Synthetic pose-break transition did not settle");
+    }
+    private static String timer(MainActivity a){return ((TextView)field(a,"timerView")).getText().toString();}
+    private static Switch switchView(View view,String label){
+        if(view instanceof Switch&&label.contentEquals(((Switch)view).getText()))return (Switch)view;
+        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++){Switch found=switchView(group.getChildAt(i),label);if(found!=null)return found;}}return null;
     }
 
     private static final class DenyFocus implements SpeechCoach.FocusControl {

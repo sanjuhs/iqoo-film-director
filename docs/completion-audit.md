@@ -456,3 +456,31 @@ Installed source/build provenance and remaining attended/competition gates persi
 The older framing pending-task limitation above is superseded for its single-image
 helper family by [completion-held ownership](framing-task-ownership-evidence.md);
 separate live detectors and hard native abort remain outside that bound.
+
+### 20:57 IST — pose-break advice and reel-crop preview
+
+Guided pose preparation now enables current person-framing advice during its
+minimum8s break, permits one owned spoken hint and waits for full completion
+before countdown3. Stop, failed speech, replaced session and background reject
+retained callbacks. Object/detail analysis remains excluded. Take/trim previews
+now use a centered clipped9:16 viewport, disclose absent export text/color and
+retain source audio; last-reel playback stays FIT. [Full evidence](pose-break-crop-evidence.md).
+
+First fresh emulator28/29 in48.990s had one control-animation timing failure.
+Test-only bounded stabilization preserved exact visibility assertions; corrected
+crop class3/7.027s passed. Thus29 distinct methods passed across two runners,
+including11pose,10workflow,5footer and3crop. Actual native rotated/normal silent
+fixtures, paused ranges and true release/recreation passed; ordinary app buttons
+opened both crops, with settled screenshots visually reviewed. A stale/idle-failed
+UI dump was detected and excluded, with helper corrected. Synthetic state/audio
+seams do not prove live pose/TTS/AirPods or universal crop/export parity.
+
+Physical native range3/0.915s; gallery1/0.975s unchanged28/0/8319196B. Built/saved/
+independently read installedAPK52838059B SHA256
+c8534229daa61d538a608bce76e3a278fb04fc8585ca8d66bdb6a9de2b966ccd.
+Source-identical notices; separate weights excluded; noInternet. Normal Main
+launch requested behind keyguard with camera/mic denied. Own AVD/reg removed
+and other AVD untouched. Qualified peak10844277013B, finaladjacent9327196437B;
+existing archive/cache/full-inventory qualifications retained. No new downloads,
+private upload/capture or aircraft action. Goal active; attended/device/event
+acceptance gates remain unchanged.

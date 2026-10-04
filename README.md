@@ -38,6 +38,11 @@ The selection duration and **Export my reel** now stay above navigation while
 reviewing takes. Returning from a preview preserves the list position; busy
 processing keeps edits locked. See [footer evidence](docs/assembly-footer-evidence.md).
 
+Guided preparation now gives person-framing advice during the pose break and
+waits for a pending spoken hint before counting down. Take/trim previews show
+the centered9:16 reel crop with a framing-only disclosure. [Verified checks](docs/pose-break-crop-evidence.md)
+use synthetic inputs; attended filming and earbud sound remain open.
+
 **Review cut framing** adds an opt-in look at three nearby frames from a saved
 take’s current cut. Local pose checks show qualified body-visibility hints on an
 approximate center 9:16 crop. Results are temporary and do not edit cuts, assign

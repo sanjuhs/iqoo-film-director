@@ -33,7 +33,7 @@ public class MainActivity extends ComponentActivity {
     private VisionReference referenceVision; private ReferenceFrameDecoder referenceFrames; private Uri referenceVideoUri; private String pendingReferenceNotes=""; private long pendingReferenceTimeMs; private android.graphics.Bitmap pendingReferenceFrame;
     private ReferenceBoardInspection boardInspection; private ReferenceBoard pendingReferenceBoard, reviewedReferenceBoard; private long referenceDurationMs; private AlertDialog referenceBoardDialog,referenceNotesDialog;
     private boolean waitQuietPause=false, recordingTimedStop=false, recordingQuietStop=false; private QuietTailStopPolicy quietStopPolicy;
-    private int shootPoseGeneration; private boolean spokenPreparationPaused; private Shot recordingShot; private int countdownGeneration=0; private boolean reviewAfterSave=false; private TextView framingView;
+    private int shootPoseGeneration; private int poseBreakGeneration=-1; private long poseBreakUntilMs; private boolean poseBreakActive,poseBreakCueAttempted,poseBreakSpeechPending,poseBreakWaitingForSpeech; private boolean spokenPreparationPaused; private Shot recordingShot; private int countdownGeneration=0; private boolean reviewAfterSave=false; private TextView framingView;
     private LocalBriefRecorder briefRecorder;
     private Button finishVoiceBriefButton;
     private File processingVoiceBrief;
@@ -68,7 +68,7 @@ public class MainActivity extends ComponentActivity {
     private Button button(String s,boolean primary,Runnable action){Button b=new Button(this);b.setText(s);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(primary?BG:FG);b.setBackground(bg(primary?LIME:0xff303338));b.setMinHeight(dp(50));b.setPadding(dp(12),dp(8),dp(12),dp(8));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(52));p.topMargin=dp(8);p.bottomMargin=dp(4);b.setLayoutParams(p);b.setOnClickListener(v->{if(referenceSpeechReader!=null&&!busy){toast("Reference speech is still stopping. Try again in a moment.");return;}if(busy){toast("Local processing is running. You can cancel it above.");return;}action.run();});return b;}
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
-        clearAssemblyFooter();
+        clearAssemblyFooter();clearPoseBreak();
         ++shootPoseGeneration;
         cancelTakeFraming(false);dismissTakeTools();
         dismissShotAssignments();coverageSummary=null;coverageRows=null;nextMissingShotButton=null;
@@ -275,7 +275,16 @@ public class MainActivity extends ComponentActivity {
     private void applyPoseCue(int generation,String cue,int count,long latency){
         // A worker result can already be queued when its previous pose coach is closed.
         if(generation!=shootPoseGeneration||destroying||!session||tab!=1)return;
-        if(capture==null||capture.isRecording()||countdown)return;
+        if(capture==null||capture.isRecording())return;
+        if(countdown){
+            if(!poseBreakActive||!poseBreakCurrent(poseBreakGeneration)||!isPoseShot()||latency<0||latency>2000)return;
+            framingView.setText(cue);
+            if(voice&&!spokenPreparationPaused&&!poseBreakCueAttempted&&!speech.hasSpeechWork()){
+                int breakGeneration=poseBreakGeneration;poseBreakCueAttempted=true;poseBreakSpeechPending=true;
+                speech.speakThen(cue,()->poseBreakSpeechFinished(breakGeneration),()->{if(poseBreakCurrent(breakGeneration))spokenCueFailed(breakGeneration);});
+            }
+            return;
+        }
         if(!spokenPreparationPaused)status.setText("On-device pose · "+count+" visible points · "+latency+" ms");
         framingView.setText(cue);
         if(voice&&!spokenPreparationPaused&&!speech.hasSpeechWork()&&SystemClock.elapsedRealtime()-lastCue>12000){
@@ -298,7 +307,7 @@ public class MainActivity extends ComponentActivity {
     private boolean isPoseShot(){if(style.toLowerCase(Locale.ROOT).contains("product"))return false;String title=shots.get(shotIndex).title.toLowerCase(Locale.ROOT);return !title.contains("cutaway")&&!title.contains("world")&&!title.contains("detail")&&!title.contains("fabric")&&!title.contains("product")&&!title.contains("texture")&&!title.contains("sleeve");}
     private void startCountdown(){if(busy){toast("Wait for local processing to finish.");return;}if(!live||capture==null){toast("Start the shoot camera first.");return;}if(countdown||capture.isRecording())return;spokenPreparationPaused=false;if(guideSequence&&!sequenceActive){sequenceActive=true;prepareSequenceShot();return;}speech.stop();speech.stopListening();pose.setEnabled(false);countdown=true;int generation=++countdownGeneration;recordingShot=shots.get(shotIndex);cueView.setText(recordingShot.instruction);count(3,generation);}
     private void prepareSequenceShot(){
-        speech.stopListening();pose.setEnabled(false);countdown=true;
+        clearPoseBreak();speech.stopListening();pose.setEnabled(false);countdown=true;
         int generation=++countdownGeneration;recordingShot=shots.get(shotIndex);
         cueView.setText(recordingShot.instruction);
         framingView.setText("Follow this direction. Your pose break starts after the cue.");
@@ -308,9 +317,37 @@ public class MainActivity extends ComponentActivity {
     }
     private boolean countdownCurrent(int generation){return generation==countdownGeneration&&countdown&&session;}
     private void beginPoseBreak(int generation){
-        if(!countdownCurrent(generation)||!sequenceActive)return;
+        if(!countdownCurrent(generation)||!sequenceActive||destroying||tab!=1
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        clearPoseBreak();poseBreakGeneration=generation;poseBreakActive=true;poseBreakUntilMs=SystemClock.elapsedRealtime()+8000;
+        if(pose!=null)pose.setEnabled(isPoseShot());
         status.setText("Pose break · 8 seconds · Stop ends the sequence");timerView.setText("Get ready for your next take");
-        handler.postDelayed(()->{if(countdownCurrent(generation)&&sequenceActive)count(3,generation);},8000);
+        handler.postDelayed(()->finishPoseBreak(generation),8000);
+    }
+    private boolean poseBreakCurrent(int generation){
+        return generation==poseBreakGeneration&&countdownCurrent(generation)&&sequenceActive&&!destroying&&tab==1
+                &&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED);
+    }
+    private void finishPoseBreak(int generation){
+        if(!poseBreakCurrent(generation))return;
+        long remaining=poseBreakUntilMs-SystemClock.elapsedRealtime();
+        if(remaining>0){handler.postDelayed(()->finishPoseBreak(generation),remaining);return;}
+        poseBreakActive=false;if(pose!=null)pose.setEnabled(false);
+        if(poseBreakSpeechPending){
+            poseBreakWaitingForSpeech=true;status.setText("Finishing framing advice · Stop cancels the start");timerView.setText("Countdown follows the full cue");return;
+        }
+        clearPoseBreak();count(3,generation);
+    }
+    private void poseBreakSpeechFinished(int generation){
+        if(!poseBreakCurrent(generation))return;
+        poseBreakSpeechPending=false;
+        if(poseBreakWaitingForSpeech){clearPoseBreak();count(3,generation);}
+    }
+    private void clearPoseBreak(){
+        if(poseBreakSpeechPending&&speech!=null)speech.stop();
+        if(poseBreakActive&&pose!=null)pose.setEnabled(false);
+        poseBreakActive=false;poseBreakCueAttempted=false;poseBreakSpeechPending=false;poseBreakWaitingForSpeech=false;
+        poseBreakGeneration=-1;poseBreakUntilMs=0;
     }
     private void pauseSpokenPreparation(){
         spokenPreparationPaused=true;sequenceActive=false;
@@ -335,7 +372,7 @@ public class MainActivity extends ComponentActivity {
         },()->spokenCueFailed(generation));
         else handler.postDelayed(()->count(n-1,generation),1000);
     }
-    private void cancelCountdown(){countdown=false;++countdownGeneration;}
+    private void cancelCountdown(){clearPoseBreak();countdown=false;++countdownGeneration;}
     private void showPreparationCanceled(){if(timerView!=null)timerView.setText("Ready when you are · "+shots.get(shotIndex).targetDurationMs/1000+" second take");if(status!=null)status.setText("Start canceled · tap Record when you're ready.");}
     private void stopTake(){boolean preparing=countdown&&(capture==null||!capture.isRecording());clearQuietStopPolicy();sequenceActive=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopRecording();speech.stopListening();speech.stop();if(pose!=null)pose.setEnabled(session&&isPoseShot());if(preparing)showPreparationCanceled();}
     private void editPage(){
@@ -937,7 +974,7 @@ public class MainActivity extends ComponentActivity {
     private void startReelExport(List<AutoColorBalance.Balance> balances){final ShotPlanSnapshot shotPlan;try{shotPlan=ShotPlanSnapshot.capture(shots,planSource);}catch(IllegalArgumentException invalid){planExportError(invalid);return;}status.setText("Exporting on your phone… keep the app open");exporter.export(takes,reelTitle,look,balances,shotPlan,new ReelExporter.Listener(){public void onProgress(int p){status.setText("Exporting locally · "+p+"%");}public void onComplete(Uri v,Uri e){setBusy(false);lastVideo=v;lastEdit=e;save();render();status.setText("Your reel is ready · saved to Movies / MiniFilm");}public void onError(String e){setBusy(false);status.setText(e);toast(e);}});}
     private void loadDemo(){if(busy)return;releasePlannerForMedia();int generation=++demoGeneration;setBusy(true);status.setText("Creating synthetic demo clips locally…");DemoAssets.create(this,new DemoAssets.Listener(){public void onReady(List<Take> t){if(generation!=demoGeneration)return;setBusy(false);takes.addAll(t);tab=2;save();render();status.setText("Synthetic demo · no camera or microphone was used");}public void onError(String e){if(generation!=demoGeneration)return;setBusy(false);toast(e);status.setText(e);}});}
     private void previewVideo(Uri u){previewVideo(u,null,null);}
-    private void previewVideo(Uri u,Long startMs,Long endMs){Uri safe=u;if("file".equals(u.getScheme()))safe=FileProvider.getUriForFile(this,"dev.minifilm.director.files",new File(u.getPath()));Intent i=new Intent(this,PreviewActivity.class).setData(safe).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);if(startMs!=null&&endMs!=null)i.putExtra(PreviewActivity.EXTRA_START_MS,startMs.longValue()).putExtra(PreviewActivity.EXTRA_END_MS,endMs.longValue());try{startActivity(i);}catch(Exception e){toast("This video could not be opened.");}}
+    private void previewVideo(Uri u,Long startMs,Long endMs){Uri safe=u;if("file".equals(u.getScheme()))safe=FileProvider.getUriForFile(this,"dev.minifilm.director.files",new File(u.getPath()));Intent i=new Intent(this,PreviewActivity.class).setData(safe).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);if(startMs!=null&&endMs!=null)i.putExtra(PreviewActivity.EXTRA_START_MS,startMs.longValue()).putExtra(PreviewActivity.EXTRA_END_MS,endMs.longValue()).putExtra(PreviewActivity.EXTRA_CROP_TO_REEL,true);try{startActivity(i);}catch(Exception e){toast("This video could not be opened.");}}
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
