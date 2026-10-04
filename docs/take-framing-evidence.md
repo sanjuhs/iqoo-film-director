@@ -96,7 +96,7 @@ Actual local pose inference populated the modal. Top/bottom screenshots and
 hierarchy inspect readable qualified observations, three requested times and
 reachable Done; this is one synthetic layout, not attended phone usability.
 
-Current built/saved/independently read installed APK 52,838,059B:
+At this framing checkpoint, built/saved/independently read installed APK 52,838,059B:
 SHA256`168406ff0a88119d1511cdf205184ba43c3d4cff2c2b312c881a0e01d170ea4f`.
 Notices 31,635B/source-identicalSHA256`02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68`.
 Separate Qwen/Whisper weights excluded from Git/APK; bundled ML Kit assets remain.

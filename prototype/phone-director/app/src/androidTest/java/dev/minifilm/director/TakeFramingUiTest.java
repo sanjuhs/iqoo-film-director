@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
@@ -73,7 +75,7 @@ public final class TakeFramingUiTest {
     @Test(timeout=45_000) public void actualButtonShowsThreeEphemeralObservationsAndDoneRecyclesWithoutEditingTake() throws Exception {
         FakeInspector fake=fake(false);Take take=take();EditSnapshot originalEdit=new EditSnapshot(take);
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
-            scenario.onActivity(a->{prepare(a,take,fake);clickReview(a);});
+            scenario.onActivity(a->prepare(a,take,fake));clickReview(scenario);
             await(fake.started);awaitIdleReview(scenario);
             scenario.onActivity(a->{AlertDialog dialog=dialog(a);assertTrue(dialog.isShowing());
                 assertTrue(hasText(dialog.getWindow().getDecorView(),"Three nearby frames with an approximate vertical crop"));
@@ -92,7 +94,7 @@ public final class TakeFramingUiTest {
     @Test(timeout=45_000) public void explicitCancelSuppressesLateFramesAndDoesNotClearNewerBusyOwner() throws Exception {
         FakeInspector fake=fake(true);Take take=take();EditSnapshot originalEdit=new EditSnapshot(take);
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
-            scenario.onActivity(a->{prepare(a,take,fake);clickReview(a);});await(fake.started);
+            scenario.onActivity(a->prepare(a,take,fake));clickReview(scenario);await(fake.started);
             scenario.onActivity(a->{assertEquals(true,field(a,"busy"));Button cancel=(Button)find((View)field(a,"root"),Button.class,"Cancel local processing");
                 assertNotNull(cancel);cancel.performClick();assertEquals(false,field(a,"busy"));assertNull(field(a,"activeTakeFramingReview"));
                 // A later unrelated operation owns this gate; old review completion may not clear it.
@@ -107,7 +109,7 @@ public final class TakeFramingUiTest {
         FakeInspector fake=fake(true);Take take=take();EditSnapshot originalEdit=new EditSnapshot(take);
         AtomicReference<TakeFramingReview> backgroundReviewer=new AtomicReference<>();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
-            scenario.onActivity(a->{prepare(a,take,fake);backgroundReviewer.set((TakeFramingReview)field(a,"takeFramingReview"));clickReview(a);});await(fake.started);
+            scenario.onActivity(a->{prepare(a,take,fake);backgroundReviewer.set((TakeFramingReview)field(a,"takeFramingReview"));});clickReview(scenario);await(fake.started);
             scenario.moveToState(Lifecycle.State.CREATED);fake.release.countDown();
             assertEquals(Lifecycle.State.CREATED,scenario.getState());
             // Poll only the thread-safe worker owner while actually stopped. Do not route a
@@ -116,7 +118,7 @@ public final class TakeFramingUiTest {
             scenario.onActivity(a->{assertEquals(1,fake.calls.get());assertNull(field(a,"takeFramingDialog"));assertEquals(false,field(a,"busy"));
                 assertRecycled(fake);originalEdit.assertUnchanged(take);assertNoCaptureOrSpeech(a);});
             FakeInspector immediate=fake(false);
-            scenario.onActivity(a->{((TakeFramingReview)field(a,"takeFramingReview")).close();set(a,"takeFramingReview",new TakeFramingReview(a,immediate));clickReview(a);});await(immediate.started);awaitIdleReview(scenario);
+            scenario.onActivity(a->{((TakeFramingReview)field(a,"takeFramingReview")).close();set(a,"takeFramingReview",new TakeFramingReview(a,immediate));});clickReview(scenario);await(immediate.started);awaitIdleReview(scenario);
             scenario.onActivity(a->assertTrue(dialog(a).isShowing()));scenario.moveToState(Lifecycle.State.CREATED);
             assertEquals(Lifecycle.State.CREATED,scenario.getState());
             assertRecycled(immediate);scenario.moveToState(Lifecycle.State.RESUMED);
@@ -129,7 +131,7 @@ public final class TakeFramingUiTest {
             final int change=changedField;
             FakeInspector fake=fake(true);Take take=take();EditSnapshot originalEdit=new EditSnapshot(take);
             try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
-                scenario.onActivity(a->{prepare(a,take,fake);clickReview(a);});await(fake.started);
+                scenario.onActivity(a->prepare(a,take,fake));clickReview(scenario);await(fake.started);
                 scenario.onActivity(a->{if(change==1)take.uri=Uri.parse("content://synthetic/replaced-source");else if(change==0)take.outMs=3000;
                     else{takes(a).clear();takes(a).add(take());}});
                 fake.release.countDown();awaitIdleReview(scenario);
@@ -148,11 +150,16 @@ public final class TakeFramingUiTest {
     @Test(timeout=45_000) public void malformedRemoteAndTooLongSourceFailBeforeWorkerOrBusy() {
         FakeInspector fake=fake(false);Take take=take();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
-            scenario.onActivity(a->{prepare(a,take,fake);
-                take.uri=null;clickReview(a);assertEquals(false,field(a,"busy"));
-                take.uri=Uri.parse("https://example.invalid/video.mp4");clickReview(a);assertEquals(false,field(a,"busy"));
-                take.uri=Uri.parse("content://synthetic/selected-video");take.durationMs=180001;clickReview(a);assertEquals(false,field(a,"busy"));
-                take.durationMs=4000;take.inMs=100;take.outMs=349;clickReview(a);assertEquals(false,field(a,"busy"));
+            scenario.onActivity(a->prepare(a,take,fake));
+            for(int invalid=0;invalid<4;invalid++){
+                final int choice=invalid;
+                scenario.onActivity(a->{if(choice==0)take.uri=null;
+                    else if(choice==1)take.uri=Uri.parse("https://example.invalid/video.mp4");
+                    else if(choice==2){take.uri=Uri.parse("content://synthetic/selected-video");take.durationMs=180001;}
+                    else{take.durationMs=4000;take.inMs=100;take.outMs=349;}});
+                clickReview(scenario);scenario.onActivity(a->assertEquals(false,field(a,"busy")));
+            }
+            scenario.onActivity(a->{
                 assertEquals(0,fake.calls.get());assertNull(field(a,"takeFramingDialog"));assertNoCaptureOrSpeech(a);
             });
         }
@@ -183,7 +190,26 @@ public final class TakeFramingUiTest {
         Take t=new Take(Uri.fromFile(missing),"synthetic-shot","Synthetic take","Reviewed typography",4000);t.inMs=100;t.outMs=3500;
         t.subtitles.add(new SubtitleCue(200,700,"Synthetic reviewed words"));t.reviewedShotIds.add("creator-mapping");t.captionOrigin="creator-reviewed-offline-asr";return t;}
     private static void prepare(MainActivity a,Take take,FakeInspector fake){takes(a).clear();takes(a).add(take);invoke(a,"save");invoke(a,"render");TakeFramingReview previous=(TakeFramingReview)field(a,"takeFramingReview");if(previous!=null)previous.close();set(a,"takeFramingReview",new TakeFramingReview(a,fake));assertNoCaptureOrSpeech(a);}
-    private static void clickReview(MainActivity a){Button button=(Button)find((View)field(a,"root"),Button.class,"Review cut framing");assertNotNull(button);button.performClick();}
+    private static void clickReview(ActivityScenario<MainActivity> scenario){
+        scenario.onActivity(a->{
+            assertNull("Framing is a secondary take tool",find((View)field(a,"root"),Button.class,"Review cut framing"));
+            Button cardTools=(Button)find((View)field(a,"root"),Button.class,"Edit & review take");
+            assertNotNull(cardTools);assertTrue(cardTools.performClick());
+        });idle();
+        scenario.onActivity(a->{
+            AlertDialog menu=(AlertDialog)field(a,"takeToolsDialog");assertNotNull(menu);assertTrue(menu.isShowing());
+            View decor=menu.getWindow().getDecorView();
+            assertNotNull(find(decor,Button.class,"Trim & typography"));assertNotNull(find(decor,Button.class,"Generate offline subtitles"));
+            ScrollView scroll=(ScrollView)find(decor,ScrollView.class,null);assertNotNull(scroll);scroll.fullScroll(View.FOCUS_DOWN);
+        });idle();
+        scenario.onActivity(a->{
+            AlertDialog menu=(AlertDialog)field(a,"takeToolsDialog");assertNotNull(menu);assertTrue(menu.isShowing());
+            Button review=(Button)find(menu.getWindow().getDecorView(),Button.class,"Review cut framing");assertNotNull(review);
+            Rect visible=new Rect();assertTrue(review.getGlobalVisibleRect(visible));assertTrue(visible.height()>=review.getHeight()-2);
+            assertTrue(review.performClick());assertFalse("Dismiss the tools before dispatching framing",menu.isShowing());
+            assertNull(field(a,"takeToolsDialog"));
+        });
+    }
     private static AlertDialog dialog(MainActivity a){AlertDialog dialog=(AlertDialog)field(a,"takeFramingDialog");assertNotNull(dialog);return dialog;}
     private static void assertRecycled(FakeInspector fake){assertNotNull(fake.result);for(TakeFramingReview.Moment moment:fake.result.moments)assertTrue(moment.thumbnail.isRecycled());}
     private static void await(CountDownLatch latch)throws Exception{assertTrue("Synthetic worker did not start",latch.await(10,TimeUnit.SECONDS));}
@@ -197,7 +223,7 @@ public final class TakeFramingUiTest {
         while(reviewer.isRunning()&&android.os.SystemClock.elapsedRealtime()<deadline)Thread.sleep(20);
         assertFalse("Stopped synthetic reviewer did not release ownership",reviewer.isRunning());idle();
     }
-    private static View find(View view,Class<?> type,String text){if(type.isInstance(view)&&view instanceof TextView&&text.contentEquals(((TextView)view).getText()))return view;
+    private static View find(View view,Class<?> type,String text){if(type.isInstance(view)&&(text==null||view instanceof TextView&&text.contentEquals(((TextView)view).getText())))return view;
         if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++){View found=find(group.getChildAt(i),type,text);if(found!=null)return found;}}return null;}
     private static boolean hasText(View view,String fragment){if(view instanceof TextView&&((TextView)view).getText().toString().contains(fragment))return true;
         if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)if(hasText(group.getChildAt(i),fragment))return true;}return false;}

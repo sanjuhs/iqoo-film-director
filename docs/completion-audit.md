@@ -38,6 +38,11 @@ no cuts, mappings, reference notes or quality scores are changed. This uses bund
 ML Kit, without VLM inference or new weights.
 [Take-framing evidence](take-framing-evidence.md).
 
+Assemble now presents compact take cards with direct paused preview and a
+scrollable per-take edit/review menu. Four new checks establish current-index
+dispatch and stale-button rejection; existing workflows remain verified on
+synthetic inputs. [Take-tool evidence](take-tools-evidence.md).
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |

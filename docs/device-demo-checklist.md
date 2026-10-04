@@ -147,8 +147,11 @@ check it with **Preview take**. [Recovery evidence](capture-take-recovery-eviden
 
 1. In **03 Assemble**, select the takes you want; deselect failed takes. Use
    **Select no takes** clears selection for a new reel without deleting takes. Use
-   **Move earlier**, **Trim & typography** and **Preview take** to review order,
-   exact in/out times and manual text. Originals remain intact. Keep the result
+   **Preview take** opens paused playback directly. **Edit & review take** opens
+   that take’s scrollable tools menu: **Move earlier**, **Trim & typography**,
+   shot assignment, subtitle tools and framing review. Cancel keeps the edits;
+   leaving the screen closes this menu. Use the tools to review order, exact
+   in/out times and manual text. Originals remain intact. Keep the result
    within 12 selected cuts / three minutes.
    For a saved take, optionally tap **Review cut framing**. It reads three nearby
    frames at the current cut’s quarter, midpoint and three-quarter source times;

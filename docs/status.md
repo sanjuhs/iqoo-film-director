@@ -1556,3 +1556,28 @@ adjacent **9,302,457,105B**, below both. Existing archive/cache/inventory
 qualifications persist. No new models/SDK/JDK/images/dependencies downloaded.
 Goal active: attended capture/AirPods, useful learned direction/semantic coverage,
 iQOO/NPU, Office Kit, eligible event code and accepted submission remain open.
+
+### 20:10 IST — compact take tools checkpoint
+
+Assemble now shows two actions per take: Preview and Edit & review. Existing trim,
+subtitle, speech suggestion, mapping, framing and reorder actions live in a
+scrollable menu. Exact current take/index/foreground ownership guards dispatch;
+render/background/destruction closes the menu. Opening/canceling starts no work
+and leaves edits intact. [Evidence](take-tools-evidence.md).
+
+First emulator runner17/19 in36.394s; two test-only fixtures used an incorrect
+subtitle button label and checked asynchronous dismissal before idle. Failed
+receipts remain retained. Corrected22/79.937s runner passed all four new checks
+and18 edit/subtitle/mapping/package/recovery regressions; together37 distinct
+methods passed across two runners. Actual demo-card/menu screenshots and Cancel
+preference-byte equality were reviewed. Physical filming/audio remain untested.
+
+Build1s/corrected656ms; normal installs passed, built/saved/independently read
+installed APK52838059B SHA2565fdbc089736728c316382256fdf419e9ea43f87a7d2861f315413793916021a0. Source-identical notices,
+separate weights excluded, no Internet permission. Normal Main launch requested
+behind secure keyguard; camera/microphone denied, no unlock/grant/private upload.
+Only own AVD/registration removed, other AVD untouched. Qualified peak10431892565B
+above10GB aim/below15GB cap; final adjacent9300356181B belowboth.
+All historic storage qualifications and unchanged gallery28/0/8319196B remain.
+No new dependencies/models. Goal active; remaining acceptance/competition gates
+are unchanged.

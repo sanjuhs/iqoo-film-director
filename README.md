@@ -30,6 +30,10 @@ see selected assignment counts and open the next missing direction. This is a
 [reviewed metadata checklist](docs/shot-assignment-evidence.md); visual coverage
 and shot quality still require creator review and learned evaluation evidence.
 
+Assemble take cards now keep **Preview take** and **Edit & review take** together;
+the latter opens the take’s scrollable tools menu for trims, subtitles, shot
+assignments, framing and order. See [take-tools evidence](docs/take-tools-evidence.md).
+
 **Review cut framing** adds an opt-in look at three nearby frames from a saved
 take’s current cut. Local pose checks show qualified body-visibility hints on an
 approximate center 9:16 crop. Results are temporary and do not edit cuts, assign

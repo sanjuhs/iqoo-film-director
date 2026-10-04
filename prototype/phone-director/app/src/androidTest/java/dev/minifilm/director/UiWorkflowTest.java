@@ -7,6 +7,7 @@ import android.app.KeyguardManager;
 import android.content.SharedPreferences;
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
@@ -357,11 +358,27 @@ public final class UiWorkflowTest {
                 assertNotNull(find(decor, CheckBox.class, "THE HOOK · synthetic demo"));
                 assertNotNull(find(decor, CheckBox.class, "THE DETAIL · synthetic demo"));
                 assertNotNull(find(decor, CheckBox.class, "THE REVEAL · synthetic demo"));
-                assertNotNull(find(decor, Button.class, "Trim & typography"));
-                assertNotNull(find(decor, Button.class, "Generate offline subtitles"));
+                assertNull("Secondary tools belong to the selected take's menu", find(decor, Button.class, "Trim & typography"));
+                assertNull(find(decor, Button.class, "Generate offline subtitles"));
                 assertNotNull(find(decor, Button.class, "Export my reel"));
+                CheckBox synthetic = find(decor, CheckBox.class, "THE HOOK · synthetic demo");
+                Button tools = find((View) synthetic.getParent(), Button.class, "Edit & review take");
+                assertNotNull(tools); assertTrue(tools.performClick());
+                AlertDialog menu = (AlertDialog) field(activity, "takeToolsDialog");
+                assertNotNull(menu); assertTrue(menu.isShowing());
+                assertNotNull(find(menu.getWindow().getDecorView(), Button.class, "Trim & typography"));
+                assertNotNull(find(menu.getWindow().getDecorView(), Button.class, "Generate offline subtitles"));
                 assertNoCapture(activity);
             });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            scenario.onActivity(activity -> {
+                AlertDialog menu = (AlertDialog) field(activity, "takeToolsDialog");
+                assertNotNull(menu); assertTrue(menu.isShowing());
+                assertNotNull(menu.getButton(AlertDialog.BUTTON_NEGATIVE));
+                assertTrue(menu.getButton(AlertDialog.BUTTON_NEGATIVE).performClick());
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            scenario.onActivity(activity -> { assertNull(field(activity, "takeToolsDialog")); assertNoCapture(activity); });
             Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
             Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(PreviewActivity.class.getName(), null, false);
             try {

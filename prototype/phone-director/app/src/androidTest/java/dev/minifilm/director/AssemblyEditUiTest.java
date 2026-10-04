@@ -2,10 +2,12 @@ package dev.minifilm.director;
 
 import android.Manifest;
 import android.app.KeyguardManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -145,9 +148,9 @@ public final class AssemblyEditUiTest {
             scenario.onActivity(activity -> {
                 assertNull("Changed trim invalidates an earlier generated package", field(activity, "pendingPack"));
                 assertFalse(zip.exists()); assertEquals(1001, takes(activity).get(0).inMs);
-                moveClosingEarlier(activity); moveClosingEarlier(activity);
-                assertEditsAndOrder(activity); assertQuiescent(activity);
             });
+            moveClosingEarlier(scenario); moveClosingEarlier(scenario);
+            scenario.onActivity(activity -> { assertEditsAndOrder(activity); assertQuiescent(activity); });
             scenario.recreate();
             scenario.onActivity(activity -> { assertAssemblyRestored(activity); assertEditsAndOrder(activity); assertQuiescent(activity); });
             JSONObject saved = new JSONObject(preferences.getString("state", "{}"));
@@ -249,9 +252,24 @@ public final class AssemblyEditUiTest {
         assertEquals(1001, edited.subtitles.get(0).startMs); assertEquals(DURATION, edited.subtitles.get(0).endMs);
         assertEquals("Original synthetic subtitle", edited.subtitles.get(0).text); assertEquals("creator-reviewed-synthetic-manual", edited.captionOrigin);
     }
-    private static void moveClosingEarlier(MainActivity activity) {
-        CheckBox row = find(activity.getWindow().getDecorView(), CheckBox.class, "Synthetic closing C"); assertNotNull(row);
-        Button move = find((View) row.getParent(), Button.class, "Move earlier"); assertNotNull(move); assertTrue(move.performClick());
+    private static void moveClosingEarlier(ActivityScenario<MainActivity> scenario) {
+        scenario.onActivity(activity -> {
+            CheckBox row = find(activity.getWindow().getDecorView(), CheckBox.class, "Synthetic closing C"); assertNotNull(row);
+            assertNull("Move is a secondary tool for this take", find((View) row.getParent(), Button.class, "Move earlier"));
+            Button tools = find((View) row.getParent(), Button.class, "Edit & review take"); assertNotNull(tools); assertTrue(tools.performClick());
+        });
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        scenario.onActivity(activity -> {
+            AlertDialog menu = (AlertDialog) field(activity, "takeToolsDialog"); assertNotNull(menu); assertTrue(menu.isShowing());
+            ScrollView scroll = find(menu.getWindow().getDecorView(), ScrollView.class, null); assertNotNull(scroll); scroll.fullScroll(View.FOCUS_DOWN);
+        });
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        scenario.onActivity(activity -> {
+            AlertDialog menu = (AlertDialog) field(activity, "takeToolsDialog"); assertNotNull(menu); assertTrue(menu.isShowing());
+            Button move = find(menu.getWindow().getDecorView(), Button.class, "Move earlier"); assertNotNull(move);
+            Rect visible = new Rect(); assertTrue(move.getGlobalVisibleRect(visible)); assertTrue(visible.height() >= move.getHeight() - 2);
+            assertTrue(move.performClick()); assertFalse(menu.isShowing()); assertNull(field(activity, "takeToolsDialog")); assertQuiescent(activity);
+        });
     }
     private static void assemble(MainActivity activity) { Button button = find(activity.getWindow().getDecorView(), Button.class, "03  Assemble"); assertNotNull(button); assertTrue(button.performClick()); }
     private static void assertAssemblyRestored(MainActivity activity) {
@@ -329,7 +347,7 @@ public final class AssemblyEditUiTest {
         return null;
     }
     private static <T extends View> T find(View root, Class<T> type, String text) {
-        if (type.isInstance(root) && root instanceof TextView && text.contentEquals(((TextView) root).getText())) return type.cast(root);
+        if (type.isInstance(root) && (text == null || root instanceof TextView && text.contentEquals(((TextView) root).getText()))) return type.cast(root);
         if (root instanceof ViewGroup) { ViewGroup group = (ViewGroup) root; for (int i = 0; i < group.getChildCount(); i++) { T found = find(group.getChildAt(i), type, text); if (found != null) return found; } } return null;
     }
     @SuppressWarnings("unchecked") private static List<Take> takes(MainActivity activity) { return (List<Take>) field(activity, "takes"); }

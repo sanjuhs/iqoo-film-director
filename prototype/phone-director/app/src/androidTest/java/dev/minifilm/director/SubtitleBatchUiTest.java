@@ -2,14 +2,19 @@ package dev.minifilm.director;
 
 import android.Manifest;
 import android.app.KeyguardManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Looper;
+import android.os.SystemClock;
+import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
@@ -75,8 +80,23 @@ public final class SubtitleBatchUiTest {
                 assertEquals("Synthetic first draft words",missing.subtitles.get(0).text);assertEquals("whisper-tiny.en-draft",missing.captionOrigin);
                 assertSame(reviewed,edited.subtitles);assertEquals("Creator-reviewed existing words",edited.subtitles.get(0).text);assertEquals("manual-reviewed",edited.captionOrigin);
                 assertTrue(unselected.subtitles.isEmpty());assertEquals(1,factory.readers.size());assertTrue(status(a).contains("1 subtitle drafts saved"));
-                assertTrue(status(a).contains("Review words and timing"));assertNotNull(button((View)field(a,"root"),"Review subtitle words & timing"));assertNoCapture(a);
+                assertTrue(status(a).contains("Review words and timing"));
+                assertNull("Review is a secondary take tool",button((View)field(a,"root"),"Review subtitle words & timing"));
+                click(a,"Edit & review take");
+                AlertDialog menu=(AlertDialog)field(a,"takeToolsDialog");assertNotNull(menu);assertTrue(menu.isShowing());
+                assertNotNull(button(menu.getWindow().getDecorView(),"Review subtitle words & timing"));assertNoCapture(a);
             });
+            idle();scenario.onActivity(a->{
+                AlertDialog menu=(AlertDialog)field(a,"takeToolsDialog");assertNotNull(menu);assertTrue(menu.isShowing());
+                ScrollView scroll=findScroll(menu.getWindow().getDecorView());assertNotNull(scroll);scroll.fullScroll(View.FOCUS_DOWN);
+            });idle();scenario.onActivity(a->{
+                AlertDialog menu=(AlertDialog)field(a,"takeToolsDialog");assertNotNull(menu);assertTrue(menu.isShowing());
+                Button review=button(menu.getWindow().getDecorView(),"Review subtitle words & timing");assertNotNull(review);
+                Rect visible=new Rect();assertTrue(review.getGlobalVisibleRect(visible));assertTrue(visible.height()>=review.getHeight()-2);
+                assertTrue(review.performClick());assertFalse(menu.isShowing());assertNull(field(a,"takeToolsDialog"));assertNoCapture(a);
+            });idle();assertDraftInOwnReviewDialogThenLater();idle();
+            scenario.onActivity(a->{assertNull(field(a,"takeToolsDialog"));assertEquals("whisper-tiny.en-draft",missing.captionOrigin);
+                assertEquals("Synthetic first draft words",missing.subtitles.get(0).text);assertNoCapture(a);});
             scenario.recreate();scenario.onActivity(a->{
                 List<Take> restored=takes(a);assertEquals(3,restored.size());assertEquals("Synthetic first draft words",restored.get(0).subtitles.get(0).text);
                 assertEquals("Creator-reviewed existing words",restored.get(1).subtitles.get(0).text);assertFalse(restored.get(2).selected);
@@ -183,6 +203,24 @@ public final class SubtitleBatchUiTest {
     private static void idle(){InstrumentationRegistry.getInstrumentation().waitForIdleSync();}
     private static void click(MainActivity a,String label){Button button=button((View)field(a,"root"),label);assertNotNull(label,button);assertTrue(button.isEnabled());button.performClick();}
     private static Button button(View view,String label){if(view instanceof Button&&label.contentEquals(((Button)view).getText()))return (Button)view;if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++){Button found=button(group.getChildAt(i),label);if(found!=null)return found;}}return null;}
+    private static ScrollView findScroll(View view){if(view instanceof ScrollView)return (ScrollView)view;if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++){ScrollView found=findScroll(group.getChildAt(i));if(found!=null)return found;}}return null;}
+    private static void assertDraftInOwnReviewDialogThenLater(){
+        long deadline=SystemClock.elapsedRealtime()+5000;
+        do{
+            AccessibilityNodeInfo root=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&InstrumentationRegistry.getInstrumentation().getTargetContext().getPackageName().contentEquals(root.getPackageName()==null?"":root.getPackageName())){
+                AccessibilityNodeInfo title=findText(root,"Review your subtitle draft",false);
+                if(title!=null){
+                    assertNotNull("The real review dialog must expose the saved complete draft",findText(root,"Synthetic first draft words",false));
+                    AccessibilityNodeInfo later=findText(root,"Later",true);assertNotNull(later);
+                    assertTrue(later.performAction(AccessibilityNodeInfo.ACTION_CLICK));return;
+                }
+            }
+            SystemClock.sleep(25);
+        }while(SystemClock.elapsedRealtime()<deadline);
+        fail("Missing own-app subtitle review dialog");
+    }
+    private static AccessibilityNodeInfo findText(AccessibilityNodeInfo node,String value,boolean ignoreCase){CharSequence text=node.getText();if(text!=null&&(ignoreCase?value.equalsIgnoreCase(text.toString()):value.contentEquals(text)))return node;for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo child=node.getChild(i);if(child!=null){AccessibilityNodeInfo found=findText(child,value,ignoreCase);if(found!=null)return found;}}return null;}
     private static String status(MainActivity a){return ((TextView)field(a,"status")).getText().toString();}
     private static void assertNoCapture(MainActivity a){assertNull(field(a,"capture"));assertNull(field(a,"pose"));assertEquals(false,field(a,"session"));assertEquals(false,field(a,"countdown"));assertFalse(((SpeechCoach)field(a,"speech")).hasSpeechWork());assertDenied(a);}
     private static void assertDenied(Context context){assertEquals(PackageManager.PERMISSION_DENIED,context.checkSelfPermission(Manifest.permission.CAMERA));assertEquals(PackageManager.PERMISSION_DENIED,context.checkSelfPermission(Manifest.permission.RECORD_AUDIO));}

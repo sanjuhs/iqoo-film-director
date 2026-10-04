@@ -232,3 +232,12 @@ Physical camera/error/AirPods behavior still requires an attended check.
 A [fresh ordinary Fashion CPU draft](../../docs/held-out-fashion-evidence.md)
 retained two garments; supplied chest pockets were not selected under the
 disclosed creator-choice Detail constraint.
+
+### Compact take tools
+
+Assemble shows each take’s title, cut/caption summary and shot assignment with
+**Preview take** and **Edit & review take**. The scrollable menu contains the
+existing edit/review actions; it closes before dispatch and validates the current
+take identity and index. Backgrounding or leaving the screen dismisses it.
+[Verification](../../docs/take-tools-evidence.md) includes actual trim/reorder,
+subtitle/framing journeys and stale retained-button checks on synthetic inputs.
