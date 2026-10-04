@@ -125,3 +125,24 @@ This scope update authorizes planning/research, not aircraft actions or private
 media uploads. Keep pre-event code under `prototype/`, preserve event provenance,
 credentials and the archive, and stay below the existing storage limits. Do not
 carry forward the archived assistant/accountability features.
+
+
+## 5 October creator revision — spoken direction during actual takes
+
+The creator explicitly requests real-time audible shot direction through either
+the normal phone speaker or an already paired Bluetooth headset, including
+Action, one action/pose at a time, framing updates and Cut. This updates the
+phone-first delivery goal beyond preparation-only speech. Keep the simple
+Camera/Reel interface and an explicit quiet-during-takes choice for dialogue.
+Use Android's selected media output, expose voice readiness/test feedback,
+and immediately cancel future cues on Stop, background, audio focus/noisy
+interruption or replaced capture. Do not force Bluetooth pairing/global routes.
+
+The slower pretrained Qwen CPU request prepares editable shot directions;
+bounded shot timing and fresh bundled pose observations drive the live cue loop.
+Call that distinction out: fixed shot cues are plan execution, framing rules
+interpret MLKit output, and no streaming frame-LLM/free-form conversational
+understanding or trained director accuracy is implied. Real audible speaker
+playback, actual Bluetooth delivery and camera/audio coexistence each need
+separate evidence. Speaker cues can enter recorded audio; quiet mode preserves
+the existing dialogue workflow. Never initiate private filming to test this.

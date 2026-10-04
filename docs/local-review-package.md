@@ -1,14 +1,14 @@
 # Mini Film Director — one local review package
 
-5 October 2026, camera-first repair / pre-event research; no upload or submission receipt.
+5 October 2026, live spoken direction / pre-event research; no upload or submission receipt.
 
 [Download the local review ZIP](../output/review/MiniFilm-local-review.zip).
-26,790,869B; SHA256
-`355eca8874387b4d0e572d4f7fabf1d61ba3f13b559a2f11d5b9d2b03451a80c`.
+26,816,590B; SHA256
+`85c9ca1f575dc0f33605de394bf2be3fc2b9a49b3b6da629519502f8c15915c6`.
 
-Eleven entries: current independently verified installed APK, creator-review
+Twelve entries: current independently verified installed APK, creator-review
 pitch PDF/editable PowerPoint, dated prior UI walkthrough and synthetic reel,
-current camera-first emulator screen, sanitized deadline/repair evidence,
+current camera-first emulator screen, sanitized deadline/repair/live-direction evidence,
 updated instructions, README and manifest. ZIP CRC and every non-manifest
 payload hash were checked against the completed archive.
 
@@ -23,7 +23,7 @@ identifiers, private recordings or other source data are included. Whitelisted
 known artifacts were packed, rather than a recursive workspace archive.
 
 The walkthrough remains silent emulator/template/synthetic footage from its
-recorded prior build. The APK is the latest verified camera-first repair build.
+recorded prior build. The APK is the latest verified live-direction build.
 Real filming/AirPods/iQOO/NPU/OfficeKit/drone and accepted-entry gates remain open.
 
 The final qualified storage measurement for this repair is recorded in

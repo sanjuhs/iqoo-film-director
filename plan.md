@@ -34,6 +34,16 @@ remain separately evidenced gates. Today's implementation remains pre-event
 research; event-created competition source and any organizer reuse approval
 must be handled separately. See [current build evidence](docs/status.md).
 
+## 5 October revision — live spoken shot direction
+
+The returned creator requests live audible Action/framing/shot/Cut cues during
+recording, through speaker or selected Bluetooth media output, plus a quiet
+dialogue option. This is now a required phone-first acceptance item. See the
+[updated objectives](docs/objectives.md). Validate cancellation/ownership and
+real offline TTS playback separately from human audibility, Bluetooth identity
+and attended camera/audio coexistence. The existing slow Qwen CPU planner
+prepares the plan; bounded local pose/timer cues must not wait for that model.
+
 ## Milestones
 
 | Order | Deliverable | Acceptance gate |

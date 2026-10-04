@@ -638,3 +638,17 @@ export-journal rewrite failures are retained in the status ledger. No private
 recording/audio/upload/aircraft action. Real creator capture, sound/AirPods, useful
 coaching, required event hardware and accepted eligible submission remain open.
 The heartbeat remains paused; this repair does not resume autonomous work.
+
+
+### 5 October — live spoken direction scope accepted
+
+The creator requires real-time speech during takes through speaker/Bluetooth.
+Implementation adds owned Action/shot/fresh-pose/Cut cues, quiet dialogue mode,
+visible Test voice and media audio. [Evidence](live-direction-evidence.json)
+records31 distinct synthetic policy/UI/preparation/focus methods and two final
+phone methods, including actual Test voice engine201ms start/4840ms interval.
+Known AndroidX profile-cache startup writes are narrowly validated; creator
+files/preferences/permissions/media volume stayed preserved. Phone preview
+remains separately passed; simultaneous recording/pose/TTS and real Bluetooth
+audibility need attended acceptance. No private recording/upload/aircraft action,
+no new model/training or NPU claim. Overall goal remains incomplete.

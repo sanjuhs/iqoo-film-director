@@ -211,7 +211,7 @@ public final class SpeechInterruptionTest {
             assertEquals(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, request.getFocusGain());
             assertTrue(request.willPauseWhenDucked()); assertFalse(request.acceptsDelayedFocusGain());
             assertEquals(AudioAttributes.CONTENT_TYPE_SPEECH, request.getAudioAttributes().getContentType());
-            assertEquals(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY, request.getAudioAttributes().getUsage());
+            assertEquals(AudioAttributes.USAGE_MEDIA, request.getAudioAttributes().getUsage());
             requests.add(request); listeners.add(listener);
             if (loseDuringRequest) listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS);
             return result;

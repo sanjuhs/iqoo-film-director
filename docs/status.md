@@ -41,6 +41,50 @@ The sections below retain earlier research/migration history. Current measured
 phone evidence is in the final delivery ledger; older “not built” statements
 describe their dated checks and are superseded for the phone app.
 
+## 5 October — requested live spoken direction
+
+The creator explicitly expanded the goal to audible real-time guidance during
+takes via phone speaker or selected Bluetooth output. The previously intentional
+quiet recording policy is now an optional **Talk during takes** choice. Action
+starts after actual CameraX Start; fresh local pose hints can speak during the
+owned foreground take; Cut follows saved finalization and completes before the
+next guided scene. Quiet mode preserves dialogue. The slower Qwen planner is
+unchanged; timer/plan execution and MLKit framing rules drive the live loop,
+not a streaming LLM or semantic action-completion detector.
+
+Media speech follows Android's selected output; **Test voice** is visible.
+Stop, render/background, voice-off, focus loss or noisy output cancel pending
+cues. Admission uses actual started/not-stop-requested recording state so a
+saving take cannot admit another hint. Cue freshness/throttle/caps avoid queues;
+manual stop cancels spoken continuation. Guide/full-sequence/lens tools remain
+under Shoot options to keep the camera surface compact.
+
+[Live direction evidence](live-direction-evidence.json) records31 distinct
+emulator methods across targeted runners (four new policy, five live UI, seven
+focus/interruption, four camera UI and11 pose/preparation) and two final phone
+methods in10.610s. The actual visible Test voice button produced one offline
+English start/done, real media focus and Main completion status:201ms start,
+4840ms engine interval. Full preferences, models/sources/takes/edits, permissions
+and media volume were preserved. Two initial all-file guards flagged only the
+existing24-byte AndroidX ProfileVerifier cache after APK replacement; exact
+framework identity/layout/current-app-update validation now permits that marker
+while all other metadata/additions/removals remain strict. No private capture,
+audio input, upload or aircraft action. Installed/saved/built APK equality is
+independently verified in the evidence; older APK hashes below are dated history.
+
+Actual audibility/paired Bluetooth routing and simultaneous live creator
+recording/microphone/pose/TTS remain attended acceptance gates. Voice engine
+callbacks do not prove hearing or useful real-time corrections. The goal is not
+complete; continued conversational listening/frame-LLM behavior is not implemented.
+The existing heartbeat remains paused; this work follows the fresh human request.
+
+Qualified adjacent final storage is9,439,462,784B at02:13 IST;
+recorded peak11,194,751,168B. Historic missing-archive/cache reserves and
+existing inventory exclusions remain. Only the owned AVD/registration were
+removed; the existing other AVD was preserved. No new runtime/model download.
+The refreshed local review ZIP includes current APK, guide/screen and dated
+evidence; all payload hashes and ZIP CRC were verified.
+
 ## 5 October — repair after creator live failure
 
 The creator reported a confusing interface and nonworking live flow. Earlier

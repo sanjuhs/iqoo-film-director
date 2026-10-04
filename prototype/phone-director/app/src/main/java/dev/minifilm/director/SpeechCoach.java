@@ -28,6 +28,9 @@ import java.util.Set;
 /** No default/cloud recognizer fallback. Listening is always explicitly requested. */
 public final class SpeechCoach {
     public interface Listener { void onText(String text); void onError(String message); }
+    /** Actual current-utterance engine callbacks on main; no text, device or route identity.
+     * Playback completion does not establish human audibility or a particular headset. */
+    public interface PlaybackObserver { void onStarted(); void onFinished(boolean success); }
     /** Only the focus boundary is injectable; tests never need to play a spoken cue. */
     interface FocusControl {
         int request(AudioFocusRequest request, AudioManager.OnAudioFocusChangeListener listener);
@@ -35,7 +38,7 @@ public final class SpeechCoach {
     }
     interface RecognitionCleanup { void cancel(); void destroy(); }
     private static final AudioAttributes SPEECH_AUDIO = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+            .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build();
     private final Context context;
     private final TextToSpeech tts;
@@ -54,6 +57,7 @@ public final class SpeechCoach {
     private String activeUtterance;
     private Runnable afterSpeech, speechFailed, speechTimeout;
     private Runnable audioInterruptionListener;
+    private PlaybackObserver playbackObserver;
     private final BroadcastReceiver noisyReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context ignored, Intent intent) {
             if (intent == null || !AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) return;
@@ -80,11 +84,11 @@ public final class SpeechCoach {
         };
         tts = new TextToSpeech(this.context, status -> initializeVoice(status));
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-            @Override public void onStart(String id) {}
-            @Override public void onDone(String id) { main.post(() -> finishSpeech(id, true)); }
-            @Override public void onError(String id) { main.post(() -> finishSpeech(id, false)); }
-            @Override public void onError(String id, int error) { main.post(() -> finishSpeech(id, false)); }
-            @Override public void onStop(String id, boolean interrupted) { main.post(() -> finishSpeech(id, false)); }
+            @Override public void onStart(String id) { main.post(() -> observeSpeechStart(id)); }
+            @Override public void onDone(String id) { main.post(() -> finishEngineSpeech(id, true)); }
+            @Override public void onError(String id) { main.post(() -> finishEngineSpeech(id, false)); }
+            @Override public void onError(String id, int error) { main.post(() -> finishEngineSpeech(id, false)); }
+            @Override public void onStop(String id, boolean interrupted) { main.post(() -> finishEngineSpeech(id, false)); }
         });
         // This protected action is sent by system-server audio, not a Bluetooth app UID.
         // NOT_EXPORTED still accepts system-UID delivery and excludes unrelated apps.
@@ -154,6 +158,27 @@ public final class SpeechCoach {
         Runnable callback = success ? afterSpeech : speechFailed;
         clearSpeechCompletion();
         if (!closed && callback != null) callback.run();
+    }
+
+    private void observeSpeechStart(String id) {
+        if (closed || id == null || !id.equals(activeUtterance)) return;
+        PlaybackObserver observer = playbackObserver;
+        if (observer != null) try { observer.onStarted(); } catch (RuntimeException ignored) { }
+    }
+
+    private void finishEngineSpeech(String id, boolean success) {
+        if (closed || id == null || !id.equals(activeUtterance)) return;
+        PlaybackObserver observer = playbackObserver;
+        // Original completion/focus cleanup stays authoritative. Observation cannot block it.
+        finishSpeech(id, success);
+        if (!closed && observer != null && observer == playbackObserver)
+            try { observer.onFinished(success); } catch (RuntimeException ignored) { }
+    }
+
+    /** Optional main-thread observation only; never starts playback or changes routing. */
+    public void setPlaybackObserver(PlaybackObserver observer) {
+        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalStateException("Set playback observation on the main thread.");
+        if (!closed) playbackObserver = observer;
     }
 
     private void clearSpeechCompletion() {
@@ -318,6 +343,7 @@ public final class SpeechCoach {
         if (closed) return;
         closed = true;
         audioInterruptionListener = null;
+        playbackObserver = null;
         stopListening();
         stop();
         if (noisyReceiverRegistered) {

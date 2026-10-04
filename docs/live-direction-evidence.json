@@ -1,0 +1,60 @@
+{
+  "dateIst": "2026-10-05",
+  "classification": "creator-authorized pre-event research revision",
+  "goalRevision": "Real-time spoken Action/shot/framing/Cut guidance during takes on speaker or selected Bluetooth output; quiet dialogue option.",
+  "implementation": {
+    "liveMode": "Talk during takes",
+    "voiceProbe": "actual Test voice button",
+    "planning": "existing pretrained Qwen CPU shot plan, unchanged",
+    "livePerception": "bundled MLKit person-pose observations interpreted by framing rules; no frame LLM",
+    "cuePolicy": "one accepted cue at a time; fresh <=2s pose; min6s between pose cues; repeated same cue min12s; max3 pose hints/take; fixed Action/shot/final-hold plan execution",
+    "finalization": "No new cue once Stop is requested; Cut after owned saved take; next guided scene waits for speech completion.",
+    "quietMode": "preparation may speak, recorded dialogue quiet",
+    "cancellation": "Stop/render/background/voice-off/focus loss/noisy output invalidates pending cues; no automatic speech resume",
+    "output": "USAGE_MEDIA CONTENT_TYPE_SPEECH; current Android media route; no forced pairing or volume change"
+  },
+  "checks": {
+    "policyMethods": 4,
+    "liveUiMethods": 5,
+    "existingFocusInterruptionMethods": 7,
+    "cameraUiMethods": 4,
+    "existingPosePreparationMethods": 11,
+    "distinctEmulatorMethodsPassed": 31,
+    "physicalActualTestVoiceAndPreviewMethodsPassed": 2,
+    "finalPhoneRunnerSeconds": 10.61,
+    "actualVoiceButton": true,
+    "actualOfflineTtsStartedAndDone": true,
+    "realMediaFocusGrantedAndAbandoned": true,
+    "voiceStartDelayMs": 201,
+    "enginePlaybackIntervalMs": 4840,
+    "mainCompletionMessageObserved": true,
+    "preferencesRestored": true,
+    "modelsSourcesTakesEditsMetadataUnchanged": true,
+    "permissionsAndMediaVolumeUnchanged": true,
+    "knownRuntimeException": "Only existing canonical 24-byte AndroidX ProfileVerifier cache may change; fixed schema/result/current-app-update layout validated. All other app-file metadata/add/remove remain strict.",
+    "initialPlaybackFailures": "Two whole-filesystem preservation assertions flagged only AndroidX profile cache; audio engine checks succeeded. Narrow validated marker handling passed final actual UI test."
+  },
+  "installedApk": {
+    "sizeBytes": 52838570,
+    "sha256": "f10052ebca03c9cda92e3d19aa5d087676c6acce546baacc63677d736bb950f4",
+    "builtSavedInstalledMatch": true,
+    "installedAPKIndependentlyRead": true,
+    "separateQwenWhisperWeightsInAPK": false,
+    "bundledMLKitAssetsRemain": true,
+    "packagedNoticesMatchSource": true,
+    "noticeSizeBytes": 31635,
+    "noticeSHA256": "02797d896355991c613f9f2081f2687b4328ea63362cc355f8baa9955f89bc68"
+  },
+  "unverified": [
+    "Human audibility",
+    "Actual headset identity/selected Bluetooth route",
+    "Live learned pose correction during real creator recording",
+    "Simultaneous camera recording/microphone/TTS/pose sustained performance",
+    "Conversational listening and streaming frame-LLM direction",
+    "Creator benefit/accuracy, iQOO/NPU/Office Kit and accepted eligible submission"
+  ],
+  "sources": [
+    "https://developer.android.com/reference/android/media/AudioAttributes#USAGE_MEDIA",
+    "https://developer.android.com/reference/android/speech/tts/UtteranceProgressListener"
+  ]
+}
