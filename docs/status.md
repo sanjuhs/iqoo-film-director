@@ -32,7 +32,8 @@ configuration now confirms the Phase 1 idea deadline as **5 October 2026 at
 See [exact public evidence](phase1-deadline-evidence.json). Finale is 9–11 October and
 competition code must be created in the allowed event window unless organizers
 approve reuse. No form attestation, external message or submission was made.
-The hourly continuation remains active through this evening.
+Autonomous preparation is now blocked on attended hardware/creator validation;
+the existing heartbeat retains the user's stop-initiating-work bound at midnight.
 
 The sections below retain earlier research/migration history. Current measured
 phone evidence is in the final delivery ledger; older “not built” statements
@@ -2074,3 +2075,31 @@ Adjacent qualified storage9,395,841,909B at23:52 includes the ZIP, previous asse
 and historic reserves/exclusions; below10GBaim/15GBcap. Latest installedAPK
 unchanged, normal launch requested behind secure keyguard. All attended/
 event-hardware/utility/eligibility/accepted-entry gates remain open.
+
+### 23:55 IST — full goal blocked on attended validation
+
+The preceding goal turn made concrete progress by packaging verified artifacts.
+The next three consecutive goal audits found the same external prerequisite and
+no available autonomous action that would establish the requested real workflow:
+physical secure keyguard showing, camera/mic denied, no unlock/grants performed.
+Fresh read-only posture checks at23:54:14,23:54:35 and23:54:57 retained those facts.
+The23:51 output-only snapshot reported no Bluetooth/wired output; it is dated
+availability, not selected route or identity. All three agents are terminal; no
+live build/test/device process is awaiting completion. Source remained clean
+at69ffc47 before this administrative audit record; latest installed code/hash
+unchanged. Repeating synthetic tests or editing already-reviewed copy cannot
+establish real creator filming or audible AirPods.
+
+Full completion is unproven. Next acceptance needs the creator to unlock the
+phone, connect earbuds, grant normal camera/mic prompts, perform the attended
+Pose→Perform→Assemble flow and review real sound/words/framing. The documented
+iQOO/NPU/OfficeKit, semantic usefulness, event-source eligibility/declarations
+and accepted-entry gates also remain. Optional aircraft tests keep their
+separate read-only/pilot gates. No private data upload, capture, permission
+bypass, aircraft command, purchase, outgoing message or submission occurred.
+
+The goal is being marked blocked on these external prerequisites, with all
+source and the [local review package](local-review-package.md) preserved.
+Existing user authorization stops initiating autonomous work after midnight
+IST on5October. This record is administrative; it is not new product evidence
+or a completion claim.
