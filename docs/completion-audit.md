@@ -2,7 +2,9 @@
 
 The **pre-event phone prototype is installed and its local media pipeline has
 real fixture evidence**, including reviewed speech-edge application and local image input. The attended Pose → Perform → Assemble workflow and
-competition delivery remain incomplete. This audit separates current source,
+competition delivery remain incomplete. A fresh synthetic emulator now passed
+25 interface methods and one actual DocumentsUI ZIP save; physical capture/audio
+still needs attended acceptance. This audit separates current source,
 passed checks and observed failures. Latest focused Fashion and Talking repairs passed17 methods across three
 runners. Earlier invented-shot failures remain retained; creative accuracy
 across unseen briefs and the attended workflow remain unverified.
@@ -19,16 +21,16 @@ runner reports and direct synthetic-output review.
 | Requirement | Established now | Remaining gate |
 | --- | --- | --- |
 | Activate the app through ADB | Fresh Mini Film APK built, installed and launched on Nothing Phone (3a), Android 16. Synthetic takes/reel and editable plans have been saved. | Required iQOO hardware validation and attended visible launch. Latest source checkpoint is installed. |
-| Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Earlier inactive UI fixtures passed. | An unlocked attended shoot and first-time usability check; latest visual/lifecycle rerun is invalid under the locked-phone conditions below. |
+| Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Latest fresh-emulator run passed 25 interface methods; screen/edits restore without capture, and trim form scrolls. | An unlocked attended shoot and first-time usability check; the older locked-phone failures below retain their dated context. |
 | Substantial local AI | Actual local CPU Qwen generation, bundled ML Kit pose inference, offline English TTS and whisper tiny.en clip transcription. App has no network permission. | Useful grounding across unseen briefs, sustained camera/inference concurrency and iQOO execution. No NPU/GPU, Kev adaptation or trained-director result. |
 | Pose and direct each take | Live analysis integration, shared vertical crop, persisted lens and optional speech-completion-gated sequence in source. Public pose fixture yielded 33 confident landmarks; empty-frame inference yielded none. | Live framing usefulness, front/rear recording, full sequence, interruption and quiet captured speech. Synthetic geometry is not live capture. |
 | AirPods direction | Offline voice synthesis and two real-engine silent completion/cancellation tests passed. | Paired AirPods playback, microphone routing and physical cue leakage. Synthesis-to-file never played audio. |
-| Understand reels/trends | Sparse-reference and single-frame CPU vision/pose checks passed. Local reference speech → explicit test correction → CPU plan passed; confirmed words and visual notes share a bounded input. | Full trend/story/style understanding and real reference accuracy remain unverified. Source-binding/review UI changes require an unlocked run; observed model errors and conservative abstentions are retained. |
+| Understand reels/trends | Sparse-reference and single-frame CPU vision/pose checks passed. Local reference speech → explicit test correction → CPU plan passed; confirmed words and visual notes share a bounded input. | Full trend/story/style understanding and real reference accuracy remain unverified. Source-binding/review checks passed on a fresh unlocked synthetic emulator; physical reference accuracy, observed model errors and conservative abstentions remain. |
 | Start, stop and trim | Explicit CameraX start/stop, actual-container source bounds, editable cuts and reviewed local speech-edge suggestions; actual synthetic cuts exported in order. | Attended capture/finalization and semantic selection of the best performance moments. |
 | Color correction | Local presets plus heuristic Auto balance have actual analyzer/export evidence below. | Real footage, creative suitability and shot matching. This is not learned AI grading. |
 | Subtitles and typography | Local English timed drafts, creator word/time review, real burned-in captions, and full-text fit-or-reject handling passed. | Attended speech accuracy and longer real text. No karaoke, generated music or semantic caption polishing. |
-| Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths and hashes. | Real creator reel, attended sound review, normal Files ZIP saving, desktop-editor compatibility and actual Office Kit transfer. |
-| Recovery | Five staged export-journal tests plus genuine ENCODING process-death/fresh-process recovery passed on synthetic media; originals and the prior completed pair remained unchanged. | Other kill/publication windows, revoked/missing real inputs and ready-package UI lifecycle under valid visible conditions. |
+| Local finished reel and editable laptop pack | H.264/AAC 720×1280 synthetic output, reviewed timeline/JSON and ZIP with selected originals, relative paths and hashes. | Real creator reel, attended sound review, physical Files/provider saving, desktop-editor compatibility and actual Office Kit transfer. Actual emulator DocumentsUI ZIP/source validation passed. |
+| Recovery | Five staged export-journal tests plus genuine ENCODING process-death/fresh-process recovery passed on synthetic media; originals and the prior completed pair remained unchanged. | Other kill/publication windows and revoked/missing real inputs. Ready-package UI lifecycle passed under valid fresh-emulator visible conditions. |
 | Drone demo | Imported clips can join the edit; no aircraft action or connection occurred. | Separate supported Mini 4 Pro propellers-off read-only probe, then documented pilot-approved capture/control gates. Neo 2/Fly and Action 4 remain research. |
 | Hackathon completion | Signed-in idea deadline date is 5 October; countdown implies about 23:59 IST. Idea/pitch assets prepared. | Human attestation/self-report and accepted receipt. Finale is 9–11 October; competition code must be event-written unless organizers approve reuse. |
 
@@ -44,7 +46,7 @@ AAC-LC/16kHz/mono encoder-to-Whisper check passed one method/6.498s, with three
 bounded cues/3974ms. Main now requests planner cleanup before voice recording,
 clears current-generation busy before foreground guards, and refuses overlapping
 microphone entry when recorder release is unconfirmed. Six visible/helper review
-checks are compiled, unrun while locked. See [voice readiness](voice-input-readiness.md)
+checks passed on the fresh unlocked synthetic emulator; physical recording remains untested. See [voice readiness](voice-input-readiness.md)
 for complete counts/failure and the microphone/MediaRecorder/AirPods limits.
 
 Read-only inspection of MainActivity confirms these repairs. Passing hardware/UI
@@ -287,3 +289,16 @@ resume; actual recorded takes are left running. See
 source with prepared visible checks, not an unlocked or physical AirPods result.
 The saved installed APK and9.280GB qualified storage are in [status](status.md).
 All attended and competition acceptance gates remain open.
+
+### 17:54 IST: fresh emulator interface and real Files save
+
+[Interface evidence](emulator-ui-evidence.md) records 25 passed methods, corrected
+queued-dialog/MIME-monitor test setup, scrollable trims and preserved screen
+without restarting capture. Initial six setup failures remain retained; no
+production review bug is claimed from them. Real DocumentsUI saved a synthetic
+614,367-byte ZIP; CRC, three current originals and six-second timeline checked.
+Default emulator trim fields and Save were visible above its keyboard; other
+sizes and physical layout remain unverified. Updated APK is independently
+verified installed. Temporary AVD removed, qualified storage 9.292 GB.
+Attended Pose → Perform → Assemble/AirPods, iQOO/NPU/Office Kit and accepted
+eligible submission remain open. The goal is active.

@@ -37,26 +37,50 @@ import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import static org.junit.Assert.*;
 
 /** Exercises real screens using synthetic content, without camera/mic permission grants. */
 @RunWith(AndroidJUnit4.class)
 public final class UiWorkflowTest {
     private SharedPreferences preferences;
-    private String originalState;
+    private Map<String, ?> originalPreferences;
 
     @Before public void preserveShootState() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         preferences = context.getSharedPreferences("shoot", 0);
-        originalState = preferences.getString("state", null);
         KeyguardManager keyguard = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         assertFalse("Unlock the phone before UI checks; screen layout/lifecycle cannot be verified behind its lock.", keyguard != null && keyguard.isKeyguardLocked());
-        assertTrue(preferences.edit().putString("state", "{}").commit());
+        assertDenied(context);
+        originalPreferences = new HashMap<>(preferences.getAll());
+        assertTrue(preferences.edit().clear().putString("state", "{}").commit());
     }
     @After public void restoreShootState() {
-        SharedPreferences.Editor editor = preferences.edit();
-        if (originalState == null) editor.remove("state"); else editor.putString("state", originalState);
-        assertTrue(editor.commit());
+        if (originalPreferences != null) {
+            SharedPreferences.Editor editor = preferences.edit().clear();
+            for (Map.Entry<String, ?> entry : originalPreferences.entrySet()) {
+                String key = entry.getKey(); Object value = entry.getValue();
+                if (value instanceof String) editor.putString(key, (String) value);
+                else if (value instanceof Boolean) editor.putBoolean(key, (Boolean) value);
+                else if (value instanceof Integer) editor.putInt(key, (Integer) value);
+                else if (value instanceof Long) editor.putLong(key, (Long) value);
+                else if (value instanceof Float) editor.putFloat(key, (Float) value);
+                else if (value instanceof Set) {
+                    @SuppressWarnings("unchecked") Set<String> strings = (Set<String>) value;
+                    editor.putStringSet(key, new HashSet<>(strings));
+                } else throw new AssertionError("Unexpected preference value type");
+            }
+            assertTrue(editor.commit()); assertEquals(originalPreferences, preferences.getAll());
+        }
+        assertDenied(InstrumentationRegistry.getInstrumentation().getTargetContext());
+    }
+
+    private static void assertDenied(Context context) {
+        assertEquals(PackageManager.PERMISSION_DENIED, context.checkSelfPermission(Manifest.permission.CAMERA));
+        assertEquals(PackageManager.PERMISSION_DENIED, context.checkSelfPermission(Manifest.permission.RECORD_AUDIO));
     }
 
     @Test(timeout = 30_000) public void launchResumeAndEnabledSequenceNeverOpenCaptureAutomatically() {
@@ -76,6 +100,7 @@ public final class UiWorkflowTest {
             scenario.recreate();
             scenario.onActivity(activity -> {
                 assertNoCapture(activity);
+                assertEquals("Reopening Direct preserves the screen without restarting capture", 1, field(activity, "tab"));
                 click(activity, "02  Direct");
                 Switch sequence = find(activity.getWindow().getDecorView(), Switch.class,
                         "Guide the full shot sequence");
@@ -230,14 +255,16 @@ public final class UiWorkflowTest {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         IntentFilter pickerFilter = new IntentFilter(Intent.ACTION_CREATE_DOCUMENT);
         pickerFilter.addCategory(Intent.CATEGORY_OPENABLE);
+        // Match the production ZIP MIME type; an untyped filter misses this intent.
+        pickerFilter.addDataType("application/zip");
         Instrumentation.ActivityMonitor picker = instrumentation.addMonitor(pickerFilter, null, true);
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(activity -> { setField(activity, "pendingPack", zip); setField(activity, "pendingPackSnapshot", invoke(activity, "packSnapshot")); invoke(activity, "save"); });
+            scenario.onActivity(activity -> { click(activity, "03  Assemble"); setField(activity, "pendingPack", zip); setField(activity, "pendingPackSnapshot", invoke(activity, "packSnapshot")); invoke(activity, "save"); });
             scenario.recreate();
             scenario.onActivity(activity -> {
                 assertEquals("Ready cache ZIP must survive activity replacement", zip, field(activity, "pendingPack"));
                 assertTrue(zip.isFile());
-                click(activity, "03  Assemble");
+                assertEquals("A ready package reopens on Assemble without another navigation action", 2, field(activity, "tab"));
                 assertNotNull(find(activity.getWindow().getDecorView(), Button.class, "Save ready edit package"));
                 assertNoCapture(activity);
             });

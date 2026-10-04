@@ -1,0 +1,43 @@
+{
+  "pre_event_research": true,
+  "date_ist": "2026-10-04",
+  "environment": "fresh API36 arm64-v8a emulator; denied CAMERA/RECORD_AUDIO; no host audio/camera; no inference",
+  "latest_passed_methods": 25,
+  "runners": [
+    {
+      "runner": "VoiceBriefUiTest",
+      "passed": 6,
+      "seconds": 7.843
+    },
+    {
+      "runner": "ReferenceSpeechUiTest",
+      "passed": 7,
+      "seconds": 10.643
+    },
+    {
+      "runner": "AssemblyEditUiTest",
+      "passed": 2,
+      "seconds": 4.049
+    },
+    {
+      "runner": "UiWorkflowTest non-media",
+      "passed": 9,
+      "seconds": 10.766
+    },
+    {
+      "runner": "UiWorkflowTest synthetic demo",
+      "passed": 1,
+      "seconds": 2.246
+    }
+  ],
+  "retained_initial_failures": {
+    "VoiceBriefUiTest": 2,
+    "ReferenceSpeechUiTest": 3,
+    "UiWorkflowTest non-media": 1
+  },
+  "test_setup_repairs": "queued OnShow timing and application/zip ActivityMonitor filter; all original assertions retained",
+  "physical_creator_capture_or_airpods_passed": false,
+  "actual_emulator_documents_ui_zip_save_passed": true,
+  "physical_files_ui_or_office_kit_passed": false,
+  "temporary_avd_removed": true
+}

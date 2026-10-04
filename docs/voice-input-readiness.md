@@ -133,3 +133,13 @@ remain **unrun behind keyguard**. These helpers and injected fake bytes do not
 prove actual encoder/ASR callback timing, microphone collision recovery, loaded-
 model memory handoff, or the permission-gated recording UI. Attended MediaRecorder,
 microphone/AirPods, visible controls and live accuracy remain open.
+
+## Later fresh-emulator interface checkpoint — 17:54 IST
+
+All six VoiceBriefUiTest methods passed (7.843 s) with denied camera/microphone
+and no ASR/model/audible playback. Initial two dialog setup failures were retained
+and corrected by draining queued OnShow installation before clicking; reviewed
+text/overflow/lifecycle assertions were unchanged. See
+[interface evidence](emulator-ui-evidence.md). This supersedes the earlier
+unrun synthetic-UI status, while physical MediaRecorder, live voice/cue timing,
+loaded-model handoff and AirPods remain unverified.

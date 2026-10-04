@@ -80,21 +80,18 @@ public final class VoiceBriefUiTest {
         String fullDraft = textOfLength(500, "Original synthetic speech draft ", " final spoken words");
         String correction = textOfLength(500, "Creator-corrected synthetic brief ", " exact reviewed ending");
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            AlertDialog dialog = showReview(scenario, fullDraft);
             scenario.onActivity(activity -> {
                 assertBrief(activity, TYPED); assertNoCaptureOrProcessing(activity);
                 List<?> originalShots = new ArrayList<>((List<?>) field(activity, "shots"));
                 Object originalSource = field(activity, "planSource");
-                AlertDialog dialog = review(activity, fullDraft);
                 EditText words = words(dialog);
                 assertEquals("Review must retain the complete draft", fullDraft, words.getText().toString());
-                assertBrief(activity, TYPED);
-                words.setText(correction);
-                assertBrief(activity, TYPED);
+                assertBrief(activity, TYPED); words.setText(correction); assertBrief(activity, TYPED);
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
                 assertFalse(dialog.isShowing()); assertBrief(activity, correction);
                 assertEquals("Applying reviewed words must preserve the current shots", originalShots, field(activity, "shots"));
-                assertEquals(originalSource, field(activity, "planSource"));
-                assertNoCaptureOrProcessing(activity);
+                assertEquals(originalSource, field(activity, "planSource")); assertNoCaptureOrProcessing(activity);
             });
         }
     }
@@ -102,10 +99,9 @@ public final class VoiceBriefUiTest {
     @Test(timeout = 30_000)
     public void overlongAndEmptyDraftsAreRejectedWithoutTruncationAndKeepTypedPreservesExistingBrief() {
         String fullDraft = textOfLength(640, "Long synthetic draft ", " all final words remain visible");
-        AtomicReference<AlertDialog> kept = new AtomicReference<>();
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            AlertDialog dialog = showReview(scenario, fullDraft);
             scenario.onActivity(activity -> {
-                AlertDialog dialog = review(activity, fullDraft); kept.set(dialog);
                 EditText words = words(dialog);
                 assertEquals(fullDraft, words.getText().toString()); assertNotNull(words.getError());
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
@@ -120,39 +116,35 @@ public final class VoiceBriefUiTest {
             });
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
             scenario.onActivity(activity -> {
-                assertFalse(kept.get().isShowing()); assertNull(field(activity, "voiceBriefReview"));
-                assertBrief(activity, TYPED);
-                AlertDialog corrected = review(activity, fullDraft);
+                assertFalse(dialog.isShowing()); assertNull(field(activity, "voiceBriefReview")); assertBrief(activity, TYPED);
+            });
+            AlertDialog corrected = showReview(scenario, fullDraft);
+            scenario.onActivity(activity -> {
                 String reviewed = "I corrected this long synthetic speech into a short fashion brief.";
-                words(corrected).setText(reviewed);
-                corrected.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-                assertBrief(activity, reviewed); assertNoCaptureOrProcessing(activity);
+                words(corrected).setText(reviewed); corrected.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+                assertFalse(corrected.isShowing()); assertBrief(activity, reviewed); assertNoCaptureOrProcessing(activity);
             });
         }
     }
 
     @Test(timeout = 30_000)
     public void backgroundAndExplicitInvalidationDismissDraftAndPreventOldUseFromApplyingAfterResume() {
-        AtomicReference<AlertDialog> old = new AtomicReference<>();
-        AtomicReference<Button> oldUse = new AtomicReference<>();
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            AlertDialog old = showReview(scenario, "Synthetic draft pending when the app leaves foreground");
+            AtomicReference<Button> oldUse = new AtomicReference<>();
+            scenario.onActivity(activity -> { oldUse.set(old.getButton(AlertDialog.BUTTON_POSITIVE)); assertBrief(activity, TYPED); });
+            scenario.moveToState(Lifecycle.State.CREATED); scenario.moveToState(Lifecycle.State.RESUMED);
             scenario.onActivity(activity -> {
-                AlertDialog dialog = review(activity, "Synthetic draft pending when the app leaves foreground");
-                old.set(dialog); oldUse.set(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
-                assertBrief(activity, TYPED);
+                assertFalse("Backgrounding must dismiss the review", old.isShowing()); assertNull(field(activity, "voiceBriefReview"));
+                // The retained listener was installed before backgrounding, so this exercises
+                // the real generation/foreground guard rather than AlertDialog's default click.
+                oldUse.get().performClick(); assertBrief(activity, TYPED); assertNoCaptureOrProcessing(activity);
             });
-            scenario.moveToState(Lifecycle.State.CREATED);
-            scenario.moveToState(Lifecycle.State.RESUMED);
+            AlertDialog dialog = showReview(scenario, "Another synthetic pending voice draft");
             scenario.onActivity(activity -> {
-                assertFalse("Backgrounding must dismiss the review", old.get().isShowing());
-                assertNull(field(activity, "voiceBriefReview"));
-                // Exercise the retained old listener, not an inaccessible dismissed-window click.
-                oldUse.get().performClick(); assertBrief(activity, TYPED);
-                AlertDialog dialog = review(activity, "Another synthetic pending voice draft");
                 Button staleUse = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 invoke(activity, "cancelVoiceBrief", new Class<?>[0]);
-                assertFalse(dialog.isShowing()); staleUse.performClick(); assertBrief(activity, TYPED);
-                assertNoCaptureOrProcessing(activity);
+                assertFalse(dialog.isShowing()); staleUse.performClick(); assertBrief(activity, TYPED); assertNoCaptureOrProcessing(activity);
             });
         }
     }
@@ -289,6 +281,22 @@ public final class VoiceBriefUiTest {
         }
         public void stop() { stops++; }
         public void release() { releases++; if (failRelease) throw new IllegalStateException("Synthetic release failure"); }
+    }
+
+    private static AlertDialog showReview(ActivityScenario<MainActivity> scenario, String draft) {
+        AtomicReference<AlertDialog> shown = new AtomicReference<>();
+        scenario.onActivity(activity -> {
+            assertEquals(Lifecycle.State.RESUMED, activity.getLifecycle().getCurrentState());
+            shown.set(review(activity, draft));
+        });
+        // Dialog.show queues OnShow on Android's main loop. A synthetic button click
+        // in the presentation event would hit the default auto-dismiss listener.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        scenario.onActivity(activity -> {
+            assertEquals(Lifecycle.State.RESUMED, activity.getLifecycle().getCurrentState());
+            assertTrue(shown.get().isShowing());
+        });
+        return shown.get();
     }
 
     private static AlertDialog review(MainActivity activity, String draft) {

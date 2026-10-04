@@ -45,7 +45,9 @@ recording; the 45-second limit discards rather than handing partial audio to ASR
 Full drafts remain editable, with 1–500 characters accepted. Four temporary-file
 slots and deferred cleanup protect active readers. Actual audio-only AAC
 transcription and synthetic recorder/resource tests passed; MediaRecorder/mic,
-review controls and earbud routing still need an attended unlocked check.
+physical review controls and earbud routing still need an attended unlocked check.
+Synthetic review checks passed on a fresh emulator; see
+[interface evidence](../../docs/emulator-ui-evidence.md).
 Optional **Use phone dictation** uses Android's dedicated on-device service;
 exact en-US metadata on this phone says its model is not installed.
 See [voice evidence](../../docs/voice-input-readiness.md).
@@ -87,7 +89,7 @@ adb -d shell am instrument -w -e class dev.minifilm.director.UiWorkflowTest dev.
 The new headless voice checks are LocalBriefRecorderTest,
 TranscriberCancellationTest, VoiceBriefAudioTest and VoiceBriefCodecTest (existing labelled padded
 synthetic speech fixture and verified tiny.en required). VoiceBriefUiTest is
-unlocked-only; its six methods are compiled, unrun. Fixture failure/repair reports
+unlocked-only; its six methods passed on a fresh API36 ARM64 emulator. Fixture failure/repair reports
 are preserved. The focused codec check passed with actual AAC-LC/16kHz/mono
 header verification and local Whisper transcription; remux/codec checks are not
 MediaRecorder or microphone-recording acceptance.
@@ -95,8 +97,11 @@ MediaRecorder or microphone-recording acceptance.
 ReferenceSpeechContextTest and ReferenceSpeechDeviceTest are headless: bounded
 draft/review/persistence/composition checks and one actual synthetic-audio →
 explicit test-authored correction → local Qwen request. The seven
-ReferenceSpeechUiTest methods are unlocked-only and compile without establishing
-visible dialog or attended acceptance. Select these classes individually; do
+ReferenceSpeechUiTest methods passed on the same fresh unlocked synthetic emulator.
+Two new AssemblyEditUiTest methods and ten workflow methods passed too. These
+checks and one actual synthetic DocumentsUI save are recorded in
+[interface evidence](../../docs/emulator-ui-evidence.md); physical capture, audio
+and Files/provider acceptance remain separate. Select these classes individually; do
 not run the entire test APK unattended.
 
 ExportProcessDeathTest requires its methods to be selected separately: Phase1
@@ -112,7 +117,8 @@ Recent CPU plans have taken roughly 25–53 seconds per five-shot draft on the c
 
 ## Demo and outstanding checks
 
-[Attended device checklist](../../docs/device-demo-checklist.md), [demo runbook](../../docs/demo-runbook.md) and [Phase 1 pitch](../../docs/submission-draft.md) separate verified features from planned hardware. Use **Try synthetic demo clips** to inspect assembly without capturing anyone. The in-app player opens local clips paused and releases playback when leaving. For an attended real shoot, pair earbuds in Android settings, verify audible direction, review a plan, allow normal camera/audio prompts, and keep the phone app visible. Cues stay quiet during recording; recorded audio uses CameraX's Android input route, not a guaranteed AirPods microphone.
+[Attended device checklist](../../docs/device-demo-checklist.md), [demo runbook](../../docs/demo-runbook.md) and [Phase 1 pitch](../../docs/submission-draft.md) separate verified features from planned hardware. Use **Try synthetic demo clips** to inspect assembly without capturing anyone. The in-app player opens local clips paused and releases playback when leaving.
+The saved screen restores without restarting capture; Trim & typography scrolls. For an attended real shoot, pair earbuds in Android settings, verify audible direction, review a plan, allow normal camera/audio prompts, and keep the phone app visible. Cues stay quiet during recording; recorded audio uses CameraX's Android input route, not a guaranteed AirPods microphone.
 
 AirPods, real creator capture, full sequence, iQOO execution/NPU and Office Kit integration remain separate checks. DJI, Action 4 and Neo 2 control are not connected. No flight action or drone recording is implemented. Creative drafts may invent details and always require editing.
 

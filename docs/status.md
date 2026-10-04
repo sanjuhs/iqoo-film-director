@@ -1136,3 +1136,55 @@ The goal made source/device/document progress and remains active. Full attended
 creator/AirPods capture, iQOO/NPU/Office Kit, eligible event-written code and
 accepted submission remain unfinished; tonight's work continues within those
 existing gates.
+
+### Fresh emulator interface and actual Files save — 4 October, 17:54 IST
+
+Reused installed Android 36 ARM64 image/emulator in a newly created empty AVD.
+Physical phone stayed locked. Host camera/audio and snapshots disabled; camera/
+microphone permissions denied, emulator airplane mode on. No model/SDK/JDK/image
+downloads or private media. Existing other-project AVD was not started/copied/
+modified. Boot27.587s and selected-port range warning retained.
+
+Latest sequential runners passed **25 interface methods**: VoiceBrief6/7.843s,
+ReferenceSpeech7/10.643s, AssemblyEdit2/4.049s, non-media workflow9/10.766s and
+isolated synthetic demo1/2.246s. Initial Voice6/2fail, Reference7/3fail,
+workflow9/1fail reports retained. Dialog clicks preceded queued OnShow custom
+listener setup; split main-loop presentation/idle/click without weakening any
+review/overflow/stale assertions. Files ActivityMonitor now includes ZIP MIME
+type. These were fixture repairs, not proven production review defects.
+
+Production: scroll-wrapped Trim & typography and validated persisted screen0–2;
+import/reference-summary assign destination before save. Recreated Direct stays
+inactive; Assemble keeps edits/package controls. New real-dialog tests preserve
+exact5.746s source end, reject5.747/zero/negative/249ms trim bounds, retain complete
+caption/title/cues and selected order, and invalidate prepared ZIP after trim.
+Preference maps restored/equality checked; only owned tiny fixtures removed
+after original-byte/mtime checks. Independent review found no blocking issue.
+Default emulator trim fields and Save visibly stayed above its open keyboard;
+this is one screen/density, not all-screen or attended physical layout evidence.
+
+Used normal app controls and actual emulator DocumentsUI SAVE for three synthetic
+clips to empty Downloads. Saved ZIP **614,367 bytes**, SHA256
+**7f14ae3081083f01bfec89481804f7eb4e69fba58ca8cf0fc04115d6ac335823**;
+CRC valid, three whole originals610,506B exactly match current app originals/
+manifest hashes, three500–2500ms cuts align contiguous0–6000ms. This is one real
+emulator Files save, distinct from physical providers, desktop import/Office Kit
+and MP4/audio review. Full [interface evidence](emulator-ui-evidence.md) retains
+runner logs, original failures, scoped screen/XML and Files proof.
+
+Build1s/app+test installs passed. Built/saved/independently read physical installed
+app matches **52,838,059B**, SHA256
+**b0d67a683ac1ed5c38e99dc81bb317237d589c2c4e1778572946164ed589ac86**.
+Notices unchanged, separate Qwen/Whisper weights outside Git/APK, bundled ML Kit
+assets remain; no network permission. Camera/mic denied and keyguard showing;
+normal Main launch requested. Metadata-only phone inventory1PASS/0.499s:19owned
+rows/0pending/5,598,886B. No attended launch/capture/audio, aircraft action, private
+upload, permission bypass or submission occurred.
+
+Qualified temporary accounted peak **10,507,375,535B**, above10GB aim/below15GB
+cap. Stopped/removed only this newly created AVD/registration; evidence retained.
+After cleanup **9,291,985,083B (9.292GB)**, including three installed APKs, phone
+files/cache/test allocation and owned gallery; historic archive/cache and incomplete
+inventory qualifications preserved in storage.json. Other AVD, archive/model
+files and local credentials untouched. Goal remains active; attended creator/
+AirPods, iQOO/NPU, Office Kit, event provenance and accepted submission still open.

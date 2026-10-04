@@ -69,64 +69,49 @@ public final class ReferenceSpeechUiTest {
     @Test(timeout=30_000) public void fullTimedDraftNeedsExplicitConfirmationAndDoesNotOverwriteBriefOrPlan(){
         ReferenceSpeechContext.Draft draft=draft();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            AlertDialog dialog=showReview(scenario,draft);
             scenario.onActivity(a->{
                 Object shots=new ArrayList<>((java.util.List<?>)field(a,"shots"));Object source=field(a,"planSource");
-                AlertDialog dialog=review(a,draft);
                 assertTrue("All source-timed words must be visible",containsText(dialog.getWindow().getDecorView(),draft.formatTimedText()));
-                assertNull(field(a,"referenceSpeechContext"));
-                words(dialog).setText("I explain how I chose the outfit, then show the jacket.");
-                assertNull(field(a,"referenceSpeechContext"));assertEquals(BRIEF,field(a,"brief"));
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-                assertFalse(dialog.isShowing());
+                assertNull(field(a,"referenceSpeechContext"));words(dialog).setText("I explain how I chose the outfit, then show the jacket.");
+                assertNull(field(a,"referenceSpeechContext"));assertEquals(BRIEF,field(a,"brief"));dialog.getButton(-1).performClick();assertFalse(dialog.isShowing());
                 ReferenceSpeechContext.Reviewed reviewed=(ReferenceSpeechContext.Reviewed)field(a,"referenceSpeechContext");
                 assertEquals("I explain how I chose the outfit, then show the jacket.",reviewed.text);
-                assertEquals(BRIEF,field(a,"brief"));assertEquals(shots,field(a,"shots"));assertEquals(source,field(a,"planSource"));
-                assertIdle(a);
+                assertEquals(BRIEF,field(a,"brief"));assertEquals(shots,field(a,"shots"));assertEquals(source,field(a,"planSource"));assertIdle(a);
             });
-            scenario.recreate();
-            scenario.onActivity(a->{assertEquals("I explain how I chose the outfit, then show the jacket.",
-                    ((ReferenceSpeechContext.Reviewed)field(a,"referenceSpeechContext")).text);assertIdle(a);});
+            scenario.recreate();scenario.onActivity(a->{assertEquals("I explain how I chose the outfit, then show the jacket.",((ReferenceSpeechContext.Reviewed)field(a,"referenceSpeechContext")).text);assertIdle(a);});
         }
     }
 
     @Test(timeout=30_000) public void oversizedContextAndCombinedPlanAreRejectedWithoutTruncatingOrReplacingPreviousContext(){
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            ReferenceSpeechContext.Reviewed previous=draft().reviewed("Previously confirmed synthetic context");
+            scenario.onActivity(a->set(a,"referenceSpeechContext",previous));AlertDialog dialog=showReview(scenario,draft());
             scenario.onActivity(a->{
-                ReferenceSpeechContext.Reviewed previous=draft().reviewed("Previously confirmed synthetic context");
-                set(a,"referenceSpeechContext",previous);
-                AlertDialog dialog=review(a,draft());EditText edit=words(dialog);
-                String longText=repeat('x',211);edit.setText(longText);dialog.getButton(-1).performClick();
-                assertTrue(dialog.isShowing());assertEquals(longText,edit.getText().toString());assertNotNull(edit.getError());
-                assertSame(previous,field(a,"referenceSpeechContext"));
+                EditText edit=words(dialog);String longText=repeat('x',211);edit.setText(longText);dialog.getButton(-1).performClick();
+                assertTrue(dialog.isShowing());assertEquals(longText,edit.getText().toString());assertNotNull(edit.getError());assertSame(previous,field(a,"referenceSpeechContext"));
                 edit.setText(" ");dialog.getButton(-1).performClick();assertTrue(dialog.isShowing());assertNotNull(edit.getError());
                 set(a,"brief",repeat('b',470));edit.setText("Reviewed words that push the exact labelled composition beyond five hundred characters.");
                 String corrected=edit.getText().toString();dialog.getButton(-1).performClick();
-                assertTrue(dialog.isShowing());assertEquals(corrected,edit.getText().toString());assertNotNull(edit.getError());
-                assertSame(previous,field(a,"referenceSpeechContext"));
-                dialog.getButton(-2).performClick();assertSame(previous,field(a,"referenceSpeechContext"));
-                set(a,"brief",BRIEF);assertIdle(a);
+                assertTrue(dialog.isShowing());assertEquals(corrected,edit.getText().toString());assertNotNull(edit.getError());assertSame(previous,field(a,"referenceSpeechContext"));
+                dialog.getButton(-2).performClick();assertSame(previous,field(a,"referenceSpeechContext"));set(a,"brief",BRIEF);assertIdle(a);
             });
         }
     }
 
     @Test(timeout=30_000) public void cancelBackgroundAndChangedReferenceInvalidateOldUseWhileSameReferenceKeepsConfirmation(){
-        AtomicReference<Button> stale=new AtomicReference<>();AtomicReference<AlertDialog> old=new AtomicReference<>();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
-            scenario.onActivity(a->{
-                ReferenceSpeechContext.Reviewed previous=draft().reviewed("Confirmed words to preserve");set(a,"referenceSpeechContext",previous);
-                AlertDialog dialog=review(a,draft());Button use=dialog.getButton(-1);words(dialog).setText("An unconfirmed replacement");
-                invoke(a,"cancelReferenceSpeech",new Class<?>[0]);use.performClick();
-                assertFalse(dialog.isShowing());assertSame(previous,field(a,"referenceSpeechContext"));
-                dialog=review(a,draft());old.set(dialog);stale.set(dialog.getButton(-1));words(dialog).setText("Another unconfirmed replacement");
-            });
+            ReferenceSpeechContext.Reviewed previous=draft().reviewed("Confirmed words to preserve");scenario.onActivity(a->set(a,"referenceSpeechContext",previous));
+            AlertDialog canceled=showReview(scenario,draft());
+            scenario.onActivity(a->{Button use=canceled.getButton(-1);words(canceled).setText("An unconfirmed replacement");invoke(a,"cancelReferenceSpeech",new Class<?>[0]);use.performClick();assertFalse(canceled.isShowing());assertSame(previous,field(a,"referenceSpeechContext"));});
+            AlertDialog old=showReview(scenario,draft());AtomicReference<Button> stale=new AtomicReference<>();
+            scenario.onActivity(a->{stale.set(old.getButton(-1));words(old).setText("Another unconfirmed replacement");});
             scenario.moveToState(Lifecycle.State.CREATED);scenario.moveToState(Lifecycle.State.RESUMED);
+            scenario.onActivity(a->{assertFalse(old.isShowing());stale.get().performClick();assertEquals("Confirmed words to preserve",((ReferenceSpeechContext.Reviewed)field(a,"referenceSpeechContext")).text);});
+            AlertDialog replaced=showReview(scenario,draft());
             scenario.onActivity(a->{
-                assertFalse(old.get().isShowing());stale.get().performClick();
-                assertEquals("Confirmed words to preserve",((ReferenceSpeechContext.Reviewed)field(a,"referenceSpeechContext")).text);
-                AlertDialog dialog=review(a,draft());Button oldUse=dialog.getButton(-1);words(dialog).setText("Words from the previous source");
-                invoke(a,"changeReferenceSource",new Class<?>[]{Uri.class},OTHER);oldUse.performClick();
-                assertNull(field(a,"referenceSpeechContext"));assertFalse(dialog.isShowing());assertEquals(OTHER,field(a,"referenceVideoUri"));assertIdle(a);
-                invoke(a,"save",new Class<?>[0]);
+                Button oldUse=replaced.getButton(-1);words(replaced).setText("Words from the previous source");invoke(a,"changeReferenceSource",new Class<?>[]{Uri.class},OTHER);oldUse.performClick();
+                assertNull(field(a,"referenceSpeechContext"));assertFalse(replaced.isShowing());assertEquals(OTHER,field(a,"referenceVideoUri"));assertIdle(a);invoke(a,"save",new Class<?>[0]);
             });
             scenario.recreate();scenario.onActivity(a->{assertNull(field(a,"referenceSpeechContext"));assertEquals(OTHER,field(a,"referenceVideoUri"));assertIdle(a);});
         }
@@ -152,21 +137,19 @@ public final class ReferenceSpeechUiTest {
 
     @Test(timeout=30_000) public void savedContextEditsWithoutReadingSourceAndLiveCountsIncludeLabelsWithOverflowPreserved(){
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            ReferenceSpeechContext.Reviewed saved=draft().reviewed("Previously saved corrected context");
+            AtomicReference<Object> reader=new AtomicReference<>(),planner=new AtomicReference<>(),shots=new AtomicReference<>();
+            scenario.onActivity(a->{set(a,"referenceSpeechContext",saved);reader.set(field(a,"transcriber"));planner.set(field(a,"planner"));shots.set(new ArrayList<>((java.util.List<?>)field(a,"shots")));});
+            AlertDialog dialog=showDialog(scenario,"editReferenceSpeechContext",new Class<?>[0]);
             scenario.onActivity(a->{
-                ReferenceSpeechContext.Reviewed saved=draft().reviewed("Previously saved corrected context");set(a,"referenceSpeechContext",saved);
-                Object reader=field(a,"transcriber");Object planner=field(a,"planner");Object shots=new ArrayList<>((java.util.List<?>)field(a,"shots"));
-                invoke(a,"editReferenceSpeechContext",new Class<?>[0]);AlertDialog dialog=(AlertDialog)field(a,"referenceSpeechDialog");assertNotNull(dialog);
                 assertNull("Editing saved words must not invent a persisted transcript",field(a,"referenceSpeechDraft"));
                 assertTrue(containsText(dialog.getWindow().getDecorView(),"Saved corrected speech context. The original transcript and times were not saved. Edit these reviewed words without reading the video again."));
-                EditText words=words(dialog);assertEquals(saved.text,words.getText().toString());
-                String edited="Corrected saved words about choosing my outfit.";words.setText(edited);
-                int count=ReferenceSpeechContext.composedLength(BRIEF,"",false,edited);
-                assertTrue(containsText(dialog.getWindow().getDecorView(),edited.length()+" / 210 context characters · "+count+" / 500 combined plan characters, including labels"));
+                EditText words=words(dialog);assertEquals(saved.text,words.getText().toString());String edited="Corrected saved words about choosing my outfit.";words.setText(edited);
+                int count=ReferenceSpeechContext.composedLength(BRIEF,"",false,edited);assertTrue(containsText(dialog.getWindow().getDecorView(),edited.length()+" / 210 context characters · "+count+" / 500 combined plan characters, including labels"));
                 set(a,"brief",repeat('b',470));words.setText(edited+" More corrected words.");String retained=words.getText().toString();
                 dialog.getButton(-1).performClick();assertTrue(dialog.isShowing());assertNotNull(words.getError());assertEquals(retained,words.getText().toString());assertSame(saved,field(a,"referenceSpeechContext"));
                 set(a,"brief",BRIEF);words.setText(edited);dialog.getButton(-1).performClick();assertFalse(dialog.isShowing());
-                assertEquals(edited,((ReferenceSpeechContext.Reviewed)field(a,"referenceSpeechContext")).text);
-                assertSame(reader,field(a,"transcriber"));assertSame(planner,field(a,"planner"));assertEquals(shots,field(a,"shots"));assertEquals(BRIEF,field(a,"brief"));assertIdle(a);
+                assertEquals(edited,((ReferenceSpeechContext.Reviewed)field(a,"referenceSpeechContext")).text);assertSame(reader.get(),field(a,"transcriber"));assertSame(planner.get(),field(a,"planner"));assertEquals(shots.get(),field(a,"shots"));assertEquals(BRIEF,field(a,"brief"));assertIdle(a);
             });
         }
     }
@@ -198,33 +181,47 @@ public final class ReferenceSpeechUiTest {
 
     @Test(timeout=30_000) public void replacedVisualSourceClosesOldEnginesRecyclesOwnedFrameAndRejectsOldReviewedUse(){
         AtomicReference<android.graphics.Bitmap> oldFrame=new AtomicReference<>();
+        AtomicReference<Object> oldDecoder=new AtomicReference<>(),oldVision=new AtomicReference<>(),oldBoard=new AtomicReference<>();
+        java.util.concurrent.atomic.AtomicInteger generation=new java.util.concurrent.atomic.AtomicInteger();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
             scenario.onActivity(a->{
-                Object oldDecoder=field(a,"referenceFrames"),oldVision=field(a,"referenceVision"),oldBoard=field(a,"boardInspection");
-                int generation=(Integer)field(a,"referenceAnalysisGeneration");
-                android.graphics.Bitmap frame=android.graphics.Bitmap.createBitmap(4,4,android.graphics.Bitmap.Config.ARGB_8888);oldFrame.set(frame);
-                frame.eraseColor(android.graphics.Color.RED);set(a,"pendingReferenceFrame",frame);
-                set(a,"pendingReferenceTimeMs",1234L);set(a,"pendingReferenceNotes","Synthetic old-source frame observations");
-                invoke(a,"reviewReferenceNotes",new Class<?>[0]);AlertDialog dialog=(AlertDialog)field(a,"referenceNotesDialog");assertNotNull(dialog);assertTrue(dialog.isShowing());
-                Button oldUse=dialog.getButton(-1);words(dialog).setText("Unconfirmed old-source correction");
-                invoke(a,"changeReferenceSource",new Class<?>[]{Uri.class},OTHER);
-                assertFalse(dialog.isShowing());assertTrue(frame.isRecycled());assertNull(field(a,"pendingReferenceFrame"));assertEquals("",field(a,"pendingReferenceNotes"));
-                assertEquals(true,field(oldDecoder,"closed"));assertEquals(true,field(oldVision,"closed"));assertEquals(true,field(oldBoard,"closed"));
-                assertNotSame(oldDecoder,field(a,"referenceFrames"));assertNotSame(oldVision,field(a,"referenceVision"));assertNotSame(oldBoard,field(a,"boardInspection"));
-                assertEquals(false,call(a,"isCurrentReference",new Class<?>[]{Uri.class,int.class},SOURCE,generation));
-                set(a,"referenceSummary","New selected-source observations must survive");invoke(a,"setBusy",new Class<?>[]{boolean.class},true);
-                oldUse.performClick();assertEquals("New selected-source observations must survive",field(a,"referenceSummary"));
-                assertEquals("Retained old review must not clear the new operation",true,field(a,"busy"));
-                invoke(a,"setBusy",new Class<?>[]{boolean.class},false);assertIdle(a);
+                oldDecoder.set(field(a,"referenceFrames"));oldVision.set(field(a,"referenceVision"));oldBoard.set(field(a,"boardInspection"));generation.set((Integer)field(a,"referenceAnalysisGeneration"));
+                android.graphics.Bitmap frame=android.graphics.Bitmap.createBitmap(4,4,android.graphics.Bitmap.Config.ARGB_8888);oldFrame.set(frame);frame.eraseColor(android.graphics.Color.RED);
+                set(a,"pendingReferenceFrame",frame);set(a,"pendingReferenceTimeMs",1234L);set(a,"pendingReferenceNotes","Synthetic old-source frame observations");
             });
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-            scenario.onActivity(a->{assertNull(field(a,"referenceNotesDialog"));assertTrue(oldFrame.get().isRecycled());assertEquals("New selected-source observations must survive",field(a,"referenceSummary"));assertIdle(a);});
+            AlertDialog dialog=showDialog(scenario,"reviewReferenceNotes",new Class<?>[0]);
+            scenario.onActivity(a->{
+                Button oldUse=dialog.getButton(-1);words(dialog).setText("Unconfirmed old-source correction");invoke(a,"changeReferenceSource",new Class<?>[]{Uri.class},OTHER);
+                assertFalse(dialog.isShowing());assertTrue(oldFrame.get().isRecycled());assertNull(field(a,"pendingReferenceFrame"));assertEquals("",field(a,"pendingReferenceNotes"));
+                assertEquals(true,field(oldDecoder.get(),"closed"));assertEquals(true,field(oldVision.get(),"closed"));assertEquals(true,field(oldBoard.get(),"closed"));
+                assertNotSame(oldDecoder.get(),field(a,"referenceFrames"));assertNotSame(oldVision.get(),field(a,"referenceVision"));assertNotSame(oldBoard.get(),field(a,"boardInspection"));assertEquals(false,call(a,"isCurrentReference",new Class<?>[]{Uri.class,int.class},SOURCE,generation.get()));
+                set(a,"referenceSummary","New selected-source observations must survive");invoke(a,"setBusy",new Class<?>[]{boolean.class},true);oldUse.performClick();
+                assertEquals("New selected-source observations must survive",field(a,"referenceSummary"));assertEquals("Retained old review must not clear the new operation",true,field(a,"busy"));invoke(a,"setBusy",new Class<?>[]{boolean.class},false);assertIdle(a);
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();scenario.onActivity(a->{assertNull(field(a,"referenceNotesDialog"));assertTrue(oldFrame.get().isRecycled());assertEquals("New selected-source observations must survive",field(a,"referenceSummary"));assertIdle(a);});
         }
     }
 
     private static ReferenceSpeechContext.Draft draft(){return new ReferenceSpeechContext.Draft(SOURCE,Arrays.asList(
             new SubtitleCue(1001,5746,"Complete synthetic first sentence "+repeat('x',550)+" with its final words."),
             new SubtitleCue(6200,11000,"A second complete synthetic sentence that remains in the full draft.")),42);}
+    private static AlertDialog showReview(ActivityScenario<MainActivity> scenario,ReferenceSpeechContext.Draft draft){
+        AtomicReference<AlertDialog> shown=new AtomicReference<>();
+        scenario.onActivity(a->{assertEquals(Lifecycle.State.RESUMED,a.getLifecycle().getCurrentState());shown.set(review(a,draft));});
+        return awaitShown(scenario,shown);
+    }
+    private static AlertDialog showDialog(ActivityScenario<MainActivity> scenario,String method,Class<?>[] parameters){
+        AtomicReference<AlertDialog> shown=new AtomicReference<>();
+        scenario.onActivity(a->{assertEquals(Lifecycle.State.RESUMED,a.getLifecycle().getCurrentState());invoke(a,method,parameters);shown.set((AlertDialog)field(a,method.equals("reviewReferenceNotes")?"referenceNotesDialog":"referenceSpeechDialog"));assertNotNull(shown.get());});
+        return awaitShown(scenario,shown);
+    }
+    private static AlertDialog awaitShown(ActivityScenario<MainActivity> scenario,AtomicReference<AlertDialog> shown){
+        // OnShow installs the custom validation listener in a queued main-loop message.
+        // Let that event complete before synthetic button actions, as real input does.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        scenario.onActivity(a->{assertEquals(Lifecycle.State.RESUMED,a.getLifecycle().getCurrentState());assertTrue(shown.get().isShowing());});
+        return shown.get();
+    }
     private static AlertDialog review(MainActivity a,ReferenceSpeechContext.Draft draft){
         invoke(a,"reviewReferenceSpeech",new Class<?>[]{ReferenceSpeechContext.Draft.class,int.class},draft,(Integer)field(a,"referenceSpeechGeneration"));
         AlertDialog dialog=(AlertDialog)field(a,"referenceSpeechDialog");assertNotNull(dialog);assertTrue(dialog.isShowing());return dialog;

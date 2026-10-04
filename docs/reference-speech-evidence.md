@@ -70,7 +70,10 @@ checks, two board cancellation/selection/bitmap checks without vision loading,
 and read-only app-owned gallery inventory. The latter found 19 rows, zero pending
 and 5,598,886 logical bytes, matching the previous snapshot. This does not test
 MainActivity's visible dialogs or the actual timing of a replaced-source UI job.
-Seven future synthetic UI methods are compiled and **unrun** behind keyguard.
+At this 17:37 checkpoint seven synthetic UI methods were compiled and **unrun**
+behind keyguard. A later fresh-emulator run passed all seven; see
+[interface evidence](emulator-ui-evidence.md) for retained setup failures and
+corrected queued-dialog timing. Physical reference acceptance remains open.
 
 Both APK builds/installations passed. Built/saved/independently read installed
 app bytes match: **52,838,059 bytes**, SHA-256

@@ -42,6 +42,9 @@ recording; it never starts planning/filming. **Use phone dictation** separately
 requires Android's offline English model, currently not installed on this phone.
 Local audio-only remux and AAC encoding/transcription checks passed, but actual
 microphone capture and these visible controls still need attended acceptance.
+Six synthetic voice-review checks and seven reference-speech checks now pass on
+a fresh emulator, with denied capture permissions. They do not replace this
+attended recording check. See [interface evidence](emulator-ui-evidence.md).
 Check that leaving the app during a brief or transcription restores editable
 controls after return and does not apply a draft. If recorder release cannot be
 confirmed, the app refuses a new microphone session; follow its status before
@@ -162,7 +165,8 @@ sequence. Confirm these behaviors on the real phone before a presentation.
    package so the next save rebuilds your current edits. **Save last exported cut list to Files** saves
    the smaller JSON separately; that ordinary cut list refers to phone sources
    and the last export. Re-export after edits to update the reel/cut list.
-   Actual Files saving and Office Kit transfer still need an attended check.
+   Actual emulator Files saving passed with generated clips and exact ZIP/source
+   verification. Physical Files/providers and Office Kit still need an attended check.
 
 ## If something stalls or disagrees
 
