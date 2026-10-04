@@ -1,0 +1,2 @@
+# Keep generated Windows launcher usable with CRLF while storing normalized text.
+*.bat text eol=crlf
