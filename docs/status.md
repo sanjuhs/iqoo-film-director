@@ -860,3 +860,29 @@ were deleted/changed. Prepared phase-one PDF remains unchanged and visually
 verified at its earlier digest. The goal stays active: live filming/AirPods,
 visible UI/pause calibration, required iQOO/NPU/Office Kit, eligible event-created
 competition source and accepted submission remain open.
+
+### Movement clause regression — 4 October, 16:04 IST
+
+A new deterministic phone test reproduced six misses: three synthetic invalid
+cues passed both draft and reviewed-cue parsing. Later steps text exempted
+garment-taking, and steps toward a pocket were not checked. The failing method
+ran in0.046s; its report remains in private/evidence/movement-clause-red-test.log.
+The narrow guard now checks the first action without that global exemption,
+stops scanning at recognized clause/action boundaries and includes a bounded
+Take + step(s) destination prefix. Prompt, grammar, models and callbacks are
+unchanged. The complete class passed **9 methods /0.153s**: three invalid and
+four valid synthetic cues in both paths, and exact replay of four recorded
+native Movement phrases. No new native generation ran. Unlisted paraphrases,
+later clauses, semantic validity and walking safety are not established.
+
+Both APK builds/installations succeeded. Saved app:
+output/apk/MiniFilm-research.apk,52,838,059 bytes, SHA-256
+**6f9b8465208ec2eaec8d84a91b388a13e8363263dc14efa10a8bc5df7cc586b2**.
+Notices remain byte-identical; separate GGUF/Whisper weights are absent; the
+manifest has no Internet/network-state permission. Exact planner snapshot SHA
+8bfa269905488828f3742dd15dbc44ade03d45fe10171907eb4d2f34eb1bec26 is
+retained privately. Normal launch was requested successfully; camera/microphone
+remain denied. No capture, audible playback, upload or aircraft action ran.
+Qualified storage is **9.280GB**, retaining the earlier inventory limits.
+The goal remains active; attended filming/AirPods and event gates remain open.
+Earlier native results are retained evidence, not freshly rerun.

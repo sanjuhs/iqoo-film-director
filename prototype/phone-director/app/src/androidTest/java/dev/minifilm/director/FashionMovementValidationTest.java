@@ -191,6 +191,55 @@ public final class FashionMovementValidationTest {
                 + " nativeGeneration=false learnedFeatureGroundingClaim=false");
     }
 
+    @Test public void laterStepWordsMustNotExemptTakingGarmentPartsOrStepsTowardThem() throws Exception {
+        String[] roles = roles(); String[][] actions = actions(); StringBuilder failures = new StringBuilder();
+        // All seven inputs are new synthetic regressions, distinct from the earlier observed BAD examples.
+        String[] invalid = {"Take the left pocket, then take two steps.", "Take your collar and take two small steps.",
+                "Take two small steps toward your pocket."};
+        String[] valid = {"Take two small steps while showing your pocket.", "Take a step and point to your collar.",
+                "Turn slightly, then point to your collar.", "Walk two small steps, then point to your collar."};
+        for (String cue : invalid) {
+            JSONArray draft = fiveShots(roles, cue);
+            try { assertMovementRejected(() -> parse(draft.toString(), roles, actions)); }
+            catch (AssertionError failure) { failures.append("draft: ").append(cue).append(" -> ").append(failure.getMessage()).append('\n'); }
+            try { assertMovementRejected(() -> call(method("parseReviewedCues", String.class, String[].class), reviewedBrief(cue), roles)); }
+            catch (AssertionError failure) { failures.append("reviewed: ").append(cue).append(" -> ").append(failure.getMessage()).append('\n'); }
+        }
+        for (String cue : valid) {
+            try {
+                List<Shot> parsed = parse(fiveShots(roles, cue).toString(), roles, actions);
+                assertEquals("Movement", parsed.get(1).title); assertEquals("Valid movement wording must remain exact", cue, parsed.get(1).instruction);
+                assertExactReviewedCue("Movement", cue, 1, roles);
+            } catch (AssertionError failure) { failures.append("valid exact retention: ").append(cue).append(" -> ").append(failure.getMessage()).append('\n'); }
+        }
+        assertFalse(LocalModelLease.isHeld());
+        // Keep every known invalid result in the red-test report rather than stopping at the first miss.
+        Log.i(TAG, "MOVEMENT_STEP_CLAUSE_REGRESSION syntheticInputsOnly=true syntheticInvalidCases=3 syntheticValidCases=4"
+                + " nativeGeneration=false arbitrarySemanticValidityClaim=false failures=" + failures.toString().replace('\n', '|'));
+        assertTrue("Synthetic movement regressions must reject garment-taking/destinations and preserve valid later-pointing cues:\n" + failures,
+                failures.length() == 0);
+    }
+
+    @Test public void recordedNativeMovementPhrasesRemainExactInDraftAndReviewedPaths() throws Exception {
+        String[] roles = roles(); String[][] actions = actions();
+        // Exact native outputs from docs/plain-fashion-camera-detail-repair.json, respectively:
+        // plain jacket, held-out kurta, hybrid unspecified Detail, hybrid explicit Detail.
+        // Replaying them is deterministic validation, not new generation or a quality/generalization claim.
+        String[] recorded = {"Take two steps forward while keeping the jacket in place.",
+                "Take two small steps while keeping the kurta still.", "Take two small steps while facing the lens.", "Take two small steps."};
+        for (String cue : recorded) {
+            JSONArray input = fiveShots(roles, cue); List<Shot> plan = parse(input.toString(), roles, actions);
+            assertEquals(5, plan.size()); assertEquals("Movement", plan.get(1).title);
+            assertEquals("The actual recorded native phrasing must stay exact", cue, plan.get(1).instruction);
+            assertExactReviewedCue("Movement", cue, 1, roles);
+            assertEquals("Input text must remain intact", cue, input.getJSONObject(1).getString("instruction"));
+        }
+        assertFalse(LocalModelLease.isHeld());
+        Log.i(TAG, "RECORDED_NATIVE_MOVEMENT_REPLAY_OK actualNativePhrasesReplayed=4 source=plain-fashion-camera-detail-repair.json"
+                + " originalGenerationInputsSynthetic=true surroundingParserFixtureSynthetic=true exactDraftAndReviewed=true"
+                + " nativeGeneration=false newModelAccuracyClaim=false");
+    }
+
     private static int cameraCueRole(String cue) {
         if (cue.startsWith("Look")) return 4;
         if (cue.startsWith("Take") || cue.startsWith("Turn") || cue.startsWith("Move")) return 1;

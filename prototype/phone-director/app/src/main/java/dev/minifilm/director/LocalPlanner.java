@@ -74,17 +74,21 @@ public final class LocalPlanner {
             "\\b" + CAMERA_OPERATOR_VERB + "\\s+(?:it|this|that)\\b", Pattern.CASE_INSENSITIVE);
     // Narrow English lexical guard for observed Movement drafts: taking a garment part or
     // treating one as a walking/turning destination. It is not a semantic or safety validator.
-    // Clause/action words stop the noun phrase, so a later "show your pocket" remains valid.
+    // Inspect only the initial object/action: later steps cannot exempt taking a garment part,
+    // and a later show/point gesture is not the first action's destination. Unlisted English
+    // paraphrases/compound clauses can escape this bounded check; later clauses are not validated.
     private static final String GARMENT_PART = "(?:pocket|lapel|collar|button|zipper|buckle|hem|sleeve)s?";
     private static final String PART_NOUN_MODIFIERS =
-            "(?:(?!(?:then|and|to|show|point|hold|pose|turn|look|face|walk|move)\\b)[a-z'-]+\\s+){0,6}";
+            "(?:(?!(?:steps?|then|and|while|before|after|to|show|point|hold|pose|turn|look|face|walk|move|take)\\b)[a-z'-]+\\s+){0,6}";
     private static final Pattern FASHION_TAKE_PART = Pattern.compile(
             "^take\\s+" + PART_NOUN_MODIFIERS + GARMENT_PART + "\\b", Pattern.CASE_INSENSITIVE);
     private static final Pattern FASHION_PART_DESTINATION = Pattern.compile(
-            "^(?:walk|move|turn)\\b[^.;,!?]*?\\b(?:to|toward|towards|into)\\s+" + PART_NOUN_MODIFIERS
+            "^(?:(?:walk|move|turn)\\b|take\\s+"
+                    + "(?:(?!(?:then|and|while|before|after|to|toward|towards|into|show|point|hold|pose|turn|look|face|walk|move|take)\\b)[a-z0-9'-]+\\s+){0,4}steps?\\b)"
+                    + "(?:(?!\\b(?:and|then|while|before|after|show|point|hold|pose|look|face|take|turn|walk|move)\\b)[^.;,!?])*?"
+                    + "\\b(?:to|toward|towards|into)\\s+" + PART_NOUN_MODIFIERS
                     + GARMENT_PART + "\\b(?=\\s*(?:$|[.,;!?]|(?:and|then|while|before|after)\\b))",
             Pattern.CASE_INSENSITIVE);
-    private static final Pattern MOVEMENT_STEPS = Pattern.compile("\\bsteps?\\b", Pattern.CASE_INSENSITIVE);
     private static final class FashionMovementException extends IllegalArgumentException {
         FashionMovementException() { super("Invalid fashion movement"); }
     }
@@ -278,8 +282,7 @@ public final class LocalPlanner {
     }
 
     private static boolean invalidFashionMovement(String instruction) {
-        return (!MOVEMENT_STEPS.matcher(instruction).find() && FASHION_TAKE_PART.matcher(instruction).find())
-                || FASHION_PART_DESTINATION.matcher(instruction).find();
+        return FASHION_TAKE_PART.matcher(instruction).find() || FASHION_PART_DESTINATION.matcher(instruction).find();
     }
 
     private static boolean invalidFashionDeviceCue(String instruction) {
