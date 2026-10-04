@@ -56,7 +56,7 @@ public class MainActivity extends ComponentActivity {
     private TakeFramingReview takeFramingReview, activeTakeFramingReview;
     private int takeFramingGeneration;
     private boolean takeFramingOwnsBusy;
-    private AlertDialog takeFramingDialog, takeToolsDialog,takeCutDialog;
+    private AlertDialog takeFramingDialog, takeToolsDialog,takeCutDialog,subtitleReviewDialog;
     private CaptureTakeStore captureTakeStore;
     private boolean destroying;
     @Override public void onCreate(Bundle state){super.onCreate(state);speech=new SpeechCoach(this);speech.setAudioInterruptionListener(this::pauseSpokenPreparation);exporter=new ReelExporter(this);packager=new ProjectPackager(this);documentCopier=new DocumentCopier(this);autoColor=new AutoColorBalance(this);planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);captureTakeStore=new CaptureTakeStore(this);restore();recoverSavedTakes(false);ExportRecovery.Result recovered=ExportRecovery.reconcile(this);if(recovered.videoUri!=null){lastVideo=recovered.videoUri;lastEdit=recovered.editListUri;save();}if(shots.isEmpty()){shots.addAll(ShotCoverage.freshPlan(DirectorEngine.plan(brief,style)));save();}render();if(!recovered.warning.isEmpty())status.setText(recovered.warning);else if(recovered.cleaned>0)status.setText("Interrupted export cleared. Original clips are safe.");}
@@ -69,7 +69,7 @@ public class MainActivity extends ComponentActivity {
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
         ++pageRenderGeneration;
-        clearAssemblyFooter();clearPoseBreak();dismissShotEdit();dismissTakeCut();
+        clearAssemblyFooter();clearPoseBreak();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();
         ++shootPoseGeneration;
         cancelTakeFraming(false);dismissTakeTools();
         dismissShotAssignments();coverageSummary=null;coverageRows=null;nextMissingShotButton=null;
@@ -752,7 +752,57 @@ public class MainActivity extends ComponentActivity {
                 .setNegativeButton("Keep current cut",(dialog,which)->{pendingSpeechTrim=null;pendingSpeechTrimTake=null;render();status.setText("Your current cut is kept.");})
                 .show();
     }
-    private void reviewSubtitles(int index){Take take=takes.get(index);LinearLayout form=column();form.setPadding(dp(18),dp(8),dp(18),dp(8));ArrayList<EditText> words=new ArrayList<>(),starts=new ArrayList<>(),ends=new ArrayList<>();for(SubtitleCue cue:take.subtitles){form.addView(text("Source timestamps in seconds · short cues fit up to 4 lines",11,MUTED));EditText a=input(SubtitleTime.format(cue.startMs),"Start seconds"),b=input(SubtitleTime.format(cue.endMs),"End seconds"),w=input(cue.text,"Subtitle words");a.setInputType(8194);b.setInputType(8194);form.addView(a);form.addView(b);form.addView(w);starts.add(a);ends.add(b);words.add(w);}ScrollView scroll=new ScrollView(this);scroll.addView(form);AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Review your subtitle draft").setView(scroll).setPositiveButton("Save reviewed subtitles",null).setNeutralButton("Remove subtitles",(d,w)->{take.subtitles.clear();take.captionOrigin="manual";save();render();}).setNegativeButton("Later",null).create();dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{try{ArrayList<SubtitleCue> cues=new ArrayList<>();for(int i=0;i<words.size();i++){String w=words.get(i).getText().toString().trim();long start=SubtitleTime.parse(starts.get(i).getText().toString()),end=SubtitleTime.parse(ends.get(i).getText().toString());if(start<0||end<=start||end>take.durationMs)throw new IllegalArgumentException();if(!w.isEmpty())cues.add(new SubtitleCue(start,end,w));}try{SubtitleTimeline.requireNonOverlapping(cues);}catch(IllegalArgumentException overlap){toast(overlap.getMessage());return;}take.subtitles=cues;take.captionOrigin="creator-reviewed-offline-asr";save();dialog.dismiss();render();}catch(Exception e){toast("Use valid subtitle times inside the source clip.");}}));dialog.show();}
+    private void reviewSubtitles(int index){
+        if(busy||destroying||tab!=2||index<0||index>=takes.size()
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        Take take=takes.get(index);final SubtitleReviewDraft draft;
+        try{draft=SubtitleReviewDraft.capture(take);}catch(IllegalArgumentException unreadable){toast(unreadable.getMessage());return;}
+        dismissSubtitleReview();final int previousScrollY=pageScroll==null?0:pageScroll.getScrollY();
+        LinearLayout form=column();form.setPadding(dp(18),dp(8),dp(18),dp(8));
+        form.addView(text("Source timestamps in seconds · short cues fit up to 4 lines",11,MUTED));
+        ArrayList<EditText> words=new ArrayList<>(),starts=new ArrayList<>(),ends=new ArrayList<>();
+        for(int i=0;i<draft.cues.size();i++){
+            SubtitleReviewDraft.Cue cue=draft.cues.get(i);form.addView(text("Cue "+(i+1),14,LIME));
+            EditText a=input(SubtitleTime.format(cue.startMs),"Start seconds"),b=input(SubtitleTime.format(cue.endMs),"End seconds"),w=input(cue.text,"Subtitle words");
+            a.setInputType(8194);b.setInputType(8194);
+            form.addView(text("Start",12,MUTED));form.addView(a);form.addView(text("End",12,MUTED));form.addView(b);form.addView(text("Words",12,MUTED));form.addView(w);
+            starts.add(a);ends.add(b);words.add(w);
+        }
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Review your subtitle draft").setView(scroll)
+                .setPositiveButton("Save reviewed subtitles",null).setNeutralButton("Remove subtitles",null).setNegativeButton("Later",null).create();
+        subtitleReviewDialog=dialog;
+        dialog.setOnDismissListener(d->{if(subtitleReviewDialog==dialog)subtitleReviewDialog=null;});
+        dialog.setOnShowListener(d->{
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{if(subtitleReviewDialog==dialog)dismissSubtitleReview();});
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->{
+                if(!ownsSubtitleReview(dialog,take,draft))return;
+                take.subtitles=new ArrayList<>();take.captionOrigin="manual";save();dismissSubtitleReview();render();restorePageScroll(pageScroll,previousScrollY,2);
+            });
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
+                if(!ownsSubtitleReview(dialog,take,draft))return;
+                try{
+                    ArrayList<SubtitleCue> cues=new ArrayList<>();
+                    for(int i=0;i<words.size();i++){
+                        String w=words.get(i).getText().toString().trim();
+                        long start=SubtitleTime.parse(starts.get(i).getText().toString()),end=SubtitleTime.parse(ends.get(i).getText().toString());
+                        if(start<0||end<=start||end>draft.durationMs)throw new IllegalArgumentException();
+                        if(!w.isEmpty())cues.add(new SubtitleCue(start,end,w));
+                    }
+                    try{SubtitleTimeline.requireNonOverlapping(cues);}catch(IllegalArgumentException overlap){toast(overlap.getMessage());return;}
+                    take.subtitles=cues;take.captionOrigin="creator-reviewed-offline-asr";save();dismissSubtitleReview();render();restorePageScroll(pageScroll,previousScrollY,2);
+                }catch(Exception invalid){toast("Use valid subtitle times inside the source clip.");}
+            });
+        });dialog.show();
+    }
+    private boolean ownsSubtitleReview(AlertDialog dialog,Take take,SubtitleReviewDraft draft){
+        return subtitleReviewDialog==dialog&&dialog.isShowing()&&dialog.getWindow()!=null
+                &&dialog.getWindow().getDecorView().isShown()&&dialog.getWindow().getDecorView().getWindowToken()!=null
+                &&!busy&&!destroying&&tab==2&&takes.contains(take)&&draft.matches(take)
+                &&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED);
+    }
+    private void dismissSubtitleReview(){if(subtitleReviewDialog!=null){AlertDialog dialog=subtitleReviewDialog;subtitleReviewDialog=null;dialog.dismiss();}}
+
     private void closePendingReferenceBoard(){
         if(pendingReferenceBoard!=null){pendingReferenceBoard.close();pendingReferenceBoard=null;}
     }
@@ -1080,8 +1130,8 @@ public class MainActivity extends ComponentActivity {
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
-    @Override protected void onStop(){++pageRenderGeneration;++shootPoseGeneration;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();super.onStop();cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
-    @Override protected void onDestroy(){++pageRenderGeneration;++shootPoseGeneration;destroying=true;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
+    @Override protected void onStop(){++pageRenderGeneration;++shootPoseGeneration;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();super.onStop();cancelTakeFraming(false);dismissTakeTools();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
+    @Override protected void onDestroy(){++pageRenderGeneration;++shootPoseGeneration;destroying=true;clearAssemblyFooter();dismissShotEdit();dismissTakeCut();dismissSubtitleReview();dismissTakeTools();cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
     private void planExportError(IllegalArgumentException invalid){setBusy(false);String message=invalid.getMessage();if(message==null||message.isEmpty())message="Review your shot plan fields and lengths before exporting.";status.setText(message);toast(message);}
     private JSONArray serializeShots() throws JSONException{JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs).put("framingTarget",FramingTarget.normalize(s.framingTarget)));return ss;}
     private JSONArray serializeTakes() throws JSONException{JSONArray tt=new JSONArray();for(Take t:takes){JSONArray subs=new JSONArray();for(SubtitleCue cue:t.subtitles)subs.put(new JSONObject().put("start",cue.startMs).put("end",cue.endMs).put("text",cue.text));tt.put(new JSONObject() .put("subtitles",subs).put("reviewedShotIds",new JSONArray(t.reviewedShotIds==null?Collections.emptyList():t.reviewedShotIds)).put("captionOrigin",t.captionOrigin).put("uri",t.uri.toString()).put("id",t.shotId).put("title",t.title).put("caption",t.caption).put("duration",t.durationMs).put("in",t.inMs).put("out",t.outMs).put("selected",t.selected));}return tt;}

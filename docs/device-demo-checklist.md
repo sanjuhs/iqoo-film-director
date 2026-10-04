@@ -344,3 +344,10 @@ cuts can be edited independently and the laptop ZIP copies that original once.
 Timed words retain source times, so review which words are visible in each cut.
 If existing subtitle timestamps overlap, correct them before opening the cut
 editor. Cancel applies nothing. [Tested cases and limits](another-moment-editor-evidence.md).
+
+In **Review subtitle words & timing**, use the numbered Cue/Start/End/Words
+fields. Times refer to the full original, so words outside your trim stay saved
+for another cut. Correct all invalid/overlapping times before Save; an error
+keeps current saved words intact. Later applies nothing. Remove explicitly
+clears only this take's subtitles and restores fallback typography. Saving or
+removing returns you to your previous place. [Editor evidence](subtitle-editor-ownership-evidence.md).

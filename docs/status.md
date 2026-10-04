@@ -1722,3 +1722,32 @@ or private upload/capture/audible playback/aircraft action. Own AVD/registration
 removed after process terminal; other untouched. Qualified peak11130327920B,
 finaladjacent9328042864B; historic inventory/reserve limits remain. No new
 downloads. Goal active, attended/device/competition acceptance gates unchanged.
+
+### 21:44 IST — subtitle review preserves current edits
+
+Save/Remove now require exact owned foreground dialog, current Take/source/deep
+editing facts and idle Assemble. Later clears ownership immediately; render,
+stop and destroy dismiss. Corrective drafts still admit bad numeric timestamps/
+overlaps/blank text; all rows validate before mutation. Remove assigns a fresh
+list, preserving other takes' aliased words; Save/Remove restore list position.
+Cue/Start/End/Words labels are visible. [Evidence](subtitle-editor-ownership-evidence.md).
+
+Physical4/0.019s and fresh-emulator36/68.802s passed, no failures this increment.
+Actual visible-menu correction/cache/blank omission/scroll/Cancel/stale/source/
+true-background cases and32 existing workflow methods passed. Ordinary app
+DemoAssets→stopped-app authored synthetic-cue fixture→real review/Save confirmed
+readable two-cue form/three actions, same position and only first words/review
+provenance changed; original source times including before-cut words remain.
+No new ASR/inference/creator accuracy or real filming claim. Standalone
+transcription still has existing background completion behavior; read-only
+audit found no demonstrated wrong-take overwrite under ordinary busy controls.
+
+Offline build1s/normal installs; built/saved/independently read installedAPK
+52838059B SHA25643614cd2a4e84deb88d9e58d81b15f43cb95d2543d02a342d21f5e8dfb23ca62.
+Source-identical notices/separate weights excluded/noInternet. Gallery1/0.252s
+unchanged29owned/0pending/8373323B, no new physical media. Normal Main launch
+requested behind secure keyguard with capture denied, no unlock/grant/private
+upload/capture/playback/aircraft action. Only own AVD/reg removed after terminal;
+other untouched. Qualified peak10460685716B, finaladjacent9329161620B; historic
+inventory/reserve/runtime qualifications persist, no new downloads. Goal active;
+attended/device/competition gates remain unchanged.

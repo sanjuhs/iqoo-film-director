@@ -275,3 +275,11 @@ or background actions. Shot/cut saves keep the previous page position, with
 labelled fields and strict2–60-second shot lengths. [Editor checks](../../docs/another-moment-editor-evidence.md)
 record34 final UI methods and seven physical methods including actual two-cut
 encoding and one-original portable packaging. Synthetic only.
+
+Subtitle review shows Cue/Start/End/Words labels, keeps its source-time words
+outside the current cut, and rejects old Save/Remove actions after leaving or
+changing the take. Later applies nothing; Remove changes only that take's list.
+Existing bad/overlapping times remain available for correction, with all-row
+validation before Save. [Checks and limits](../../docs/subtitle-editor-ownership-evidence.md)
+record four physical and36 interface passes; standalone transcription background
+behavior remains outside this repair.

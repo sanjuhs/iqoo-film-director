@@ -55,6 +55,13 @@ strict shot-duration correction preserves unapplied edits. Final focused UI34/
 race. Actual two-cut native reel and deduplicated ZIP preserve the original.
 [Editor evidence](another-moment-editor-evidence.md). Attended filming remains open.
 
+Subtitle review now owns foreground Save/Remove/Later actions and rejects stale
+source facts without preventing correction of malformed times. Removing one
+take's subtitles preserves aliased original lists. Physical4/0.019s and fresh
+UI36/68.802s passed; ordinary synthetic form/Save/prefs were reviewed.
+[Subtitle editor evidence](subtitle-editor-ownership-evidence.md) scopes this to
+review actions, with standalone transcription background behavior unchanged.
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |

@@ -125,3 +125,8 @@ records actual editor and original-byte ZIP checks; live usefulness remains open
 new cut unselected until review. Shot/cut saves preserve your list position and
 invalid shot lengths ask for correction. [Editor evidence](docs/another-moment-editor-evidence.md)
 includes actual repeated-source reel and original-deduplicating ZIP checks.
+
+Subtitle review now protects current words from canceled/background/stale
+editor actions while retaining malformed timestamps for correction.
+[Subtitle editor evidence](docs/subtitle-editor-ownership-evidence.md) records
+four physical and36 fresh-emulator methods plus ordinary synthetic form review.
