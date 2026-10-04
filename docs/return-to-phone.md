@@ -2,7 +2,10 @@
 
 Research build installed on Nothing Phone (3a), 4 October 2026. Open **Mini Film
 Director** after unlocking your phone. Camera and microphone permissions are
-still denied; use the app's normal prompts when you choose to film.
+still denied; use the app's normal prompts when you choose to film. The23:51
+read-only phone snapshot reported no Bluetooth/wired output available; pair
+your earbuds before trying the spoken guide. This is availability, not a
+playback or AirPods identity check.
 
 Watch the [one-minute synthetic app walkthrough](../output/demo/MiniFilm-synthetic-walkthrough.mp4)
 for the actual screens and a real local demo export. It is a silent emulator

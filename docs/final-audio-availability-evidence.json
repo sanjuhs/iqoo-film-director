@@ -1,0 +1,15 @@
+{
+  "schema": "minifilm.output-availability-snapshot.v1",
+  "observedAtUtc": "2026-10-04T18:21:12.901000+00:00",
+  "scope": "AudioManager output-type availability only; not active route, AirPods identification, audible playback, microphone routing or capture. No output names/addresses/hardware identifiers queried.",
+  "snapshot": {
+    "sdkInt": 36,
+    "onDeviceRecognizerAvailable": true,
+    "bluetoothOutputAvailable": false,
+    "wiredOutputAvailable": false,
+    "microphonePermissionGranted": false,
+    "permissionUnchanged": true,
+    "microphoneOpened": false
+  },
+  "testResult": "1 method passed; latest physical phone availability query with no permission changes, microphone open, recognizer creation, recording, audio playback or download."
+}

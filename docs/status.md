@@ -2040,3 +2040,19 @@ retained generic/truncated wording. The18-check increment is called planning-
 dialog repair to distinguish it from model-prompt work. No app/media/model
 changes or repeat tests. New-reel/review/export instructions matched installed
 source94ab6c9; prior model/attended/event limits remain.
+
+### 23:51 IST — present earbud/capture readiness checked safely
+
+The remaining AirPods gate motivated one fresh read-only output availability
+snapshot, not a repeat inference/media suite. Existing SpeechCapabilityTest
+availability-only method passed1/0.032s: Bluetooth output false, wired output
+false, mic permission false/unchanged, on-device recognizer service available.
+No recognizer created/language query, microphone, playback, names/addresses/
+hardware IDs, permissions, downloads, recording or private media read.
+[Sanitized output-type evidence](final-audio-availability-evidence.json) explicitly
+distinguishes available-device types from route/AirPods identity/audible use.
+Earlier absent en-US metadata remains dated; availability is not recognition.
+Normal Main launch requested again, verified secure keyguard with camera/mic
+denied and no Internet permission. No unlock/grants/aircraft action. Installed
+source unchanged; clean working tree before these evidence-only docs.
+Attended phone filming and paired earbud playback remain necessary.

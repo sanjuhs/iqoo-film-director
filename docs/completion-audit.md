@@ -10,6 +10,13 @@ prospective native tests retained speech-topic failures. One default hybrid
 retained the creator-authored Closing explicitly. Creative accuracy across
 unseen briefs and the attended workflow remain unverified.
 
+At23:51, a fresh read-only phone availability query passed1 method/0.032s
+and reported Bluetooth/wired output absent, microphone permission denied and
+unchanged. It read only output types, not identities or selected playback route,
+and played no audio. Normal Main launch requested again behind secure keyguard;
+camera/mic denied. [Audio availability](final-audio-availability-evidence.json).
+This confirms the present earbud readiness gap, not a failed AirPods playback.
+
 Latest23:44 planning-dialog repair passed18 fresh UI methods/33.135s. Keep
 synchronously relinquishes current prompt ownership; stale Replace/Starter
 actions cannot replace reviewed directions after dismissal, changed inputs or
