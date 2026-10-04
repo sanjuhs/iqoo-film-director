@@ -31,6 +31,13 @@ or assess the footage. Plan edits/order/source invalidate an older prepared ZIP,
 and completion uses the dispatch fingerprint to reject a package made stale
 while processing. [Plan export evidence](shot-plan-export-evidence.md).
 
+Saved takes now have opt-in **Review cut framing**: three requested positions at
+the current cut’s quarter, midpoint and three-quarter points, with an approximate
+center 9:16 crop and qualified local pose visibility hints. Results are ephemeral;
+no cuts, mappings, reference notes or quality scores are changed. This uses bundled
+ML Kit, without VLM inference or new weights.
+[Take-framing evidence](take-framing-evidence.md).
+
 ## Acceptance against the user's request
 
 | Requirement | Established now | Remaining gate |
@@ -39,6 +46,7 @@ while processing. [Plan export evidence](shot-plan-export-evidence.md).
 | Clean three-phase experience | Brief, Direct and Assemble, editable plans/cuts, paused local preview, visible Start/Stop design and explicit camera start. Latest fresh-emulator run passed 25 interface methods; screen/edits restore without capture, and trim form scrolls. | An unlocked attended shoot and first-time usability check; the older locked-phone failures below retain their dated context. |
 | Substantial local AI | Actual local CPU Qwen generation, bundled ML Kit pose inference, offline English TTS and whisper tiny.en clip transcription. App has no network permission. | Useful grounding across unseen briefs, sustained camera/inference concurrency and iQOO execution. No NPU/GPU, Kev adaptation or trained-director result. |
 | Pose and direct each take | Live analysis integration, shared vertical crop, persisted lens and optional speech-completion-gated sequence in source. Public pose fixture yielded 33 confident landmarks; empty-frame inference yielded none. | Live framing usefulness, front/rear recording, full sequence, interruption and quiet captured speech. Synthetic geometry is not live capture. |
+| Review saved take framing | Three source-bound sampled frames, approximate vertical crop, plain pose-landmark hints and cancellation/stale-result ownership checks passed on public/synthetic fixtures. | Nearest decoded frames are not exact PTS and may fall outside the cut; no motion, shot-quality, garment or semantic coverage judgment. Real-footage usefulness and global pending ML Kit task bounds remain unverified. |
 | AirPods direction | Offline voice synthesis and two real-engine silent completion/cancellation tests passed. | Paired AirPods playback, microphone routing and physical cue leakage. Synthesis-to-file never played audio. |
 | Understand reels/trends | Sparse-reference and single-frame CPU vision/pose checks passed. Local reference speech → explicit test correction → CPU plan passed; confirmed words and visual notes share a bounded input. | Full trend/story/style understanding and real reference accuracy remain unverified. Source-binding/review checks passed on a fresh unlocked synthetic emulator; physical reference accuracy, observed model errors and conservative abstentions remain. |
 | Start, stop and trim | Explicit CameraX start/stop, actual-container source bounds, editable cuts and reviewed local speech-edge suggestions; actual synthetic cuts exported in order. | Attended capture/finalization and semantic selection of the best performance moments. |
@@ -385,3 +393,43 @@ remain unknown. Empty-context callers remain supported. See
 Attended Pose → Perform → Assemble, real sound/AirPods, iQOO/NPU, Office Kit,
 desktop-editor import, useful learned direction and organizer-compliant accepted
 submission remain open. No full project completion is claimed.
+
+
+### Opt-in saved-cut framing: current measured checkpoint
+
+The initial physical-phone runner had **9 methods / 11.476 s: 8 passed**
+(five core and three actual decoding/pose methods). Public samples all returned
+full-body landmark evidence; flat samples all returned empty or unclear.
+Cancellation/reuse, owned-thumbnail cleanup and unchanged sources passed. The
+one failure compared ffprobe’s counterclockwise 90-degree metadata with Android’s
+clockwise 270-degree convention. Only the test fixture assertion was corrected;
+production was unchanged.
+
+The focused parity rerun passed **1 method / 7.412 s**, covering both normal and
+rotated sources through actual Media3 Clean 720×1280 output. Each export was
+2000 ms nominal / 2067 ms encoded. Whole-frame RGB mean error between approximate
+review thumbnails and decoded output was **2.3097 / 1.03865**; central-region
+error was **3.1284 / 2.2087** respectively. These fixture comparisons support the
+approximate crop, not pixel identity or accuracy on all orientations/containers.
+Source hashes, sizes, modification times, preferences and existing weights stayed
+unchanged; camera/microphone remained denied.
+
+The initial fresh-emulator UI runner passed **26 of 27 methods / 140.605 s**
+(22 regressions and four new checks). Its background fixture timed out at 45 s
+by polling `ActivityScenario.onActivity` while CREATED. The test-only correction
+captures the helper identity while RESUMED and polls thread-safe `isRunning()`
+while stopped; true CREATED transitions and strict stale-result assertions
+remain. The complete five-method new UI class then passed in **8.451 s**. Neither
+fixture correction changed production behavior.
+
+Review ownership is bound to the take, source URI, duration and trim bounds.
+Cancel/background exit suppress late dialogs, preserve edits and discard owned
+results. Requested seeks are not decoded presentation timestamps. The crop is
+approximate and precedes export text/color effects; only three frames are checked.
+Pose evidence is an uncalibrated landmark heuristic, not learned direction or a
+quality score. `isRunning()` tracks this reviewer’s worker/results: ML Kit tasks
+can retain their images after timeout/cancellation. Up to three tasks can remain
+pending per review; no total bound across repeated reviews is proven. No real
+creator capture, AirPods, iQOO/NPU, Office Kit, drone, general benefit or event
+eligibility gate is closed by these checks. Full evidence and retained failures:
+[take-framing evidence](take-framing-evidence.md).

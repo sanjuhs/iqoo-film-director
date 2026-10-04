@@ -150,6 +150,19 @@ check it with **Preview take**. [Recovery evidence](capture-take-recovery-eviden
    **Move earlier**, **Trim & typography** and **Preview take** to review order,
    exact in/out times and manual text. Originals remain intact. Keep the result
    within 12 selected cuts / three minutes.
+   For a saved take, optionally tap **Review cut framing**. It reads three nearby
+   frames at the current cut’s quarter, midpoint and three-quarter source times;
+   no camera, microphone or playback starts. Sources must be at most three minutes
+   and the cut at least 0.25 seconds. Inspect each approximate centered vertical
+   thumbnail and its plain local pose hint. “Framing needs your review” or no clear
+   person is insufficient evidence, not a failed take.
+   These are requested seeks, not exact decoded timestamps; a nearby frame can
+   lie outside the cut. Three samples cannot judge motion, garment details or
+   shot quality. The crop precedes final text/color effects: preview the actual
+   exported reel too. **Done** dismisses the temporary observations; trims,
+   subtitles, selection and shot assignments stay unchanged. Cancel or leaving
+   the app discards the review; returning does not resume it. Request a new review
+   after changing a cut. See [cut-framing checks and limits](take-framing-evidence.md).
 2. For spoken takes, try **Suggest a tighter talking cut**. Inspect the proposal,
    use **Preview suggested cut**, press play and listen. Return to **Review
    suggested speech cut** to choose **Apply trim** or **Keep current cut**.
@@ -218,6 +231,11 @@ check it with **Preview take**. [Recovery evidence](capture-take-recovery-eviden
   reviews are temporary: if Android recreates the app, request them again;
   saved cuts and confirmed notes stay saved. Cancel suppresses a late decode
   result but cannot guarantee an immediate stop of a blocking file provider.
+- A canceled cut-framing review may need a moment before a fresh review can
+  start. A slow pose check can still finish later after timeout/cancellation;
+  cancel does not guarantee an instant backend stop. If it repeatedly times out,
+  inspect the thumbnails yourself instead of repeatedly restarting the check.
+  The full pending-task limitation is recorded in the evidence link above.
 - If pose advice abstains or is wrong, follow the preview and your scene cue.
   Do not lower confidence or treat missing joints as observed. The public cropped
   portrait check abstained; a separately encoded, letterboxed crop supported
@@ -235,6 +253,13 @@ single-frame subject inference, offline English synthesis/transcription,
 trimmed subtitle rendering, real vertical MP4 assembly, color correction and
 portable ZIP integrity. Sparse reference measurements and pose abstention are
 limited observations, not demonstrated trend or general framing accuracy.
+
+Saved-cut review has separate public/flat-frame and real normal/rotated Media3
+crop checks, plus five fresh-emulator lifecycle checks. The two initial failures
+were test-only rotation-convention and stopped-Activity polling errors; corrected
+checks passed without production changes. These results establish sampled local
+execution and ownership, not useful judgment of your performance.
+[Measured results and retained failures](take-framing-evidence.md).
 
 Real creator capture, audible AirPods output/input, the complete live sequence
 and sustained camera/model concurrency remain untested. iQOO execution, NPU

@@ -53,6 +53,10 @@ public class MainActivity extends ComponentActivity {
     private LinearLayout coverageRows;
     private Button nextMissingShotButton;
     private AlertDialog shotAssignmentDialog;
+    private TakeFramingReview takeFramingReview, activeTakeFramingReview;
+    private int takeFramingGeneration;
+    private boolean takeFramingOwnsBusy;
+    private AlertDialog takeFramingDialog;
     private CaptureTakeStore captureTakeStore;
     private boolean destroying;
     @Override public void onCreate(Bundle state){super.onCreate(state);speech=new SpeechCoach(this);speech.setAudioInterruptionListener(this::pauseSpokenPreparation);exporter=new ReelExporter(this);packager=new ProjectPackager(this);documentCopier=new DocumentCopier(this);autoColor=new AutoColorBalance(this);planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);captureTakeStore=new CaptureTakeStore(this);restore();recoverSavedTakes(false);ExportRecovery.Result recovered=ExportRecovery.reconcile(this);if(recovered.videoUri!=null){lastVideo=recovered.videoUri;lastEdit=recovered.editListUri;save();}if(shots.isEmpty()){shots.addAll(ShotCoverage.freshPlan(DirectorEngine.plan(brief,style)));save();}render();if(!recovered.warning.isEmpty())status.setText(recovered.warning);else if(recovered.cleaned>0)status.setText("Interrupted export cleared. Original clips are safe.");}
@@ -65,6 +69,7 @@ public class MainActivity extends ComponentActivity {
     private EditText input(String value,String hint){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextColor(FG);e.setHintTextColor(MUTED);e.setTextSize(16);e.setPadding(dp(12),dp(10),dp(12),dp(10));e.setBackground(bg(0xff292c30));return e;}
     private void render(){
         ++shootPoseGeneration;
+        cancelTakeFraming(false);
         dismissShotAssignments();coverageSummary=null;coverageRows=null;nextMissingShotButton=null;
         cancelReferenceSpeech();cancelVoiceBrief();speech.stopListening();stopVoiceInputButton=null;finishVoiceBriefButton=null;
         clearQuietStopPolicy();
@@ -78,7 +83,7 @@ public class MainActivity extends ComponentActivity {
     }
     private void setBusy(boolean value){if(value)stopVoiceInput();busy=value;if(cancelProcessingButton!=null){cancelProcessingButton.setText(hasVoiceBriefWork()?"Cancel voice brief":"Cancel local processing");cancelProcessingButton.setVisibility(value?View.VISIBLE:View.GONE);}setEditorsEnabled(root,!value);}
     private void setEditorsEnabled(View view,boolean enabled){if(view==null)return;if(view instanceof EditText||view instanceof Spinner||view instanceof CheckBox||view instanceof Switch)view.setEnabled(enabled);if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)setEditorsEnabled(group.getChildAt(i),enabled);}}
-    private void cancelProcessing(){if(activeSubtitleBatch!=null&&subtitleBatchOwnsBusy){cancelSubtitleBatch();return;}if(referenceSpeechReader!=null&&referenceSpeechOwnsBusy){cancelReferenceSpeech();return;}if(hasVoiceBriefWork()){cancelVoiceBrief();return;}++referenceAnalysisGeneration;dismissReferenceNotesDialog();pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";clearPendingReferenceFrame();planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
+    private void cancelProcessing(){if(activeTakeFramingReview!=null&&takeFramingOwnsBusy){cancelTakeFraming(true);return;}if(activeSubtitleBatch!=null&&subtitleBatchOwnsBusy){cancelSubtitleBatch();return;}if(referenceSpeechReader!=null&&referenceSpeechOwnsBusy){cancelReferenceSpeech();return;}if(hasVoiceBriefWork()){cancelVoiceBrief();return;}++referenceAnalysisGeneration;dismissReferenceNotesDialog();pendingSpeechTrim=null;pendingSpeechTrimTake=null;boolean interruptedDocument=savingDocument;savingDocument=false;++saveGeneration;++demoGeneration;documentCopier.cancel();exporter.cancel();packager.cancel();autoColor.close();autoColor=new AutoColorBalance(this);planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();closePendingReferenceBoard();pendingReferenceNotes="";clearPendingReferenceFrame();planner=new LocalPlanner(this);transcriber=new ClipTranscriber(this);references=new ReferenceAnalyzer(this);referenceVision=new VisionReference(this);referenceFrames=new ReferenceFrameDecoder(this);boardInspection=new ReferenceBoardInspection(this);setBusy(false);save();render();status.setText(interruptedDocument?"Save cancellation requested. The chosen document may be partial; use a new name when retrying. Original clips are safe.":"Processing stopped. Your clips and edits are safe.");}
     private void switchTab(int n){if(busy){toast("Wait for the current operation to finish.");return;}if(countdown || capture!=null&&capture.isRecording()){toast("Stop this take before changing screens.");return;}sequenceActive=false;cancelCountdown();speech.stopListening();speech.stop();session=false;if(n!=0)releasePlannerForMedia();if(n==2)recoverSavedTakes(false);tab=n;save();render();}
     // close() queues native cleanup after any work; it never blocks the UI or frees an active core directly.
     private void releasePlannerForMedia(){planner.close();planner=new LocalPlanner(this);}
@@ -333,7 +338,7 @@ public class MainActivity extends ComponentActivity {
     private void stopTake(){boolean preparing=countdown&&(capture==null||!capture.isRecording());clearQuietStopPolicy();sequenceActive=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopRecording();speech.stopListening();speech.stop();if(pose!=null)pose.setEnabled(session&&isPoseShot());if(preparing)showPreparationCanceled();}
     private void editPage(){
         headline("Put your story together.","Choose takes, tighten the cuts, add your words.");addCoveragePanel();LinearLayout c=card();c.addView(text("LOOK & FEEL",11,LIME));EditText title=input(reelTitle,"Optional reel title");title.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int count,int after){}public void onTextChanged(CharSequence s,int st,int before,int count){reelTitle=s.toString();save();}public void afterTextChanged(android.text.Editable e){}});c.addView(title);c.addView(spinner(new String[]{"Clean","Warm","Cinematic","Auto balance"},look,s->{look=s;save();}));c.addView(text("Local presets or automatic neutral/exposure balance · vertical 720p · up to 12 cuts / 3 minutes. Originals stay intact. English speech can be transcribed offline.",12,MUTED));c.addView(button("Import clips from my phone",false,()->pickClips()));c.addView(button("Find saved phone takes",false,()->recoverSavedTakes(true)));c.addView(text("Finds readable phone takes saved after an interruption. Recovered takes stay unselected until you review them; incomplete files are kept.",12,MUTED));c.addView(button("Try synthetic demo clips",false,()->loadDemo()));c.addView(button("Draft missing subtitles for selected takes",false,this::draftMissingSubtitles));c.addView(text("Reads selected clips locally and keeps existing subtitle edits. New English drafts need word and timing review; no microphone opens.",12,MUTED));c.addView(button("Select no takes",false,()->{for(Take t:takes)t.selected=false;save();render();status.setText("All takes kept. Select the ones for your next reel.");}));content.addView(c);
-        long total=0;for(int i=0;i<takes.size();i++){Take t=takes.get(i);final int index=i;if(t.selected)total+=t.outMs-t.inMs;LinearLayout row=card();CheckBox selected=new CheckBox(this);selected.setText(t.title);selected.setTextColor(FG);selected.setTextSize(19);selected.setChecked(t.selected);selected.setOnCheckedChangeListener((b,on)->{t.selected=on;save();updateSelectionSummary();updateCoverageSummary();});row.addView(selected);row.addView(text(String.format(Locale.US,"%.1f → %.1fs  ·  %s",t.inMs/1000.0,t.outMs/1000.0,t.caption.isEmpty()?"No caption":t.caption),13,MUTED));row.addView(text(shotAssignmentDescription(t),12,LIME));row.addView(button("Assign take to plan shots",false,()->reviewShotAssignments(t)));row.addView(button("Trim & typography",false,()->editTake(index)));row.addView(button("Generate offline subtitles",false,()->transcribeTake(index)));row.addView(button(pendingSpeechTrimTake==t&&pendingSpeechTrim!=null?"Review suggested speech cut":"Suggest a tighter talking cut",false,()->{if(pendingSpeechTrimTake==t&&pendingSpeechTrim!=null)reviewSpeechTrim(t,pendingSpeechTrim);else suggestSpeechTrim(t);}));if(!t.subtitles.isEmpty()){row.addView(text(t.subtitles.size()+" timed subtitle drafts · review before export",12,LIME));row.addView(button("Review subtitle words & timing",false,()->reviewSubtitles(index)));}row.addView(button("Preview take",false,()->previewVideo(t.uri,t.inMs,t.outMs)));if(i>0)row.addView(button("Move earlier",false,()->{Collections.swap(takes,index,index-1);save();render();}));content.addView(row);}
+        long total=0;for(int i=0;i<takes.size();i++){Take t=takes.get(i);final int index=i;if(t.selected)total+=t.outMs-t.inMs;LinearLayout row=card();CheckBox selected=new CheckBox(this);selected.setText(t.title);selected.setTextColor(FG);selected.setTextSize(19);selected.setChecked(t.selected);selected.setOnCheckedChangeListener((b,on)->{t.selected=on;save();updateSelectionSummary();updateCoverageSummary();});row.addView(selected);row.addView(text(String.format(Locale.US,"%.1f → %.1fs  ·  %s",t.inMs/1000.0,t.outMs/1000.0,t.caption.isEmpty()?"No caption":t.caption),13,MUTED));row.addView(text(shotAssignmentDescription(t),12,LIME));row.addView(button("Assign take to plan shots",false,()->reviewShotAssignments(t)));row.addView(button("Trim & typography",false,()->editTake(index)));row.addView(button("Generate offline subtitles",false,()->transcribeTake(index)));row.addView(button(pendingSpeechTrimTake==t&&pendingSpeechTrim!=null?"Review suggested speech cut":"Suggest a tighter talking cut",false,()->{if(pendingSpeechTrimTake==t&&pendingSpeechTrim!=null)reviewSpeechTrim(t,pendingSpeechTrim);else suggestSpeechTrim(t);}));if(!t.subtitles.isEmpty()){row.addView(text(t.subtitles.size()+" timed subtitle drafts · review before export",12,LIME));row.addView(button("Review subtitle words & timing",false,()->reviewSubtitles(index)));}row.addView(button("Review cut framing",false,()->reviewTakeFraming(t)));row.addView(button("Preview take",false,()->previewVideo(t.uri,t.inMs,t.outMs)));if(i>0)row.addView(button("Move earlier",false,()->{Collections.swap(takes,index,index-1);save();render();}));content.addView(row);}
         selectionSummary=text("",13,LIME);updateSelectionSummary();content.addView(selectionSummary);content.addView(button("Export my reel",true,()->export()));packageSaveButton=button(pendingPack==null?"Save clips + edits for my laptop":"Save ready edit package",false,()->{if(pendingPack==null)packageProject();else requestPackDocument();});content.addView(packageSaveButton);if(pendingPack!=null)content.addView(button("Create a fresh edit package",false,()->packageProject()));content.addView(text("Portable ZIP includes selected originals, the shot plan and editable cuts. Choose a local folder; up to 512 MB of originals. Transfer through Office Kit separately.",12,MUTED));if(lastVideo!=null){content.addView(button("Play last exported reel",false,()->previewVideo(lastVideo)));content.addView(button("Share last exported reel",false,()->share(lastVideo,"video/mp4")));}if(lastEdit!=null){content.addView(button("Save last exported cut list to Files",false,()->saveEditDocument()));content.addView(button("Share last exported cut list",false,()->share(lastEdit,"application/json")));}
     }
     private void updateSelectionSummary(){if(selectionSummary==null)return;long total=0;int selected=0;for(Take take:takes)if(take.selected){total+=take.outMs-take.inMs;selected++;}selectionSummary.setText(selected+" selected / "+takes.size()+" takes · "+String.format(Locale.US,"%.1fs",total/1000.0)+" · up to 12 cuts / 3 min");}
@@ -458,6 +463,87 @@ public class MainActivity extends ComponentActivity {
         boolean alreadyIdle=!batch.isRunning();int generation=subtitleBatchGeneration;
         batch.cancel();
         if(alreadyIdle&&finishSubtitleBatch(batch,generation)){render();status.setText("Subtitle reading canceled. Existing words and completed drafts are kept.");}
+    }
+    private void reviewTakeFraming(Take take){
+        if(busy||destroying||tab!=2||!takes.contains(take)
+                ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        if(hasVoiceBriefWork()||referenceSpeechReader!=null){toast("Wait for voice reading to stop before reviewing this cut.");return;}
+        final TakeFramingReview.Selection selection;
+        try{selection=TakeFramingReview.Selection.capture(take);}catch(IllegalArgumentException invalid){toast(invalid.getMessage());return;}
+        if(takeFramingReview==null)takeFramingReview=new TakeFramingReview(this);
+        final TakeFramingReview reviewer=takeFramingReview;
+        if(reviewer.isRunning()){toast("The earlier framing review is still stopping. Try again in a moment.");return;}
+        dismissTakeFraming();speech.stopListening();speech.stop();releasePlannerForMedia();
+        final int generation=++takeFramingGeneration;
+        activeTakeFramingReview=reviewer;takeFramingOwnsBusy=true;setBusy(true);
+        status.setText("Checking three nearby cut frames locally… no camera or microphone opens");
+        reviewer.inspect(selection,new TakeFramingReview.Listener(){
+            public void onResult(TakeFramingReview.Result result,long elapsedMs){
+                if(!finishTakeFraming(reviewer,generation)){result.close();return;}
+                if(tab!=2||!takes.contains(take)||!selection.matches(take)
+                        ||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){
+                    result.close();if(status!=null)status.setText("Framing review was not applied. Review the current cut when ready.");return;
+                }
+                status.setText("Sampled framing observations · "+String.format(Locale.US,"%.1fs",elapsedMs/1000d)+" · review the actual reel too");
+                showTakeFraming(result);
+            }
+            public void onError(String message){
+                if(!finishTakeFraming(reviewer,generation))return;
+                if(tab==2&&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)){
+                    status.setText(message);toast(message);
+                }
+            }
+        });
+    }
+    private boolean finishTakeFraming(TakeFramingReview reviewer,int generation){
+        if(destroying||generation!=takeFramingGeneration||activeTakeFramingReview!=reviewer||!takeFramingOwnsBusy)return false;
+        activeTakeFramingReview=null;takeFramingOwnsBusy=false;setBusy(false);return true;
+    }
+    private void cancelTakeFraming(boolean announce){
+        ++takeFramingGeneration;
+        TakeFramingReview reviewer=activeTakeFramingReview;boolean owned=takeFramingOwnsBusy;
+        activeTakeFramingReview=null;takeFramingOwnsBusy=false;
+        if(reviewer!=null)reviewer.cancel();dismissTakeFraming();
+        if(owned){setBusy(false);if(announce&&status!=null)status.setText("Framing review canceled. Your clips and edits are unchanged.");}
+    }
+    private void dismissTakeFraming(){
+        if(takeFramingDialog!=null){AlertDialog dialog=takeFramingDialog;takeFramingDialog=null;dialog.dismiss();}
+    }
+    private void showTakeFraming(TakeFramingReview.Result result){
+        dismissTakeFraming();LinearLayout form=column();form.setPadding(dp(20),dp(10),dp(20),dp(10));
+        form.addView(text("Three nearby frames with an approximate vertical crop. Check the actual reel too; this does not judge motion or shot quality.",14,MUTED));
+        ArrayList<ImageView> images=new ArrayList<>();
+        for(TakeFramingReview.Moment moment:result.moments){
+            form.addView(text("Requested source time · "+SubtitleTime.format(moment.requestedTimeMs)+"s",13,LIME));
+            ImageView image=new ImageView(this);image.setAdjustViewBounds(true);image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            image.setContentDescription("Approximate vertical frame near source time "+SubtitleTime.format(moment.requestedTimeMs)+" seconds");
+            image.setImageBitmap(moment.thumbnail);form.addView(image,new LinearLayout.LayoutParams(-1,dp(240)));images.add(image);
+            form.addView(text("Local pose check · sample only",12,LIME));
+            form.addView(text(takeFramingDescription(moment.label),16,FG));
+            form.addView(text(takeFramingUncertainty(moment.label,moment.reason),12,MUTED));
+        }
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Cut framing observations").setView(scroll).setPositiveButton("Done",null).create();
+        takeFramingDialog=dialog;
+        dialog.setOnDismissListener(d->{if(takeFramingDialog==dialog)takeFramingDialog=null;for(ImageView image:images)image.setImageDrawable(null);result.close();});
+        try{dialog.show();}catch(RuntimeException unavailable){if(takeFramingDialog==dialog)takeFramingDialog=null;for(ImageView image:images)image.setImageDrawable(null);result.close();}
+    }
+    private static String takeFramingDescription(String label){
+        if("full-body".equals(label))return "Head and lower body visible in this sample";
+        if("waist-up".equals(label))return "Upper body and hips visible; lower body not confirmed";
+        if("head-and-shoulders".equals(label))return "Head and shoulders visible; lower body not confirmed";
+        if("empty or unclear".equals(label))return "No clear person detected in this sample";
+        return "Framing needs your review";
+    }
+    private static String takeFramingUncertainty(String label,String reason){
+        if("review needed".equals(label)){
+            String detail=reason==null?"":reason.toLowerCase(Locale.ROOT);
+            if(detail.contains("timed out")||detail.contains("timeout"))return "This local check took too long. Review the frame yourself.";
+            if(detail.contains("unavailable")||detail.contains("cancel")||detail.contains("interrupted"))return "The local check could not finish. Review the frame yourself.";
+            return "Some body points could not be confirmed. Check this frame yourself.";
+        }
+        if("empty or unclear".equals(label))return "The check could not confirm a clear person. Review the frame yourself.";
+        return "This is one sampled frame. Review the actual cut for motion and framing.";
     }
     private void transcribeTake(int index){if(busy)return;if(!transcriber.isModelAvailable()){toast("Offline English speech model is not installed. Use manual text.");return;}Take take=takes.get(index);setBusy(true);status.setText("Listening to this clip locally… no microphone is opened");transcriber.transcribe(take.uri,new ClipTranscriber.Listener(){public void onComplete(List<SubtitleCue> cues,long ms){setBusy(false);take.subtitles=cues;take.captionOrigin="whisper-tiny.en-draft";save();render();status.setText(cues.isEmpty()?"No speech found. Add manual text if needed.":"Offline subtitle draft ready · "+String.format(Locale.US,"%.1fs",ms/1000.0)+" · review the words");if(!cues.isEmpty()&&getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))reviewSubtitles(index);}public void onError(String e){setBusy(false);status.setText(e);toast(e);}});}
     private void suggestSpeechTrim(Take take) {
@@ -775,8 +861,8 @@ public class MainActivity extends ComponentActivity {
     private void share(Uri u,String type){Intent i=new Intent(Intent.ACTION_SEND).setType(type).putExtra(Intent.EXTRA_STREAM,u).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Share your film"));}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] grants){super.onRequestPermissionsResult(r,p,grants);if(r==41){toast("Permissions updated. Tap Start camera when you're ready.");}else if(r==42)toast("Tap Use phone dictation when you're ready.");else if(r==44)toast("Tap Record a local voice brief when you're ready.");}
-    @Override protected void onStop(){++shootPoseGeneration;super.onStop();dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
-    @Override protected void onDestroy(){++shootPoseGeneration;destroying=true;dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
+    @Override protected void onStop(){++shootPoseGeneration;super.onStop();cancelTakeFraming(false);dismissShotAssignments();cancelSubtitleBatch();dismissReferenceNotesDialog();cancelReferenceSpeech();cancelVoiceBrief();clearQuietStopPolicy();sequenceActive=false;session=false;cancelCountdown();handler.removeCallbacks(tick);if(capture!=null)capture.stopPreview();speech.stop();speech.stopListening();updateVoiceInputControls();if(pose!=null)pose.setEnabled(false);live=false;if(captureAction!=null)captureAction.setText("Start camera");save();}
+    @Override protected void onDestroy(){++shootPoseGeneration;destroying=true;cancelTakeFraming(false);if(takeFramingReview!=null)takeFramingReview.close();dismissShotAssignments();++subtitleBatchGeneration;subtitleBatchOwnsBusy=false;activeSubtitleBatch=null;if(subtitleBatch!=null)subtitleBatch.close();cancelReferenceSpeech();cancelVoiceBrief();if(briefRecorder!=null)briefRecorder.close();dismissReferenceNotesDialog();clearPendingReferenceFrame();++saveGeneration;++demoGeneration;documentCopier.close();if(capture!=null)capture.close();if(pose!=null)pose.close();speech.close();planner.close();transcriber.close();references.close();referenceVision.close();referenceFrames.close();boardInspection.close();if(referenceBoardDialog!=null)referenceBoardDialog.dismiss();clearReferenceBoards();exporter.cancel();packager.close();autoColor.close();super.onDestroy();}
     private void planExportError(IllegalArgumentException invalid){setBusy(false);String message=invalid.getMessage();if(message==null||message.isEmpty())message="Review your shot plan fields and lengths before exporting.";status.setText(message);toast(message);}
     private JSONArray serializeShots() throws JSONException{JSONArray ss=new JSONArray();for(Shot s:shots)ss.put(new JSONObject().put("id",s.id).put("title",s.title).put("cue",s.instruction).put("caption",s.caption).put("duration",s.targetDurationMs));return ss;}
     private JSONArray serializeTakes() throws JSONException{JSONArray tt=new JSONArray();for(Take t:takes){JSONArray subs=new JSONArray();for(SubtitleCue cue:t.subtitles)subs.put(new JSONObject().put("start",cue.startMs).put("end",cue.endMs).put("text",cue.text));tt.put(new JSONObject() .put("subtitles",subs).put("reviewedShotIds",new JSONArray(t.reviewedShotIds==null?Collections.emptyList():t.reviewedShotIds)).put("captionOrigin",t.captionOrigin).put("uri",t.uri.toString()).put("id",t.shotId).put("title",t.title).put("caption",t.caption).put("duration",t.durationMs).put("in",t.inMs).put("out",t.outMs).put("selected",t.selected));}return tt;}

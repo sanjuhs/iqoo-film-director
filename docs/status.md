@@ -1504,3 +1504,55 @@ Normal Main launch requested behind secure keyguard; final read-only verificatio
 confirmed camera/mic denied and no Internet permission. No unlock or grant.
 Goal active: attended creator capture/AirPods, useful learned semantic direction,
 iQOO/NPU, Office Kit, eligible event code and accepted submission remain open.
+
+## 4 October, 19:57 IST — opt-in review of captured cut framing
+
+Assemble now offers **Review cut framing**: three requested quarter/midpoint/
+three-quarter source frames, an approximate center 9:16 crop and bundled local
+pose hints in a temporary, scrollable review. Plain uncertainty stays visible.
+The review leaves selection, cuts, subtitles, typography, mappings, plan and
+reference context unchanged; it supplies no quality or coverage score. Cancel,
+background, source/trim/take changes and dismissal suppress stale publication
+and recycle owned review images. No camera or microphone opens.
+[Full checks, retained failures and limits](take-framing-evidence.md).
+
+The initial physical runner passed eight of nine methods in 11.476s (five core
+and three actual native). Crop parity failed only its Android rotation fixture
+expectation: ffprobe's counterclockwise90° matrix corresponds to Android's
+clockwise270°. The corrected test-only expectation/log kept every pixel assertion.
+Its targeted rerun passed **1/7.412s**, including both upright and rotated inputs.
+Actual Media3 Clean exports were720×1280, nominal2000ms/encoded2067ms. Maximum
+whole/center mean RGB error was2.3097/3.1284 upright and1.03865/2.2087 rotated across
+three samples. The annotated static public person fixture gave three full-body
+landmark labels; the flat synthetic fixture gave three empty/unclear samples.
+Decode/crop/pose took1824/1841ms respectively. Source SHA/size/mtime, preferences,
+model metadata and denied capture permissions stayed intact. Native cancellation/
+reuse passed, but isRunning tracks the helper's worker/results, not pending ML Kit
+task completion. Timeouts can leave up to three tasks per review with no proven
+global outstanding-task bound.
+
+The initial fresh-emulator runner passed26 of27 methods in140.605s (22 regressions
+and four new checks). One background fixture timed out after polling an Activity
+through ActivityScenario.onActivity while CREATED. The test-only repair captures
+reviewer identity while RESUMED and polls its thread-safe state while actually
+CREATED, retaining real background transitions and all cleanup assertions. The
+five-method rerun passed **5/8.451s**. Production stayed unchanged for both fixture
+repairs; failures remain retained. The actual app's synthetic DemoAssets → local
+framing modal was also visually inspected at the top, through all three samples
+and at Done. This is one synthetic layout, not attended creator usability.
+
+App/test build1s, rotation test build559ms and corrected UI test build597ms; normal
+installs passed. Current built/saved/independently read installed APK52,838,059B:
+SHA256168406ff0a88119d1511cdf205184ba43c3d4cff2c2b312c881a0e01d170ea4f.
+Notices31,635B/source-identical; separate Qwen/Whisper weights remain excluded from
+Git/APK and bundled ML Kit assets remain. No Internet permission. Read-only gallery
+inventory passed1/0.172s:28 owned/0 pending/8,319,196B. Final normal Main launch was
+requested behind secure keyguard; camera/microphone denied, no unlock/grant,
+private upload or aircraft action.
+
+Only the own AVD/registration was removed; the other AVD stayed untouched.
+Qualified temporary peak **10,903,427,857B**, above10GB aim/below15GB cap; final
+adjacent **9,302,457,105B**, below both. Existing archive/cache/inventory
+qualifications persist. No new models/SDK/JDK/images/dependencies downloaded.
+Goal active: attended capture/AirPods, useful learned direction/semantic coverage,
+iQOO/NPU, Office Kit, eligible event code and accepted submission remain open.

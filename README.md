@@ -30,6 +30,12 @@ see selected assignment counts and open the next missing direction. This is a
 [reviewed metadata checklist](docs/shot-assignment-evidence.md); visual coverage
 and shot quality still require creator review and learned evaluation evidence.
 
+**Review cut framing** adds an opt-in look at three nearby frames from a saved
+take’s current cut. Local pose checks show qualified body-visibility hints on an
+approximate center 9:16 crop. Results are temporary and do not edit cuts, assign
+shots or score quality. See [cut-framing evidence](docs/take-framing-evidence.md);
+real footage, motion and attended usefulness still need review.
+
 Device edit documents and portable ZIPs now include an immutable current shot
 plan. A nonempty portable plan also has readable `shoot-notes.txt`; exact reviewed
 assignments resolve against current IDs, while earlier IDs remain unresolved.
