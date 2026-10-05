@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-05",
+  "title": "Guided Demo Idea: Mini Film Director",
+  "artifact": "output/demo/mini-film-director-guided-demo.mp4",
+  "bytes": 4844863,
+  "sha256": "30b220e5231345c6124832d33c8c6349f8f5c3aeced05b23b22ed9cc87c25852",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "30/1",
+        "side_data_list": [
+          {}
+        ]
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 1,
+        "r_frame_rate": "0/0"
+      }
+    ],
+    "format": {
+      "duration": "102.533008",
+      "size": "4844863"
+    }
+  },
+  "capture": {
+    "screen_count": 16,
+    "runtime_errors": [],
+    "browser": "isolated Chromium",
+    "virtual_time": true,
+    "voice_in_app": false,
+    "saved_project_download": "Actual synthetic saved-project JSON exercised; disposable fixture removed"
+  },
+  "renderer": {
+    "source_fps": 15,
+    "encoded_fps": 30,
+    "frame_archive_retained": false,
+    "pure_time_frame_function": true,
+    "backwards_seek": "checked"
+  },
+  "checks": {
+    "complete_video_and_audio_decode": "passed, ffmpeg exit 0 with no decode errors",
+    "audio_mean_db": -16.6,
+    "audio_peak_db": -1.4,
+    "reviewed_frames": [
+      "intro",
+      "confirmation",
+      "applied plan",
+      "countdown",
+      "editor",
+      "projects",
+      "closing",
+      "backwards seek"
+    ],
+    "visual_result": "Readable large narration/headings, actual synthetic phone UI, visible simulation qualifier, no accidental clipping of main explanations",
+    "encoded_frame_review": "Actual encoded frame at 43 seconds extracted and visually reviewed; clear countdown and narration",
+    "source_syntax": "Node --check passed for capture.cjs/render.cjs",
+    "generated_artifact_git_ignore": "Confirmed output/demo MP4 ignored"
+  },
+  "narration": {
+    "source": "Local macOS Samantha, 210 requested words per minute",
+    "segments": 15,
+    "caption_file": "design/video/captions.srt"
+  },
+  "limitations": [
+    "Storyboard-style guided walkthrough of actual wireframe states; not continuous real camera footage",
+    "Invented reference and illustrated takes; no downloaded Instagram reel or content analysis",
+    "Website has no model inference or real sensors; complete local speech/VLM loop remains unmeasured",
+    "MP4 is a walkthrough render, not a film exported by the website",
+    "Upload and accepted submission are separate parent actions"
+  ],
+  "corrected_harness_failures": [
+    "URL glob expected slash before hash; replaced with exact hash wait",
+    "First Projects locator selected hidden desktop sidebar; narrowed to actual phone bottom navigation"
+  ],
+  "retained_video_work_bytes": 20783332,
+  "public_source_and_screen_bytes": 2789844
+}

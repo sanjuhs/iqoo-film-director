@@ -1,0 +1,47 @@
+{
+  "revision": "2026-10-05-pre-event-model-bench-v1",
+  "scope": "static and offline build checks only; no on-device execution",
+  "application_id": "dev.minifilm.benchmark",
+  "model_included": false,
+  "provider_keys_included": false,
+  "requested_android_permissions": [],
+  "native_backend": "CPU only, arm64-v8a, armv8.2-a+dotprod+fp16",
+  "llama_cpp_commit": "11fe02151f79c41d0d4af7da708755d73b9c0da6",
+  "toolchain": {
+    "jdk": 17,
+    "gradle": "8.14 cached",
+    "agp": "8.11.1",
+    "android_compile_sdk": 35,
+    "android_min_sdk": 29,
+    "ndk": "28.2.13676358",
+    "cmake": "3.22.1"
+  },
+  "checks": {
+    "offline_assemble_debug": "PASS",
+    "packaged_manifest_permissions_empty": "PASS (aapt dump permissions)",
+    "packaged_manifest_debuggable_no_backup": "PASS (aapt dump xmltree)",
+    "seven_jni_entrypoints_exported": "PASS (llvm-nm of packaged stripped library)",
+    "compile_java_and_native": "PASS",
+    "lint_debug": "NOT RUN: offline resolution blocked by uncached AGP lint jars"
+  },
+  "initial_failure": "Const output-token pointer did not match pinned llama_batch_get_one API; fixed and rebuilt",
+  "artifact": {
+    "relative_path": "app/build/outputs/apk/debug/app-debug.apk",
+    "bytes": 12049394,
+    "sha256": "49be5e18f317a6b5cac092c5c8d11b5fd4b327f4ba8473f390cd73e281b0b8a1"
+  },
+  "storage": {
+    "model_bench_directory_allocated_kib": 337564,
+    "includes_generated_native_objects_and_apk": true,
+    "existing_vendor_checkout_copied": false,
+    "new_model_or_sdk_downloads": false,
+    "complete_project_budget": "Parent-owned accounting; this value is only the new benchmark directory"
+  },
+  "pending": [
+    "On-phone installation and actual cold/warm timing",
+    "Cancellation and Activity lifecycle validation on hardware",
+    "Pinned Qwen output and complete-cue usefulness inspection",
+    "Nothing Phone versus iQOO measurements",
+    "Speech and vision integration"
+  ]
+}

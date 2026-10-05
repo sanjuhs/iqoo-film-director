@@ -3,6 +3,351 @@
 Updated 5 October 2026 (IST). The user authorized archiving FocusPilot, removing
 its files from this workspace and proceeding with the DJI Mini film director.
 
+## 5 October — phone-shaped design workshop
+
+### Revision 6 — replayable reference-to-shoot demonstration
+
+The creator requested seeing the next screen after applying a reference plan.
+The existing in-app sample was reviewed, applied and run through its actual
+scripted five-shot sequence; it reached Edit. Added a separate
+[walkthrough](../design/reference-demo.html) with the same live wireframe screens
+and six explained stages: reference review, replacement confirmation, five-shot
+plan, countdown/takes/Cut, reel review and Save project. It starts a separate
+synthetic draft, keeps voice off, never saves automatically, and supports
+restarting and following the controls inside the phone as well as the guide.
+“See what happens next” is accessible beside the ordinary reference review gate;
+that gate still requires reviewing every shot and choosing a borrowing option.
+
+[Walkthrough evidence](../design/verification-demo.json) covers all six stages,
+restart, actual phone controls, immediate Stop status, four widths, no automatic
+project save and no runtime errors in isolated Chromium with virtual time.
+The initial verification found a same-URL iframe restart did not reset state;
+a distinct local replay URL repairs it, and the complete verification passes.
+Screenshots retain the applied plan, countdown, sample editor and save screen.
+The in-app walkthrough was opened on the applied plan, ready for Start this shoot;
+the original demo draft reached Edit. No real sensors, downloaded reference,
+model inference or video recording is performed by this website.
+
+## 5 October — clean Android model test prepared; device disconnected
+
+The creator explicitly requested replacing the Android Mini Film application
+while preserving the design website and Android source archive, then confirmed
+**Qwen3.5 0.8B**. They chose the current India iQOO flagship as the comparison.
+[Benchmark research](local-director-benchmark.md) uses official iQOO15
+specifications and separates measured current-prototype CPU results from future
+Moonshine/Kokoro and matched iQOO measurements. No numeric handset rating,
+speed multiplier or complete speech/VLM-loop latency is invented. The2–4s warm
+text-based spoken-cue budget is a target, excludes fresh vision, and is unmeasured.
+
+Read-only ADB inspection initially found one authorized Nothing Phone(3a), model
+A059/Asteroids with SM7635. No hardware identifiers were printed or recorded in
+Git. Its installed `dev.minifilm.director` app-private data and exact installed
+APK were backed up under ignored `private/backups/android-replacement-2026-10-05/`.
+The gzip/tar was fully read and verified:1,217,689,196B and107 members; exact
+installed APK52,838,570B. The Qwen core563,036,064B and matching projector204,987,136B
+were excluded from the tar only after verifying their complete hashes match the
+existing host copies; the restoration manifest maps them. Whisper and alternate
+1.5B Qwen remain inside the archive. A separate source tar was verified, with
+generated files/local SDK configuration and ignored vendor checkouts excluded.
+Original source, model files and earlier retained archives remain in place.
+This was an opaque local backup: no private media content was inspected/uploaded
+and no shared gallery deletion occurred.
+
+Added [a focused Android benchmark](../prototype/model-bench/README.md), package
+`dev.minifilm.benchmark`: prompt, Run benchmark, Stop; no Android permissions,
+Internet, camera, microphone, STT/TTS or vision path. It reuses the pinned existing
+llama.cpp commit and supplies weights separately. Four CPU threads,1024 context,
+128 batch/microbatch, greedy decoding and at most32 generated tokens. Reports
+contain actual input/output counts, load/prefill/first-token/decode/total time,
+throughput, EOG/cap/cancel stop reason and completion flag. Prompt cache resets
+between warm runs; model/context remain resident. Private reports omit prompt
+and reply text; the reply appears only in the app. A debug-only explicitly
+invoked CLI fixture runs one to five public short-cue requests; ordinary launch
+is idle. Cancellation uses atomic state and queued/shared lifetime ownership.
+
+[Build/static evidence](../prototype/model-bench/verification.json): offline
+assembleDebug passed; final APK12,049,394B, SHA256
+`49be5e18f317a6b5cac092c5c8d11b5fd4b327f4ba8473f390cd73e281b0b8a1`;
+APK permissions empty, backup disabled and seven JNI exports verified. An initial
+const-token compile mismatch was repaired. Offline lint could not run because
+its jars are uncached; no dependencies were downloaded and no lint success is
+claimed. After verification, only new generated native/intermediate/cache files
+were removed; the APK hash still matches and original build/source remained.
+
+The device disconnected before installation and fresh measurement. A subsequent
+read-only check found zero ADB devices. The creator explicitly chose to finish
+the demo/test package now and reconnect the phone later; installation/removal
+and timing are deferred to that reconnection.
+**No old-app uninstall, new-app installation or new phone inference has been
+performed.** Real measurements, lifecycle/Stop device checks, actual user-visible
+phone output, speech/VLM concurrency and matched iQOO evidence remain pending.
+No Android permission bypass, firmware/model upgrade, NPU claim, private upload
+or aircraft action occurred.
+
+Incremental qualified storage is approximately **10.74GB**, including the earlier
+9,439,462,784B pre-design sample, retained design~5.4MB, external original concept
+~1.4MB, new local backup~1.28GB and benchmark source/APK~13.4MB. It is above the
+10GB aim during preservation and below the15GB cap. Before generated-object
+cleanup, the adjacent estimate was~11.07GB. No model/SDK/JDK/runtime download was
+made. Phone remains in its last observed pre-replacement allocation until
+reconnection; missing historic archive/cache and inventory qualifications remain.
+This incremental estimate does not certify a complete current machine/device total.
+
+## Earlier 5 October design revisions
+
+### Revision 5 — minimal controls, screen flow and small speech candidates
+
+The creator requested a simpler interface, a connected screen flowchart and
+Kokoro/Moonshine speech research in the brief. Shoot now presents the actual
+editable idea, one posing cue, opt-in Voice on/off and a single Start/Stop action.
+The default camera has no progress ribbon, fake lens control, repeated status
+or empty review action. Optional camera badges appear only with configured sample
+gear. The workshop has three destinations plus Settings. Opening line/mood,
+camera setup, timing, clip adjustment and finishing tools unfold when requested.
+Edit puts take review and project save first; the save page folds its contents
+and removes the disabled video-export action. Saved films remain directly
+available with JSON downloads; the current draft folds when the library has films.
+
+[User-flow notes](../design/user-flow.md), the [interactive diagram](../design/flowchart.html)
+and [standalone SVG](../design/assets/user-flow.svg) show the primary path and
+optional screen/return paths. The diagram initially shows Shoot → guided takes →
+Edit → Save → Projects; a disclosure reveals all twelve detailed routes. Nodes
+open real prototype routes. Stop and navigation cancel the scripted session;
+reopening a saved project starts capture and speech stopped. The SVG is local
+and contains no external media or dependencies.
+
+[Speech research](../design/speech-models.md) proposes Kokoro-82M for short spoken
+cues and Moonshine for reviewed voice input/transcription. Primary model cards
+publish streaming Tiny at34M, Small at123M and Medium at245M parameters, all below
+0.5B; the Tiny Hub tensor total shows44.1M, so exact artifact/configuration/component
+size must be pinned before deployment. Original Moonshine Tiny/Base are27.1M/61.5M.
+Kokoro weights are Apache2.0; current Moonshine code, English and streaming STT
+weights are MIT with third-party and legacy non-English exceptions documented.
+No checkpoint was downloaded or executed, and no phone latency, transcription
+accuracy, NPU performance or real subtitle timestamp accuracy is established.
+The prototype still uses optional browser speech and scripted editable captions.
+
+[Revision5 verification](../design/verification-simplified.json) records **178
+passed checks** covering progressive disclosures, edited ideas, automatic sample
+takes, immediate Stop, explicit voice consent/mute, edit persistence, saved
+downloads/reopening, all twelve views plus overview at five widths, diagram
+disclosure/routes/mobile layout and an actual SVG download. Existing isolated
+Chromium/Playwright, virtual time, reduced motion, mocked speech and synthetic
+project data were used. No runtime errors or external requests. JavaScript syntax,
+SVG parsing, scoped documentation links and whitespace checks passed. Screenshots
+record clean default Shoot/Idea, a populated sample editor and both diagram modes.
+No camera/microphone/Bluetooth/aircraft action, Android change, private media
+read/upload, real playback, model execution or dependency download occurred.
+
+Retained design allocation is approximately **4.7MB**, plus the original external
+generated concept at approximately1.4MB. The incremental qualified estimate is
+approximately **9.446GB** against the earlier9,439,462,784B pre-design sample,
+below10GBaim/15GBcap. Missing historical archive/cache reserves and inventory
+qualifications remain; this does not certify a complete current machine/device
+total. Previous revisions and their evidence remain dated history.
+
+### Revision 4 — simpler Shoot/Edit/Projects and direct saved downloads
+
+The creator requested easier access to past projects and a clearer product value.
+The three main destinations are now **Shoot, Edit and Projects**. Objectives,
+shot planning, references and camera settings belong to Shoot; review/words/cover
+and current-project save belong to Edit. The workshop presents six main links
+plus Settings; All views retains twelve detailed screens. The visible promise
+is “Turn your idea into a reel.” Brief puts the editable idea first, with starter
+presets/reference/chat behind optional disclosures; chat replies stay visible
+when submitted. Camera keeps one cue, commentary, reachable Start/Stop and
+compact Plan/Shoot/Edit progress; cue history is secondary.
+
+A dedicated Projects library lists explicitly saved browser-local films, recent
+first, with name search, planning/review stage, Open and direct Download per film.
+Downloads serialize the exact saved snapshot without opening it, altering the
+current unsaved draft or starting capture/speech. Download all backs up every
+saved project as JSON and excludes current unsaved edits. Current draft remains
+separate with Continue/Save controls. Opening protects unsaved changes through
+the existing confirmation and cancellation flow; the save page links back to
+the library instead of repeating the list. The storage key remains compatible
+with earlier saved projects. The former arbitrary12-project cap/truncation is
+removed: valid saved projects remain until actual browser storage capacity;
+a failed save preserves the previous library and offers a backup fallback.
+No cloud history, automatic save, video file download or JSON reimport is claimed.
+
+[Library verification](../design/verification-library.json) records **177
+passed checks**: primary navigation/disclosures, correct saved download/backup
+payloads, search/focus, draft preservation, Open/cancel/reload, stopped capture,
+optional camera/reference access, all twelve views plus overview at five widths,
+retaining thirteen saved projects and simulated quota-failure preservation.
+Existing isolated Chromium/Playwright, virtual time, reduced motion and mocked
+speech were used with two synthetic example projects. No browser runtime
+errors or external requests. Initial test execution stopped on an ambiguous
+Projects-button selector; a specific navigation control resolved that harness
+failure. Screenshots show synthetic saved films; no fixtures were stored in the
+creator's browser. The in-app preview was refreshed and opened on Projects,
+showing an honest empty saved library; no example projects were injected.
+JavaScript syntax, scoped Markdown links and whitespace
+checks passed. No camera/microphone/Bluetooth/aircraft action, Android change,
+private read/upload, real playback, model run or dependency download occurred.
+
+Retained design allocation is approximately **3.9MB**, plus the original
+external generated concept at approximately1.4MB. The adjacent qualified
+estimate is approximately **9.445GB** against the earlier9,439,462,784B
+pre-design sample, below10GBaim/15GBcap. No new model/SDK/dependency storage.
+Historical missing-archive/cache reserves and inventory qualifications remain;
+this incremental accounting does not certify the full current machine/device.
+All earlier design evidence remains dated history.
+
+### Revision 3 — reference-reel study and model/access research
+
+Added an eleventh **Reference reel** view under Brief. Instagram reel links are
+validated, canonicalized and saved as bookmarks only; selecting a local video
+records name/size/type without reading or uploading its bytes. An explicit
+sample action opens an unrelated synthetic five-shot study. Timing, framing,
+apparent angle, movement, pose and transition are editable; split/merge changes
+boundaries, and changes invalidate review. All shots must be reviewed before
+adapting chosen rhythm/angles/poses into the creator's plan. A concrete replacement
+sheet preserves the objective, opening line and existing takes; new shot IDs
+prevent old takes from falsely covering new shots. New sources start on Phone;
+optional camera assignment remains separate. Custom adapted durations appear
+correctly in the Brief. Reference metadata/provenance and review choices persist
+in browser-local projects and portable JSON; video bytes are never saved.
+
+[Reference research](../design/reference-reels.md) separates authorized media
+access from embedding/bookmarking and scoped hashtag discovery from a global
+trending feed. Meta's direct developer pages returned HTTP429; official Meta
+Postman indexed documentation confirms professional-account route constraints.
+Exact current hashtag/oEmbed permissions, quotas, version and arbitrary-source
+availability remain unresolved. No token or Instagram API probe was performed.
+Official sources support PySceneDetect/TransNetV2 as boundary candidates,
+Qwen3.5 multimodal models for separate semantic experiments, and optional
+pose/speech stages. Model-card capabilities do not establish this project's
+Android visual accuracy, latency, full-video analysis or NPU execution.
+
+[Reference verification](../design/verification-reference.json) records **154
+passed checks**: URL validation, tracking removal, file metadata only, explicit
+sample provenance, edit/split/merge/review gates, adaptation options, preserved
+takes/fresh IDs, custom duration, saved reopen/JSON, capture cancellation and
+all eleven views plus overview at five widths. No browser runtime errors or
+external requests. Existing isolated Chromium/Playwright, a virtual clock,
+reduced motion and mocked TTS were used; no private media, sensor, audio playback,
+Bluetooth/aircraft action, Android changes or model/dependency downloads. The
+first harness run stopped on an ambiguous close-button locator, corrected to the
+specific control; this was a test-selector failure, not an app runtime failure.
+The creator's in-app browser was refreshed and opened on the new reference view.
+Screenshots retain explicit sample labels; the original generated concept and
+v1/v2 evidence remain historical. JavaScript syntax, scoped local Markdown links
+and whitespace checks passed.
+
+Retained design allocation is approximately **3.3MB**, plus the original external
+generated concept at approximately1.4MB. The adjacent qualified estimate is
+approximately **9.444GB** against the earlier9,439,462,784B pre-design sample,
+below10GBaim/15GBcap. Historical missing-archive/cache reserves and inventory
+qualifications remain; this is incremental design accounting, not a fresh full
+machine/device inventory. No new model/SDK/dependency storage was acquired.
+
+### Revision 2 — camera planning, automatic direction and saved projects
+
+The creator requested Action 4/drone settings, controllable live commentary,
+automatic take timing and project saving in place of a dedicated export screen.
+The revised `design/` prototype keeps Camera/Brief/Reel as its three destinations.
+Settings adds an explicitly sample Action 4 Bluetooth setup sheet and drone route
+choices: Neo 2 / DJI Fly manual capture-import, or Mini 4 Pro / independent
+read-only SDK probe research. Camera roles are editable per shot. Paired Phone +
+Action 4 sample angles occupy one draft/timeline slot with an editable angle
+choice. Drone assignments remain separately planned pickups; the automatic
+session never creates a drone take or aircraft action.
+
+Start director now schedules preparation, countdown, simulated take start,
+midpoint guidance, timed stop and the next shot. Full-sequence takes enter the
+reel as unreviewed drafts; one-at-a-time mode pauses for review. Start/Stop
+commentary controls optional browser speech independently of take timing.
+Quiet mode permits preparation/countdown/Cut while suppressing spoken Action
+and midpoint cues during a take. Stop shoot cancels timers and speech and retains
+an already elapsed partial sample take. Navigation/backgrounding also cancel.
+
+The former export view is **Save your project**, with project name, unsaved/saved
+status, explicit browser-local saving, library reopening and portable project
+JSON download. Saved data includes the objective, plan, camera roles, cuts,
+subtitles, music note and cover. Reopening never starts recording or commentary.
+Resetting the demo preserves the saved library. A new thirteenth project is
+refused with a JSON-backup fallback rather than evicting saved data. Video export
+is a disabled future action; no real MP4, synchronization or transfer is claimed.
+
+[Revision verification](../design/verification-revision.json) records **94
+passed checks**, including ten views at five widths, two-angle scheduling,
+four automatic drafts plus a separate drone pickup, mute-versus-stop behavior,
+quiet and single-take modes, cancellation, trim validation, reviewed draft state,
+JSON contents, project persistence/reopening after reload and non-evicting save
+capacity. Timers used the existing browser's virtual clock; TTS was mocked to
+verify scheduling without audio playback. No runtime errors, sensor access or
+external requests occurred in that run. JavaScript syntax, Markdown links and
+whitespace checks passed. The open in-app browser was refreshed and visibly
+showed the revised camera roster and project navigation.
+
+The [updated design plan](../design/README.md) links revision screenshots and
+official DJI research sources. The official ESP32-C6 BLE demo lists Action 4
+and start/stop operations; it is not evidence of this app's Android integration.
+The SDK compatibility table still separates unsupported Neo 2 from supported
+Mini 4 Pro. No Bluetooth scan/pairing, camera/mic access, private upload,
+Android modification, AI inference, aircraft connection/control or new SDK/model
+download happened. Actual speech audibility and hardware coordination remain
+unverified. The original generated concept and v1 verification remain dated
+design history.
+
+Retained `design/` allocation is approximately **2.7MB**, about **0.73MB** above
+v1; the original generated image outside the repository remains approximately
+1.4MB and is counted separately. Against the prior qualified pre-design total,
+the adjacent estimate is approximately **9.444GB**, below the 10GB aim and 15GB
+cap. Historical missing-archive/cache reserves and prior inventory qualifications
+remain; this is not a freshly certified full machine/device inventory. No
+dependency installation was needed. Tests used isolated browser storage and did
+not save fixture projects in the creator's in-app browser.
+
+Created the user-requested `design/` folder with a Markdown design plan, plain
+HTML/CSS/JavaScript clickable phone prototype, generated concept image and
+saved screenshots. This design artifact follows the user's explicit folder
+request; it is labelled pre-event design research, separate from the Android
+research app and event-created competition code.
+
+The three app destinations are Camera, Brief and Reel. Ten workshop views cover
+the objective chat, editable shot plan, live cue/countdown/sample take, review,
+clip assembly, subtitles/music notes, cover, export and preferences. Fashion is
+the first starter; walking story, product reveal and introduction use the same
+flow. Proposed language/perception/speech/director/editor responsibilities are
+documented separately from deterministic capture/timing/rendering.
+
+[Final browser evidence](../design/verification.json) records **84 passed
+checks** in the existing bundled headless Chromium runtime, including all ten
+views at widths 360/390/768/1024/1440, shared objective/shot edits, cancelled
+countdown/navigation, timed take review and keep, clip trim/order, subtitle/music/
+cover changes and actual downloaded JSON contents. There were no page/console
+errors or external requests in that final run. JavaScript syntax and whitespace
+checks passed. Desktop, overview and phone screenshots are linked from the
+[design plan](../design/README.md).
+
+Initial browser checks exposed two failures: a cover action/view name collision
+prevented storing the selected cover, and trim-triggered DOM replacement caused
+a nested blur/render error. Both were corrected before the final checks. The
+agent-browser CLI was absent; verification used the already installed Playwright
+and Chromium rather than downloading a helper or browser.
+
+All camera previews, takes, chat replies, subtitles and edit playback are
+illustrated/scripted samples. Export is a JSON design pack, **not a rendered
+video**. State is held in browser memory and resets on reload. Optional browser
+speech requires an explicit click; actual audibility, offline speech and earbud
+delivery were not validated. No camera/microphone access, private-media upload,
+model execution, Android install/change, aircraft action, API credential change
+or external publication occurred. Built-in image generation used only the
+generic concept prompt saved in `design/assets/overview-prompt.md`.
+
+Retained design files plus the original generated image add approximately
+**3.4MB allocated**, with no dependency/model/SDK download. Adding that measured
+increment to the preceding qualified 9,439,462,784B estimate gives approximately
+**9.443GB**, below the 10GB aim/15GB cap. This carries forward the historical
+3,777,165,184B missing-archive reserve, 218,929,328B incremental-cache reserve and
+the prior phone/cache/runtime inventory qualifications; it is an adjacent
+estimate, not a freshly certified full project/device/cache inventory. Owned
+temporary browser screenshots/check runner were removed after saving evidence.
+The local server serves only `design/` at loopback port 4173 for creator review.
+
 ## Current delivery
 
 The fresh phone app **Mini Film** (`dev.minifilm.director`) is installed and

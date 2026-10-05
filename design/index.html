@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f1eb">
+  <title>Mini Film — Design workshop</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ef6646'/%3E%3Cpath d='m12 8 13 8-13 8z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="workshop">
+    <aside class="sidebar" aria-label="Design workshop navigation">
+      <a class="brand" href="#camera"><span class="brand-mark" aria-hidden="true">◒</span> mini film<span class="brand-period">.</span></a>
+      <p class="eyebrow">DESIGN WORKSHOP / 05</p>
+      <h1 class="workshop-title">Turn your idea<br>into a reel.</h1>
+      <p class="intro">Get the shots. Shape the edit.<br>Keep every project.</p>
+      <div class="flow"><span>Shoot</span><span>→</span><span>Edit</span><span>→</span><span>Projects</span></div>
+      <p class="eyebrow">EXPLORE THE EXPERIENCE</p>
+      <nav class="screen-list" id="screen-list"></nav>
+      <div class="sidebar-footer"><p>05 OCT 2026 · PRE-EVENT DESIGN</p><a class="text-link" href="README.md" target="_blank" rel="noopener">Read the design plan ↗</a></div>
+    </aside>
+    <main class="stage">
+      <div class="stage-top"><span class="prototype-tag"><span></span> Interactive wireframe</span><div class="stage-actions"><a class="text-link" href="flowchart.html">User flow ↗</a><button class="text-link" data-action="overview">All views ↗</button><button class="icon-button" data-action="reset" aria-label="Reset demo">↺</button></div></div>
+      <div class="phone-wrapper" id="phone-wrapper">
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span class="dynamic-island"></span><span aria-label="Signal and battery">▮▮▮ &nbsp; ▰</span></div>
+          <div class="phone-screen" id="screen"></div>
+          <nav class="app-nav" id="app-nav" aria-label="App navigation"></nav>
+        </div>
+      </div>
+      <div class="overview-board" id="overview-board" hidden></div>
+      <p class="stage-caption" id="stage-caption">Tap anything. This is a working flow, with sample content.</p>
+      <p class="prototype-disclosure">Simulation · No camera, microphone, or AI model is running.</p>
+    </main>
+    <aside class="inspector" id="inspector" aria-label="Design notes"></aside>
+  </div>
+  <dialog class="sheet" id="sheet" aria-labelledby="sheet-title"><div class="sheet-header"><h2 id="sheet-title"></h2><button class="icon-button" data-action="close-sheet" aria-label="Close">×</button></div><div class="sheet-content" id="sheet-content"></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+1
+00:00:00,000 --> 00:00:07,046
+Meet Mini Film Director: the idea of a local phone app that helps solo
+creators plan, perform, and shape their content.
+
+2
+00:00:07,146 --> 00:00:14,574
+Start with your objective. Here, we want a twenty-second jacket
+reveal, with texture, a walk, and a confident final pose.
+
+3
+00:00:14,674 --> 00:00:23,384
+Review the reference shots, then choose what to borrow: timing,
+angles, or posing. This example is invented; no Instagram reel was
+downloaded.
+
+4
+00:00:23,484 --> 00:00:30,403
+Use as my shot plan asks for confirmation. Your objective, opening
+line, and existing takes stay with your project.
+
+5
+00:00:30,503 --> 00:00:36,630
+The result is five editable shots. Adjust any cue or duration.
+Applying a plan does not begin recording.
+
+6
+00:00:36,730 --> 00:00:42,389
+Press Start this shoot. The director gives one posing cue at a time.
+Spoken guidance is optional.
+
+7
+00:00:42,489 --> 00:00:47,649
+Then comes the countdown. Three, two, one. You always have a Stop
+control.
+
+8
+00:00:47,749 --> 00:00:53,835
+Action begins a timed sample take. In this web demo, the image is an
+illustration, not a live camera.
+
+9
+00:00:53,935 --> 00:00:58,035
+Cut saves the sample draft, then the sequence moves to the next shot.
+
+10
+00:00:58,135 --> 00:01:03,937
+When the shoot finishes, your takes appear in Edit. Review the
+sequence, then trim or reorder clips.
+
+11
+00:01:04,037 --> 00:01:11,290
+Captions, sound direction, and the cover remain editable. These web
+captions are samples, rather than a transcription result.
+
+12
+00:01:11,390 --> 00:01:18,309
+Name your film and save it explicitly. The project keeps your brief,
+shots, captions, and edit decisions together.
+
+13
+00:01:18,409 --> 00:01:26,227
+Projects holds your saved films in this browser. Reopen one, or
+download its JSON backup. This website does not export a video.
+
+14
+00:01:26,327 --> 00:01:35,461
+The local-phone vision combines Qwen with small speech models.
+Separate Android CPU inference has been tested; the complete speech
+and vision loop still needs validation.
+
+15
+00:01:35,561 --> 00:01:42,422
+Mini Film Director. A pre-event design prototype, showing how a solo
+creator could move from an idea to a reviewed film.

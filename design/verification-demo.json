@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-05",
+  "passed": [
+    "Review sample gate",
+    "Confirmation",
+    "Applied five-shot plan",
+    "Countdown",
+    "Automatic sample takes",
+    "Edit destination",
+    "Save screen without auto-saving",
+    "Restart",
+    "Direct phone controls advance the walkthrough",
+    "Immediate Stop displays paused status",
+    "No overflow at360/390/768/1440",
+    "No browser runtime errors"
+  ],
+  "method": "Isolated Chromium, reduced motion and virtual clock; synthetic sample, browser speech off",
+  "limitations": [
+    "No camera/microphone/models/real video or speech execution"
+  ]
+}
