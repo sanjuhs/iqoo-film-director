@@ -1,5 +1,27 @@
 # Mini Film Director idea deck
 
+## Current native deck — revision 7
+
+The [published Google Slides deck](https://docs.google.com/presentation/d/13kmYRemUZdNRtpRoBeaoFUkAgn4maZBF2vsHzhPQGgA/edit)
+was updated in place on 5 October 2026 and now contains nine slides. The existing
+submission link and visual style are preserved. Added reference-shot detection
+with Python/PySceneDetect, Qwen scene descriptions, Whisper speech/caption drafts,
+and a proposed post-capture media workspace. Optional Dreamlite image-to-image
+cover/still editing is a candidate; the exact model remains unconfirmed.
+
+[Revision plan](revision-7-plan.md), [native edit record](native-update-v7.json)
+and [verification](verification-v7.json) record this update. The edit record has
+non-idempotent duplication requests and must not be replayed against the updated
+deck. Native readback found nine slides and zero structural checker issues; all
+nine pages of the native Google Slides PDF were rendered and visually inspected.
+The pipeline is proposed, with no new model execution or phone timing claimed.
+
+The local builder and story below describe the earlier seven-slide revision 6
+baseline; they do not regenerate the current nine-slide native deck. Native
+revision 7 PDF and review renders remain under ignored `output/pitch/revision-7/`.
+
+## Earlier local baseline — revision 6
+
 5 October 2026. Seven-slide, self-paced iQOO Open Innovation concept deck in a
 simple white/navy/coral style. It accompanies the phone-shaped design prototype.
 The preparation code remains explicitly pre-event research. Competition source

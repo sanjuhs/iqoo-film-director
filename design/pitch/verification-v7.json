@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-05",
+  "presentationId": "13kmYRemUZdNRtpRoBeaoFUkAgn4maZBF2vsHzhPQGgA",
+  "revisionId": "2p7O7DDXaNZGMQ",
+  "editedInPlace": true,
+  "slideCount": 9,
+  "slideOrder": ["p1", "p2", "p3", "mf7_reference_analysis", "p4", "p5", "mf7_media_workspace", "p6", "p7"],
+  "structuralIssues": 0,
+  "visualReview": {
+    "source": "Native Google Slides PDF exported through supported browser API",
+    "pagesRenderedAndIndividuallyInspected": 9,
+    "result": "Pass: readable text, preserved style, no visible overlap or clipping, correct numbering"
+  },
+  "browserConfirmation": "Updated media workspace visibly present; deck saved to Drive",
+  "preserved": ["submission URL", "screenshots", "native diagrams", "evidence table", "public links", "view access"],
+  "proposedFeatures": ["Python/PySceneDetect boundaries", "Qwen scene descriptions", "Whisper captions", "post-capture media workspace", "optional Dreamlite cover/still edits"],
+  "limitations": ["Dreamlite exact model unconfirmed", "Python-to-Android port untested", "No new inference, accuracy or latency measurement", "Native update record is non-idempotent; local builder remains revision 6 baseline"],
+  "sources": ["https://www.scenedetect.com/docs/latest/api/detectors.html", "https://github.com/openai/whisper"]
+}

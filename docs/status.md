@@ -3,6 +3,29 @@
 Updated 5 October 2026 (IST). The user authorized archiving FocusPilot, removing
 its files from this workspace and proceeding with the DJI Mini film director.
 
+## 5 October — native idea deck revision 7
+
+Updated the existing published Google Slides deck in place to nine slides, keeping
+the submission URL, screenshots, evidence table, links and view access. Added
+Python/PySceneDetect shot-boundary detection, Qwen scene descriptions, Whisper
+transcription/caption drafts and a proposed post-capture media workspace. Optional
+Dreamlite image-to-image cover/still editing remains a candidate with the exact
+model unconfirmed. Python research is distinct from an untested Android port;
+new analysis and media workflows remain proposed. Earlier CPU timings are unchanged.
+
+Native readback confirmed the final slide order and numbering. The structural
+checker reported zero issues, and all nine pages of the native PDF were rendered
+and visually inspected. An initial substring replacement also changed a body
+slot; readback identified it and the final edit repaired it before verification.
+Supported browser export avoided the previously recorded connector PDF
+materialization limitation. The updated deck was visibly saved to Drive.
+See [revision evidence](../design/pitch/verification-v7.json).
+
+Revision output and review renders add approximately 3 MB. No new model,
+dependency, sensor test, private-media upload or phone execution occurred. The
+previous approximately 10.8 GB qualified storage estimate and historical archive
+qualification remain applicable. Screenshots and raw cloud snapshots stay ignored.
+
 ## 5 October — Phase 1 submitted and design published
 
 The creator authorized publishing the demo/deck, making the reviewed repository

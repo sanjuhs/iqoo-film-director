@@ -1,0 +1,595 @@
+{
+  "presentationId": "13kmYRemUZdNRtpRoBeaoFUkAgn4maZBF2vsHzhPQGgA",
+  "note": "Revision 7 native edit record. Non-idempotent duplication batch; do not replay against an already updated deck.",
+  "construction": [
+    {
+      "duplicateObject": {
+        "objectId": "p4",
+        "objectIds": {
+          "p4": "mf7_reference_analysis",
+          "p4_i18": "mf7_reference_analysis_p4_i18",
+          "p4_i2": "mf7_reference_analysis_p4_i2",
+          "p4_i3": "mf7_reference_analysis_p4_i3",
+          "p4_i4": "mf7_reference_analysis_p4_i4",
+          "p4_i5": "mf7_reference_analysis_p4_i5",
+          "p4_i6": "mf7_reference_analysis_p4_i6",
+          "p4_i7": "mf7_reference_analysis_p4_i7",
+          "p4_i8": "mf7_reference_analysis_p4_i8",
+          "p4_i9": "mf7_reference_analysis_p4_i9",
+          "p4_i27": "mf7_reference_analysis_p4_i27",
+          "p4_i28": "mf7_reference_analysis_p4_i28",
+          "p4_i12": "mf7_reference_analysis_p4_i12",
+          "p4_i13": "mf7_reference_analysis_p4_i13",
+          "p4_i14": "mf7_reference_analysis_p4_i14",
+          "p4_i15": "mf7_reference_analysis_p4_i15",
+          "p4_i16": "mf7_reference_analysis_p4_i16",
+          "p4_i17": "mf7_reference_analysis_p4_i17"
+        }
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Three tabs keep the core workflow simple",
+          "matchCase": true
+        },
+        "replaceText": "Analyze a reference, describe each shot",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Shoot",
+          "matchCase": true
+        },
+        "replaceText": "Detect shots",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "One cue\nVoice on or off\nStart and Stop",
+          "matchCase": true
+        },
+        "replaceText": "Python / PySceneDetect\nCut timestamps\nReview split / merge",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Edit",
+          "matchCase": true
+        },
+        "replaceText": "Describe scenes",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Review takes\nTrim and correct captions\nSave project",
+          "matchCase": true
+        },
+        "replaceText": "Qwen sampled frames\nFraming, angles, pose\nUncertain motion flagged",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Projects",
+          "matchCase": true
+        },
+        "replaceText": "Review plan",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Open previous films\nDownload saved project\nContinue editing",
+          "matchCase": true
+        },
+        "replaceText": "Whisper speech text\nAdapt the hook and cues\nApprove an editable plan",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Before the shoot",
+          "matchCase": true
+        },
+        "replaceText": "Selected media",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Edit idea or adapt a reference\nReview the shot plan",
+          "matchCase": true
+        },
+        "replaceText": "Own or permitted video\nA link alone is a bookmark",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "During the shoot",
+          "matchCase": true
+        },
+        "replaceText": "Detection vs. meaning",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "One instruction at a time\nStop cancels future cues",
+          "matchCase": true
+        },
+        "replaceText": "Cuts propose boundaries\nDescriptions need review",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Extra cameras",
+          "matchCase": true
+        },
+        "replaceText": "Phone deployment",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Optional settings\nPhone alone remains useful",
+          "matchCase": true
+        },
+        "replaceText": "Python research first\nAndroid port must be tested",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "duplicateObject": {
+        "objectId": "p4",
+        "objectIds": {
+          "p4": "mf7_media_workspace",
+          "p4_i18": "mf7_media_workspace_p4_i18",
+          "p4_i2": "mf7_media_workspace_p4_i2",
+          "p4_i3": "mf7_media_workspace_p4_i3",
+          "p4_i4": "mf7_media_workspace_p4_i4",
+          "p4_i5": "mf7_media_workspace_p4_i5",
+          "p4_i6": "mf7_media_workspace_p4_i6",
+          "p4_i7": "mf7_media_workspace_p4_i7",
+          "p4_i8": "mf7_media_workspace_p4_i8",
+          "p4_i9": "mf7_media_workspace_p4_i9",
+          "p4_i27": "mf7_media_workspace_p4_i27",
+          "p4_i28": "mf7_media_workspace_p4_i28",
+          "p4_i12": "mf7_media_workspace_p4_i12",
+          "p4_i13": "mf7_media_workspace_p4_i13",
+          "p4_i14": "mf7_media_workspace_p4_i14",
+          "p4_i15": "mf7_media_workspace_p4_i15",
+          "p4_i16": "mf7_media_workspace_p4_i16",
+          "p4_i17": "mf7_media_workspace_p4_i17"
+        }
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Three tabs keep the core workflow simple",
+          "matchCase": true
+        },
+        "replaceText": "A media workspace turns takes into a post",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Shoot",
+          "matchCase": true
+        },
+        "replaceText": "Review media",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "One cue\nVoice on or off\nStart and Stop",
+          "matchCase": true
+        },
+        "replaceText": "Preview captured takes\nAnalyze and describe\nSelect usable moments",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Edit",
+          "matchCase": true
+        },
+        "replaceText": "Prepare post",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Review takes\nTrim and correct captions\nSave project",
+          "matchCase": true
+        },
+        "replaceText": "Whisper caption drafts\nEdit title and cover\nReview cuts and timing",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Projects",
+          "matchCase": true
+        },
+        "replaceText": "Save / export",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Open previous films\nDownload saved project\nContinue editing",
+          "matchCase": true
+        },
+        "replaceText": "Save editable project\nExport reviewed reel\nDownload again later",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Before the shoot",
+          "matchCase": true
+        },
+        "replaceText": "Whisper captions",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Edit idea or adapt a reference\nReview the shot plan",
+          "matchCase": true
+        },
+        "replaceText": "Review words and timing\nKeep the source audio",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "During the shoot",
+          "matchCase": true
+        },
+        "replaceText": "Optional image edits",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "One instruction at a time\nStop cancels future cues",
+          "matchCase": true
+        },
+        "replaceText": "Dreamlite img-to-img\nCandidate; model unconfirmed",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Extra cameras",
+          "matchCase": true
+        },
+        "replaceText": "Creator approval",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Optional settings\nPhone alone remains useful",
+          "matchCase": true
+        },
+        "replaceText": "Compare original and edit\nApprove before export",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Moonshine Tiny",
+          "matchCase": true
+        },
+        "replaceText": "Whisper tiny.en",
+        "pageObjectIds": [
+          "p5"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Speech to text\nCandidate",
+          "matchCase": true
+        },
+        "replaceText": "Speech to text\nPrior CPU fixture",
+        "pageObjectIds": [
+          "p5"
+        ]
+      }
+    }
+  ],
+  "finish": [
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Describe scenes idea or adapt a reference\nReview the shot plan",
+          "matchCase": true
+        },
+        "replaceText": "Own or permitted video\nA link alone is a bookmark",
+        "pageObjectIds": [
+          "mf7_reference_analysis"
+        ]
+      }
+    },
+    {
+      "deleteText": {
+        "objectId": "SLIDES_API791305781_1",
+        "textRange": {
+          "type": "ALL"
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "SLIDES_API791305781_1",
+        "insertionIndex": 0,
+        "text": "Proposed reference-analysis pipeline. Python/PySceneDetect ContentDetector or AdaptiveDetector supplies candidate shot cut times, not semantic scene understanding. See https://www.scenedetect.com/docs/latest/api/detectors.html. Use selected owned/permitted local media; an Instagram URL alone grants neither video access nor download permission. Qwen3.5 0.8B drafts framing, angle and pose descriptions from sparse sampled frames; multi-frame movement and transition claims require evidence and creator review. Whisper drafts speech text and timing for hook/context analysis. See https://github.com/openai/whisper. Split/merge corrections and editable plan approval remain explicit. Python is the offline research baseline; an Android-native cut detector or separately validated Python packaging route must be tested before claiming all-phone runtime. No new pipeline accuracy, latency or phone execution was measured for this deck update."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Prepare post idea or adapt a reference\nReview the shot plan",
+          "matchCase": true
+        },
+        "replaceText": "Review words and timing\nKeep the source audio",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "deleteText": {
+        "objectId": "SLIDES_API791305781_4",
+        "textRange": {
+          "type": "ALL"
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "SLIDES_API791305781_4",
+        "insertionIndex": 0,
+        "text": "Proposed media post-capture landing page: review captured/imported media, inspect analysis and scene descriptions, edit Whisper caption drafts, title/cover, cuts and timing, save an editable project and export a reviewed reel. Existing website has synthetic project JSON, not real video export; earlier Android assembly evidence remains separate. Optional image-to-image generation edits only selected covers/stills with original-versus-edit review and creator approval. Dreamlite is the user's candidate label, not a verified checkpoint: exact model/link, license, runtime, memory, Android support and latency are unconfirmed. Keep originals. Any cloud media processing requires explicit authorization and must not be implied to run locally. This slide implements the stated interpretation of media post-landing page; it is a proposal, not a new running app screen."
+      }
+    },
+    {
+      "deleteText": {
+        "objectId": "p5:notes_i3",
+        "textRange": {
+          "type": "ALL"
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "p5:notes_i3",
+        "insertionIndex": 0,
+        "text": "Revised stack: Whisper tiny.en is the earlier measured English-only CPU speech-to-text baseline, via whisper.cpp, not a new integration. Whisper is transcription, not visual shot detection: https://github.com/openai/whisper. Moonshine remains a smaller streaming candidate needing separate Android evidence. Qwen3.5 0.8B is the intended multimodal director with a matching vision projector and sparse-frame inputs, https://huggingface.co/Qwen/Qwen3.5-0.8B. Kokoro 82M remains a proposed TTS alternative, https://huggingface.co/hexgrad/Kokoro-82M; existing cue audio evidence uses Android offline TTS. Prepare the plan separately from deterministic countdown/Cut timing. The full STT/VLM/TTS loop, camera concurrency, earbud playback and matched iQOO/NPU performance remain unmeasured. No new model download or execution was performed for this slide edit. Sources: docs/local-director-benchmark.md, docs/local-ai-evidence.md, design/speech-models.md."
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "p7"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "p6"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "mf7_media_workspace"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "p5"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "p4"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "mf7_reference_analysis"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "p3"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "p2"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateSlidesPosition": {
+        "slideObjectIds": [
+          "p1"
+        ],
+        "insertionIndex": 0
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "04\n",
+          "matchCase": true
+        },
+        "replaceText": "05\n",
+        "pageObjectIds": [
+          "p4"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "05\n",
+          "matchCase": true
+        },
+        "replaceText": "06\n",
+        "pageObjectIds": [
+          "p5"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "04\n",
+          "matchCase": true
+        },
+        "replaceText": "07\n",
+        "pageObjectIds": [
+          "mf7_media_workspace"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "06\n",
+          "matchCase": true
+        },
+        "replaceText": "08\n",
+        "pageObjectIds": [
+          "p6"
+        ]
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "07\n",
+          "matchCase": true
+        },
+        "replaceText": "09\n",
+        "pageObjectIds": [
+          "p7"
+        ]
+      }
+    }
+  ]
+}
