@@ -36,9 +36,9 @@ No new packages or fonts are needed. Set `MINIFILM_DECK_SUFFIX` to a new version
 so final exports remain separate. `MINIFILM_WORKSPACE` optionally selects a checkout.
 
 `links.json` holds the public prototype, walkthrough, YouTube and GitHub URLs.
-Empty links appear as publication placeholders until the account owner completes
-hosting. Replace them and rebuild before publishing the deck as the final linked
-submission attachment. `render-pdf.py VERSION` wraps the latest inspected slide
+Revision 6 includes all four public URLs supplied by the publishing agent. The
+Google Slides conversion and external hosting acceptance remain separate checks.
+`render-pdf.py VERSION` wraps the latest inspected slide
 previews in a PDF. Generated crops, previews, validation reports and draft exports
 stay ignored, separate from final outputs.
 
@@ -46,7 +46,10 @@ stay ignored, separate from final outputs.
 
 The local seven-slide deck passed structural, layout, seven-slide, native-table,
 font policy and first-party reimport checks with zero findings and zero warnings
-in revision 5. All slides were rendered and visually inspected. Earlier draft
+in revisions 5 and 6. All slides were rendered and visually inspected. Earlier draft
 issues with runtime settings, screenshot crops, connector direction and caption
 spacing were repaired. The PDF's seven pages were rendered separately for review.
-No native PowerPoint or Google Slides acceptance is claimed by these local checks.
+Revision 6 retains four exact hyperlinks in both the PPTX and PDF, verified from
+their final package relationships and PDF link annotations. The changed closing
+slide and its PDF page were individually inspected. No native PowerPoint or
+Google Slides acceptance is claimed by these local checks.

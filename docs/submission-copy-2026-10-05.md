@@ -1,10 +1,11 @@
 # Mini Film Director — Phase 1 form copy
 
-Prepared **5 October 2026 (IST)** for creator review. No form submission, account
-change, upload or publication was performed by this writing task. Track for this
-revision: **Open Innovation**, superseding the older draft's Productivity
-recommendation. These paragraphs are form-ready; the evidence notes below are
-internal context and should not be pasted into unrelated form fields.
+Prepared and submitted **5 October 2026 (IST)**. The parent publication task
+verified the dashboard's submitted status. Track: **Open Innovation**, superseding
+the older draft's Productivity recommendation. These paragraphs are the submitted
+copy; the evidence notes below are internal context and were not pasted into the
+form. The description additionally includes the public walkthrough and repository
+links listed in [the publication record](submission-publication-2026-10-05.md).
 
 ## Idea name
 
@@ -51,7 +52,7 @@ and a signed iPhone installation, and explored compact speech models and
 fixed-weight routing/RTL for local AI hardware. My published demo history
 includes OpenAI Eng Day Bangalore, OpenEnv/Meta at Scaler, Build Small, Micro1,
 and Gemini 3 hackathon project work. For Mini Film Director, I have run local
-LLM components on Android and prepared a separate reproducible CPU timing app.
+LLM components on Android and prepared a CPU timing app.
 
 ## What makes the team stand out
 

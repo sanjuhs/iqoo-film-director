@@ -1,5 +1,18 @@
 # Mini Film Director — research preparation
 
+## Published Phase 1 idea and design
+
+[Try the phone-shaped prototype](https://sanjuhs.github.io/iqoo-film-director/) ·
+[Replay the guided walkthrough](https://sanjuhs.github.io/iqoo-film-director/reference-demo.html) ·
+[Watch the narrated demo](https://youtu.be/YUfP7c_pOig) ·
+[Open the editable Google Slides deck](https://docs.google.com/presentation/d/13kmYRemUZdNRtpRoBeaoFUkAgn4maZBF2vsHzhPQGgA/edit).
+
+The iQOO Phase 1 idea was submitted under **Open Innovation** on 5 October 2026.
+The website simulates the interaction with synthetic sample shots. Existing
+Android results are separate preparation evidence; the complete live phone
+workflow and matched iQOO performance remain to be validated. All current source
+is disclosed pre-event research, not event-written competition code.
+
 An Android multicamera film director for solo creators: understand an opt-in
 spoken brief, suggest poses and framing, coordinate phone/drone and optional
 Action 4 shots, review coverage and propose an editable video. Daily fashion reels

@@ -3,6 +3,29 @@
 Updated 5 October 2026 (IST). The user authorized archiving FocusPilot, removing
 its files from this workspace and proceeding with the DJI Mini film director.
 
+## 5 October — Phase 1 submitted and design published
+
+The creator authorized publishing the demo/deck, making the reviewed repository
+public, pushing source and completing the iQOO dashboard. The dashboard confirmed
+**Your idea is submitted**, under **Open Innovation**, with Android **Intermediate**
+and LLM **Deployed local LLMs on-device**. Prior projects use evidenced copy;
+pre-event code is disclosed. See [the submission and publication record](submission-publication-2026-10-05.md).
+
+The narrated 1:43 guided demo is published unlisted on the creator's YouTube
+channel. The seven-slide native Google Slides deck is shared to anyone with the
+link as Viewer. Native readback and seven-page exported-PDF visual inspection
+passed. The connector PDF materialization failed; supported browser export
+provided the native deck for review. GitHub Pages deployment passed, and both
+public prototype and interactive walkthrough returned HTTP200 and loaded in the
+browser. The source is pushed; private backups, weights, keys and account captures
+remain ignored. No phone replacement/installation or new model timing occurred.
+
+New retained video/deck outputs add approximately34 MB plus synthetic source
+assets. Qualified retained project/cache/archive storage is approximately10.8 GB,
+below15 GB and above the10 GB aim because the phone backup remains preserved.
+No new dependencies/models/SDKs were downloaded. This is an incremental estimate,
+with the earlier archive/cache reserve and missing historical archive qualification.
+
 ## 5 October — phone-shaped design workshop
 
 ### Revision 6 — replayable reference-to-shoot demonstration
